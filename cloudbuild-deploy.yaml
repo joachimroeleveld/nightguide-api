@@ -1,0 +1,19 @@
+steps:
+- name: 'eu.gcr.io/$PROJECT_ID/common-node-cloud-function:latest'
+  entrypoint: bash
+  args:
+    - '-c'
+    - |
+      make secret-decrypt env=${_ENV}
+      cat .config/secret/secret.env .config/${_ENV}.env > .env
+
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install']
+
+- name: 'eu.gcr.io/$PROJECT_ID/common-node-cloud-function:latest'
+  entrypoint: '/bin/bash'
+  timeout: 600s
+  args:
+    - '-c'
+    - |
+      make appengine-deploy version=${SHORT_SHA} env=${_ENV}

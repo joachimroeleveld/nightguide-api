@@ -1,0 +1,457 @@
+openapi: 3.0.0
+info:
+  title: NightGuide API
+  version: 0.1.0
+servers:
+  - url: https://nightguide.app/api
+
+paths:
+  /health:
+    get:
+      summary: Check health.
+      operationId: checkHealth
+      tags:
+        - health
+      responses:
+        '200':
+          description: Status OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: ['ok']
+                required:
+                  - status
+  /users:
+    post:
+      summary: Create a user.
+      operationId: createUser
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - type: object
+                  required:
+                    - password
+                  properties:
+                    password:
+                      type: string
+                - $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users/{userId}:
+    get:
+      summary: Get a user.
+      operationId: getUser
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: User ID.
+      responses:
+        '200':
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users/login:
+    post:
+      summary: Login as a user.
+      operationId: login
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                required:
+                  - token
+                  - user
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users/{userId}/verify-account:
+    get:
+      summary: Verify a user account
+      operationId: verifyUser
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: User ID.
+        - in: query
+          name: token
+          schema:
+            type: string
+          required: true
+          description: Verification token.
+      responses:
+        '200':
+          description: Account verification page.
+          content:
+            text/html:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users/{userId}/resend-verification-token:
+    post:
+      summary: Resend an account verification email
+      operationId: resendVerificationToken
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: User ID.
+        - in: query
+          name: token
+          schema:
+            type: string
+          required: true
+          description: Verification token.
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          description: Account has already been verified.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users/{userId}/send-password-reset:
+    post:
+      summary: Send password reset email
+      operationId: sendPasswordReset
+      tags:
+        - users
+      parameters:
+      - in: path
+        name: userId
+        schema:
+          type: string
+        required: true
+        description: User ID.
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /users/{userId}/reset-password:
+    get:
+      summary: Reset password page
+      operationId: resetPasswordPage
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: User ID.
+        - in: query
+          name: token
+          schema:
+            type: string
+          required: true
+          description: Password reset token.
+      responses:
+        '200':
+          description: Password reset page.
+          content:
+            text/html:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      summary: Reset password
+      operationId: resetPassword
+      tags:
+        - users
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: string
+          required: true
+          description: User ID.
+        - in: query
+          name: token
+          schema:
+            type: string
+          required: true
+          description: Verification token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - password
+              properties:
+                password:
+                  type: string
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /venues:
+    post:
+      summary: Create a venue.
+      operationId: createVenue
+      tags:
+        - venues
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+      responses:
+        '201':
+          description: Venue created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /venues/{venueId}/images:
+    post:
+      summary: Create a venue image.
+      operationId: createVenueImage
+      tags:
+        - venues
+      parameters:
+        - in: path
+          name: venueId
+          schema:
+            type: string
+          required: true
+          description: Venue ID.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Image uploaded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VenueImage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+components:
+  responses:
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadRequest:
+      description: The request did not satisfy the requirements
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Success:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              success:
+                type: boolean
+            required:
+              - success
+  schemas:
+    Venue:
+      type: object
+      required:
+        - name
+        - category
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+    VenueImage:
+      type: object
+      required:
+        - id
+        - filename
+        - filetype
+        - filesize
+        - url
+      properties:
+        id:
+          type: string
+          description: UUIDv4 image ID (also part of filename).
+        filename:
+          type: string
+        filetype:
+          type: string
+          description: Image's MIME type.
+        filesize:
+          type: number
+        url:
+          type: string
+          description: Serveable image URL.
+    User:
+      type: object
+      required:
+        - email
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+          format: email
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      properties:
+        status:
+          type: number
+        message:
+          type: string
+      required:
+        - status
+        - message

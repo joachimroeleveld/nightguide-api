@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <title>NightGuide account verified</title>
+  </head>
+  <body>
+    <style>
+      html, body {
+        background: #1f1f1f;
+        font-family: 'Helvetica Neue', Helvetica, Arial;
+      }
+      h1 {
+        color: #fff;
+        margin-top: 2em;
+      }
+      main {
+        max-width: 860px;
+        padding: 1em;
+        margin: 0 auto;
+      }
+      button {
+        background: none;
+        border: none;
+        background: #2BAADF;
+        color: #fff;
+        padding: 1em;
+        margin: 1em 0;
+        border-radius: 2px;
+        font-size: 1rem;
+      }
+    </style>
+    <main>
+      <p>
+        <img alt="NightGuide logo" src="https://storage.googleapis.com/static.nightguide.app/logo-184x97.png" width="183" style="max-width:183px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
+      </p>
+      <p>
+        {{#unless expired}}
+          <h1>Your account has been verified</h1>
+        {{/unless}}
+        {{#if expired}}
+          <h1>The token has expired</h1>
+          <button id="resend-token">Send me a new token</button>
+
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+          <script>
+            (function($) {
+              let loading = false;
+
+              $('#resend-token').click(function() {
+                if (loading) return;
+
+                loading = true;
+                const $button = $(this);
+
+                $.post('{{{resendTokenUrl}}}')
+                  .done(function() {
+                    $('h1').text('A new verification token has been sent');
+                    $button.remove();
+                  })
+                  .fail(function() {
+                    $('h1').text('Something went wrong, try again');
+                    loading = false;
+                  });
+              });
+            })(jQuery)
+          </script>
+        {{/if}}
+      </p>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,56 @@
+{
+  "name": "nightguide-api",
+  "version": "0.1.0",
+  "main": "src/server.js",
+  "private": true,
+  "engines": {
+    "node": ">=8"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "prettier": "prettier --write \"{{src,scripts}/**/*.js\"}",
+    "test-unit": "jest --config jest.unit.config.js",
+    "test-e2e": "jest --runInBand --config jest.e2e.config.js",
+    "test-integration": "jest --runInBand --config jest.integration.config.js",
+    "test-code-coverage": "jest --runInBand --config jest.coverage.config.js",
+    "test": "npm run-script lint && npm run-script test-code-coverage",
+    "start": "node ./src/server.js",
+    "start-dev": "nodemon $NODE_DEBUG_OPTION ./src/server.js",
+    "update-js-cient": "bash scripts/update-js-client.sh"
+  },
+  "dependencies": {
+    "@google-cloud/debug-agent": "^3.0.0",
+    "@google-cloud/storage": "^2.1.0",
+    "@sendgrid/mail": "^6.3.1",
+    "compose-middleware": "^5.0.0",
+    "date-fns": "^1.29.0",
+    "dotenv": "^6.1.0",
+    "dotenv-flow": "^0.1.0",
+    "express": "^4.16.4",
+    "express-bearer-token": "^2.2.0",
+    "express-openapi-validate": "^0.4.4",
+    "googleapis": "^27.0.0",
+    "hbs": "^4.0.1",
+    "http-status": "^1.2.0",
+    "install": "^0.12.2",
+    "js-yaml": "^3.12.0",
+    "jsonwebtoken": "^8.3.0",
+    "lodash": "^4.17.11",
+    "mandrill-api": "^1.0.45",
+    "mongoose": "^5.3.4",
+    "multer": "^1.4.0",
+    "npm": "^6.4.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.2",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "eslint": "^5.7.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "jest": "^23.6.0",
+    "nodemon": "^1.18.4",
+    "prettier": "^1.14.3",
+    "sinon": "^7.0.0",
+    "supertest": "^3.3.0"
+  }
+}

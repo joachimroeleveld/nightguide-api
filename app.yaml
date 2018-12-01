@@ -1,0 +1,21 @@
+service: default
+
+runtime: nodejs
+env: flex
+
+skip_files:
+- .env
+
+liveness_check:
+  path: "/health"
+
+readiness_check:
+  path: "/health"
+
+beta_settings:
+  cloud_sql_instances: # Populated by Cloudbuild
+
+resources:
+  cpu: 1
+  memory_gb: 0.5
+  disk_size_gb: 10

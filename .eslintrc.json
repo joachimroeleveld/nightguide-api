@@ -1,0 +1,17 @@
+{
+  "plugins": [
+    "prettier"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
+  "env": {
+    "es6": true,
+    "browser": false,
+    "mocha": true,
+    "node": true
+  },
+  "rules": {
+    "prettier/prettier": "error"
+  }
+}
