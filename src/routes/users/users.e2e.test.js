@@ -1,9 +1,11 @@
 require('../../shared/__test__/testBootstrap');
 
+const addSeconds = require('date-fns/add_seconds');
 const request = require('supertest');
 const sinon = require('sinon');
 
 const validator = require('../../shared/validator');
+const FacebookApi = require('../../shared/services/facebook');
 const userRepository = require('./userRepository');
 const User = require('./userModel');
 const { TEST_USER_1, TEST_USER_2 } = require('../../shared/__test__/fixtures');
@@ -38,10 +40,10 @@ describe('users e2e', () => {
         .post('/users')
         .send(TEST_USER_1);
 
-      const user = await userRepository.getUserByEmail(
+      const user = (await userRepository.getUserByEmail(
         TEST_USER_1.email,
         '+verificationToken'
-      );
+      )).toObject();
 
       expect(user.verificationToken).toBeTruthy();
     });
@@ -161,6 +163,99 @@ Object {
     });
   });
 
+  describe('POST /users/login-fb', () => {
+    const validateResponse = validator.validateResponse(
+      'post',
+      '/users/login-fb'
+    );
+
+    const email = 'nonexistent@user.com';
+    const tokenExpires = addSeconds(new Date(), '3600');
+    const permissions = ['public_profile'];
+    const dummyAccessToken = 'dummyAccessToken';
+    const dummyExchangeToken = 'dummyAccessToken';
+    const fbUserId = '12345';
+    const dummyPayload = {
+      token: dummyExchangeToken,
+      permissions: permissions,
+      userId: fbUserId,
+    };
+
+    it('happy path', async () => {
+      const user = await userRepository.createUser(TEST_USER_1);
+
+      sandbox.stub(FacebookApi.prototype, 'getAccessToken').resolves({});
+      sandbox.stub(FacebookApi.prototype, 'getMe').resolves({
+        email: user.email,
+      });
+
+      const res = await request(global.app)
+        .post('/users/login-fb')
+        .send(dummyPayload);
+
+      expect(res.status).toEqual(200);
+      expect(res.body.user).toMatchInlineSnapshot(
+        {
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+        `
+Object {
+  "createdAt": Any<String>,
+  "email": "foo@bar.nl",
+  "id": "5c001cac8e84e1067f34695c",
+  "updatedAt": Any<String>,
+}
+`
+      );
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('creates a user if no user exists for the email address', async () => {
+      sandbox.stub(FacebookApi.prototype, 'getAccessToken').resolves({
+        accessToken: dummyAccessToken,
+        expiresIn: tokenExpires,
+      });
+      sandbox.stub(FacebookApi.prototype, 'getMe').resolves({
+        email: 'nonexistent@user.com',
+      });
+
+      const res = await request(global.app)
+        .post('/users/login-fb')
+        .send(dummyPayload);
+
+      const user = (await userRepository.getUserByEmail(
+        email,
+        '+facebook.token +password'
+      )).toObject();
+
+      expect(user.email).toEqual(email);
+      expect(user.password).toBeUndefined();
+      expect(user.facebook.tokenExpires.getTime()).toEqual(
+        tokenExpires.getTime()
+      );
+      expect(user.facebook).toMatchObject({
+        token: dummyAccessToken,
+        permissions: permissions,
+        userId: fbUserId,
+        tokenExpires: expect.any(Date),
+      });
+      expect(res.status).toEqual(200);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('returns 401 when the access token request fails', async () => {
+      sandbox.stub(FacebookApi.prototype, '_apiRequest').throws();
+
+      const res = await request(global.app)
+        .post('/users/login-fb')
+        .send(dummyPayload);
+
+      expect(validateResponse(res)).toBeUndefined();
+      expect(res.status).toEqual(401);
+    });
+  });
+
   describe('GET /users/:userId/verify-account', () => {
     const validateResponse = validator.validateResponse(
       'get',
@@ -174,10 +269,10 @@ Object {
         `/users/${user._id}/verify-account?token=${user.verificationToken}`
       );
 
-      const updatedUser = await userRepository.getUserById(
+      const updatedUser = (await userRepository.getUserById(
         user._id,
         '+verificationToken'
-      );
+      )).toObject();
 
       expect(res.status).toEqual(200);
       expect(validateResponse(res)).toBeUndefined();

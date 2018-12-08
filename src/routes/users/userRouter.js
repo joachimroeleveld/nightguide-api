@@ -5,6 +5,7 @@ const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const {
   createUser,
   login,
+  loginFb,
   getUserById,
   verifyAccount,
   sendPasswordReset,
@@ -55,6 +56,23 @@ router.post(
   validator.validate('post', '/users/login'),
   asyncMiddleware(async (req, res) => {
     const { token, user } = await login(req.body.email, req.body.password);
+
+    res.json({
+      token,
+      user: user.sanitize(),
+    });
+  })
+);
+
+router.post(
+  '/login-fb',
+  validator.validate('post', '/users/login-fb'),
+  asyncMiddleware(async (req, res) => {
+    const { token, user } = await loginFb({
+      exchangeToken: req.body.token,
+      permissions: req.body.permissions,
+      userId: req.body.userId,
+    });
 
     res.json({
       token,

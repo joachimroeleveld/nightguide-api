@@ -128,6 +128,49 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /users/login-fb:
+    post:
+      summary: Login a user in with Facebook credentials.
+      operationId: loginFb
+      tags:
+        - users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - permissions
+                - userId
+              properties:
+                token:
+                  type: string
+                permissions:
+                  type: array
+                userId:
+                  type: string
+      responses:
+        '200':
+          description: Login successful.
+          content:
+            application/json:
+              schema:
+                required:
+                  - token
+                  - user
+                properties:
+                  token:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /users/{userId}/verify-account:
     get:
       summary: Verify a user account

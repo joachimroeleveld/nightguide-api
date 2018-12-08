@@ -24,8 +24,16 @@ const UserSchema = new Schema(
     },
     password: {
       type: String,
-      required: true,
       select: false,
+    },
+    facebook: {
+      token: {
+        type: String,
+        select: false,
+      },
+      tokenExpires: Date,
+      permissions: Array,
+      userId: String,
     },
     salt: {
       type: String,
@@ -67,7 +75,7 @@ UserSchema.pre('save', async function(cb) {
     user.password = await hashPassword(user.password, user.salt);
   }
 
-  if (user.isNew) {
+  if (user.isNew && !!user.password) {
     user.verificationToken = user.signJwt({}, '1h');
     await user.sendVerificationEmail().catch(e => {
       console.error('Error sending verification mail:', e.message);
@@ -148,6 +156,7 @@ UserSchema.method('sanitize', function() {
   delete user.role;
   delete user.passwordResetToken;
   delete user.verificationToken;
+  delete user.facebook;
 
   return user;
 });

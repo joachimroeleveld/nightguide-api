@@ -7,6 +7,7 @@ const {
   TokenExpiredError,
   PreconditionFailedError,
 } = require('../../shared/errors');
+const FacebookApi = require('../../shared/services/facebook');
 
 exports.createUser = async (data, verified = false) => {
   const user = await User.create(data);
@@ -61,9 +62,7 @@ exports.verifyAccount = async (userId, token) => {
 };
 
 exports.login = async (email, password, extraTokenPayload = {}) => {
-  const user = await User.findOne({ email })
-    .select('+salt +password')
-    .exec();
+  const user = await exports.getUserByEmail(email, '+salt +password');
 
   if (!user) {
     throw new NotFoundError('user_not_found');
@@ -83,6 +82,37 @@ exports.login = async (email, password, extraTokenPayload = {}) => {
   return {
     token,
     user,
+  };
+};
+
+exports.loginFb = async ({ exchangeToken, permissions, userId }) => {
+  const fbApi = new FacebookApi();
+  const { accessToken, expiresIn } = await fbApi.getAccessToken(exchangeToken);
+  const { email } = await fbApi.getMe(['email']);
+
+  let user = await exports.getUserByEmail(email);
+
+  if (!user) {
+    // Create a user with the data from Facebook
+    user = await exports.createUser(
+      {
+        email: email,
+        facebook: {
+          token: accessToken,
+          tokenExpires: expiresIn,
+          permissions,
+          userId,
+        },
+      },
+      true
+    );
+  }
+
+  const token = user.signJwt();
+
+  return {
+    user,
+    token,
   };
 };
 
