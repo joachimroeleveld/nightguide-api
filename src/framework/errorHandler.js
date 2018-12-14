@@ -15,10 +15,11 @@ function handle(res, error, next) {
     return next(error);
   }
 
-  const { message, statusCode } = _resolvePublicError(error);
+  const { type, message, statusCode } = _resolvePublicError(error);
   const response = {
-    message,
     status: statusCode,
+    type,
+    message,
   };
 
   if (!config.isProduction && error.stack) {
@@ -34,7 +35,7 @@ function _resolvePublicError(internalError) {
   }
 
   if (internalError instanceof ValidationError) {
-    return new InvalidArgumentError(internalError.message);
+    return new InvalidArgumentError('validation_error', internalError.message);
   }
 
   return new ServerError();

@@ -493,8 +493,13 @@ components:
       properties:
         status:
           type: number
+          description: HTTP status code
+        type:
+          type: string
+          description: Error identifier
         message:
           type: string
+          description: Human-readable error description
       required:
         - status
-        - message
+        - type

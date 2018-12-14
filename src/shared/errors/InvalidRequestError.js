@@ -5,12 +5,8 @@ const PublicError = require('./PublicError');
  * This error is thrown when client has specified invalid arguments for the request
  */
 class InvalidRequestError extends PublicError {
-  /**
-   *
-   * @param {string} [message] - text description of the error
-   */
-  constructor(message = 'Invalid request') {
-    super(BAD_REQUEST, message);
+  constructor(type = 'invalid_request', message = 'Invalid request') {
+    super(BAD_REQUEST, type, message);
   }
 }
 

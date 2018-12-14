@@ -5,13 +5,9 @@
  * @extends {Error}
  */
 class PublicError extends Error {
-  /**
-   *
-   * @param {number} status - status code
-   * @param {string} message - text description of the error
-   */
-  constructor(status, message) {
+  constructor(status, type, message) {
     super(message);
+    this.type = type;
     this.statusCode = status;
   }
 }

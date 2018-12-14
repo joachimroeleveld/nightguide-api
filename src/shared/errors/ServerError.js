@@ -5,12 +5,8 @@ const PublicError = require('./PublicError');
  * This error is thrown when unrecognized internal error has occurred
  */
 class ServerError extends PublicError {
-  /**
-   *
-   * @param {string} [message] - text description of the error
-   */
-  constructor(message = 'Internal error') {
-    super(INTERNAL_SERVER_ERROR, message);
+  constructor(type = 'server_error', message = 'Internal error') {
+    super(INTERNAL_SERVER_ERROR, type, message);
   }
 }
 
