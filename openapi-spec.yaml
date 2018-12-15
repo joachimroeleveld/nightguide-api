@@ -239,19 +239,23 @@ paths:
                 $ref: '#/components/schemas/Error'
         '500':
           $ref: '#/components/responses/ServerError'
-  /users/{userId}/send-password-reset:
+  /users/send-password-reset:
     post:
       summary: Send password reset email
       operationId: sendPasswordReset
       tags:
         - users
-      parameters:
-      - in: path
-        name: userId
-        schema:
-          type: string
+      requestBody:
         required: true
-        description: User ID.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
       responses:
         200:
           $ref: '#/components/responses/Success'

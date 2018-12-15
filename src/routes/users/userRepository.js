@@ -136,8 +136,8 @@ exports.resendVerificationToken = async userId => {
   return Promise.all([userSave, mail]);
 };
 
-exports.sendPasswordReset = async userId => {
-  const user = await exports.getUserById(userId, '+passwordResetToken');
+exports.sendPasswordReset = async email => {
+  const user = await exports.getUserByEmail(email, '+passwordResetToken');
 
   if (!user) {
     throw new NotFoundError();

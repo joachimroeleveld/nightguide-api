@@ -334,23 +334,25 @@ Object {
     });
   });
 
-  describe('POST /users/:userId/send-password-reset', () => {
+  describe('POST /users/send-password-reset', () => {
     const validateResponse = validator.validateResponse(
       'post',
-      '/users/{userId}/send-password-reset'
+      '/users/send-password-reset'
     );
 
     it('happy path', async () => {
       const user = new User(TEST_USER_1);
 
       sandbox.stub(user, 'signJwt').returns('testtoken');
-      sandbox.stub(userRepository, 'getUserById').resolves(user);
+      sandbox.stub(userRepository, 'getUserByEmail').resolves(user);
 
       sandbox.stub(mailService, 'sendBasicEmail').resolves();
 
-      const res = await request(global.app).post(
-        `/users/${user._id}/send-password-reset`
-      );
+      const res = await request(global.app)
+        .post(`/users/send-password-reset`)
+        .send({
+          email: user.email,
+        });
 
       expect(res.status).toEqual(200);
       expect(mailService.sendBasicEmail.getCall(0).args).toMatchSnapshot();

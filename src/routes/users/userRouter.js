@@ -117,10 +117,10 @@ router.post(
 );
 
 router.post(
-  '/:userId/send-password-reset',
-  validator.validate('post', '/users/{userId}/send-password-reset'),
+  '/send-password-reset',
+  validator.validate('post', '/users/send-password-reset'),
   asyncMiddleware(async (req, res) => {
-    await sendPasswordReset(req.params.userId);
+    await sendPasswordReset(req.body.email);
 
     res.json({ success: true });
   })
