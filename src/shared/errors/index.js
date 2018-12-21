@@ -6,6 +6,7 @@ const UnauthorizedError = require('./UnauthorizedError');
 const PreconditionFailedError = require('./PreconditionFailedError');
 const InvalidRequestError = require('./InvalidRequestError');
 const TokenExpiredError = require('./TokenExpiredError');
+const ConflictError = require('./ConflictError');
 
 module.exports = {
   InvalidArgumentError,
@@ -16,4 +17,5 @@ module.exports = {
   PreconditionFailedError,
   InvalidRequestError,
   TokenExpiredError,
+  ConflictError,
 };

@@ -6,10 +6,16 @@ const {
   NotFoundError,
   TokenExpiredError,
   PreconditionFailedError,
+  ConflictError,
 } = require('../../shared/errors');
 const FacebookApi = require('../../shared/services/facebook');
 
 exports.createUser = async (data, verified = false) => {
+  const existingUser = await exports.getUserByEmail(data.email);
+  if (existingUser) {
+    throw new ConflictError('email_exists');
+  }
+
   const user = await User.create(data);
 
   if (verified) {

@@ -27,7 +27,12 @@ function createExpressApp() {
 
     // catch 404 and forward to error handler
     app.use((req, res, next) => {
-      next(new NotFoundError(`Not Found: ${req.method} ${req.originalUrl}`));
+      next(
+        new NotFoundError(
+          'not_found',
+          `Not Found: ${req.method} ${req.originalUrl}`
+        )
+      );
     });
 
     app.use(middleware.handleError());

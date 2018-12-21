@@ -43,6 +43,7 @@ paths:
                   properties:
                     password:
                       type: string
+                      minLength: 6
                 - $ref: '#/components/schemas/User'
       responses:
         '201':
@@ -53,6 +54,8 @@ paths:
                 $ref: '#/components/schemas/User'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '500':
@@ -428,6 +431,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
+    ConflictError:
+      description: Conflict
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
     Success:
       description: Success
       content:
@@ -486,6 +495,16 @@ components:
         email:
           type: string
           format: email
+        firstName:
+          type: string
+        lastName:
+          type: string
+        gender:
+          type: string
+          enum: ['male', 'female', 'other']
+        birthday:
+          type: string
+          format: date
         createdAt:
           type: string
           format: date-time

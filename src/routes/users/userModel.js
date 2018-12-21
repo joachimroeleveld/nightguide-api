@@ -2,15 +2,23 @@ const util = require('util');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const dateFns = require('date-fns');
 const Schema = mongoose.Schema;
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const mail = require('../../shared/services/mail');
-const { USER_ROLES } = require('../../shared/constants');
+const { USER_ROLES, USER_GENDER_TYPES } = require('../../shared/constants');
 
 const UserSchema = new Schema(
   {
+    firstName: String,
+    lastName: String,
+    birthday: Date,
+    gender: {
+      type: String,
+      enum: Object.values(USER_GENDER_TYPES),
+    },
     email: {
       type: String,
       unique: true,
@@ -147,6 +155,10 @@ You can verify your account by following <a href="${verifyUrl}" target="_blank">
 
 UserSchema.method('sanitize', function() {
   const user = this.toObject();
+
+  if (user.birthday) {
+    user.birthday = dateFns.format(user.birthday, 'YYYY-MM-DD');
+  }
 
   user.id = user._id;
   delete user._id;

@@ -57,6 +57,16 @@ describe('users e2e', () => {
 
       expect(mailService.sendBasicEmail.called).toBe(true);
     });
+
+    it('should send a 409 if the user email already exists', async () => {
+      await userRepository.createUser(TEST_USER_1, true);
+
+      const res = await request(global.app)
+        .post('/users')
+        .send(TEST_USER_1);
+
+      expect(res.status).toEqual(409);
+    });
   });
 
   describe('GET /users/{userId}', () => {
@@ -78,9 +88,13 @@ describe('users e2e', () => {
         },
         `
 Object {
+  "birthday": "1995-10-04",
   "createdAt": Any<String>,
-  "email": "foo@bar.nl",
+  "email": "alice@rogers.nl",
+  "firstName": "Alice",
+  "gender": "female",
   "id": "5c001cac8e84e1067f34695c",
+  "lastName": "Rogers",
   "updatedAt": Any<String>,
 }
 `
@@ -119,20 +133,10 @@ Object {
         });
 
       expect(res.status).toEqual(200);
-      expect(res.body.user).toMatchInlineSnapshot(
-        {
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        },
-        `
-Object {
-  "createdAt": Any<String>,
-  "email": "foo@bar.nl",
-  "id": "5c001cac8e84e1067f34695c",
-  "updatedAt": Any<String>,
-}
-`
-      );
+      expect(res.body.user).toMatchSnapshot({
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      });
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -194,20 +198,10 @@ Object {
         .send(dummyPayload);
 
       expect(res.status).toEqual(200);
-      expect(res.body.user).toMatchInlineSnapshot(
-        {
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        },
-        `
-Object {
-  "createdAt": Any<String>,
-  "email": "foo@bar.nl",
-  "id": "5c001cac8e84e1067f34695c",
-  "updatedAt": Any<String>,
-}
-`
-      );
+      expect(res.body.user).toMatchSnapshot({
+        createdAt: expect.any(String),
+        updatedAt: expect.any(String),
+      });
       expect(validateResponse(res)).toBeUndefined();
     });
 

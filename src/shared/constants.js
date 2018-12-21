@@ -5,6 +5,12 @@ const USER_ROLES = {
   ROLE_ADMIN: 'admin',
 };
 
+const USER_GENDER_TYPES = {
+  GENDER_MALE: 'male',
+  GENDER_FEMALE: 'female',
+  GENDER_OTHER: 'other',
+};
+
 const VENUE_CATEGORIES = {
   CATEGORY_LOUNGE: 'lounge',
 };
@@ -45,4 +51,5 @@ module.exports = {
   TAG_TYPES,
   VENUE_DOORPOLICIES,
   PAYMENT_METHODS,
+  USER_GENDER_TYPES,
 };
