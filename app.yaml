@@ -12,9 +12,6 @@ liveness_check:
 readiness_check:
   path: "/health"
 
-beta_settings:
-  cloud_sql_instances: # Populated by Cloudbuild
-
 resources:
   cpu: 1
   memory_gb: 0.5
