@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-dotenv.config({ path: '.env.test' });
+dotenv.load();
 
 const mongoose = require('mongoose');
 
@@ -21,7 +21,7 @@ beforeAll(cb => {
   mongoose
     .connect(
       process.env.MONGO_URI,
-      { useNewUrlParser: true }
+      { useNewUrlParser: true, dbName: 'main-test' }
     )
     .then(() => cb())
     .catch(err => cb(err));

@@ -1,5 +1,4 @@
-### Update JS client
+# Running tests
 
-```bash
-npm run-script update-js-cient $VERSION
-```
+  1. Run `docker-compose up`
+  2. Run `npm test`

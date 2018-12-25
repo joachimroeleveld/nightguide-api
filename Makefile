@@ -14,7 +14,10 @@ include make/appengine.mk
 
 setup: | config-set config-auth sa-setup
 
-config-auth:
+config-auth-sa:
+	gcloud auth activate-service-account --key-file .config/secret/gcloud-key.json
+
+config-auth-login:
 	gcloud auth login
 	gcloud auth application-default login
 

@@ -1,0 +1,28 @@
+steps:
+  # Decrypt secrets, authenticate gcloud and create .env
+  - name: 'gcr.io/nightguide-cloudbuild/docker-gcloud-make'
+    entrypoint: bash
+    args:
+      - '-c'
+      - |
+        make secret-decrypt env=${_ENV}
+        make config-auth-sa
+        cat .config/secret/secret.env .config/${_ENV}.env > .env
+        echo "MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin" >> .env
+
+    # Install dependencies
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['install']
+
+    # Add Cloudbuild network config to docker-compose file
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: '/bin/bash'
+    args: ['-c', 'printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml']
+
+    # Spin up MongoDB container for tests
+  - name: 'docker/compose:1.23.1'
+    args: ['up', '-d', 'mongo']
+
+    # Run tests
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['test']
