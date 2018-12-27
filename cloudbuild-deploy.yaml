@@ -8,7 +8,6 @@ steps:
       make secret-decrypt env=${_ENV}
       make config-auth-sa
       cat .config/secret/secret.env .config/${_ENV}.env > .env
-      echo "MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin" >> .env
 
   # Install dependencies
 - name: 'gcr.io/cloud-builders/npm'
@@ -26,6 +25,8 @@ steps:
   # Run tests
 - name: 'gcr.io/cloud-builders/npm'
   args: ['test']
+  env:
+  - 'MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin'
 
   # Deploy
 - name: 'gcr.io/nightguide-cloudbuild/docker-gcloud-make'
