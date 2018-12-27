@@ -3,16 +3,16 @@ dotenv.load();
 
 const mongoose = require('mongoose');
 
-const { isProduction } = require('./shared/config');
+const config = require('./shared/config');
 const routes = require('./routes');
 
-if (isProduction && !!process.env.DEBUG_AGENT_ENABLED) {
+if (config.getIsProduction() && !!config.get('DEBUG_AGENT_ENABLED')) {
   require('@google-cloud/debug-agent').start();
 }
 
 const { createExpressApp } = require('./framework/expressServer');
 
-const PORT = process.env.PORT || 8080;
+const PORT = config.get('PORT') || 8080;
 
 async function startServer() {
   const app = createExpressApp();
@@ -25,7 +25,7 @@ async function startServer() {
   // Await DB connection
   mongoose
     .connect(
-      process.env.MONGO_URI,
+      config.get('MONGO_URI'),
       { useNewUrlParser: true }
     )
     .then(() => {

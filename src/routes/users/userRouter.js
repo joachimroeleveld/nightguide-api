@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const { CREATED } = require('http-status');
 
+const config = require('../../shared/config');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const {
   createUser,
@@ -94,7 +95,7 @@ router.get(
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         renderArgs.expired = true;
-        renderArgs.resendTokenUrl = `${process.env.HOST}/users/${
+        renderArgs.resendTokenUrl = `${config.get('HOST')}/users/${
           req.params.userId
         }/resend-verification-token?token=${req.query.token}`;
       } else {
@@ -137,7 +138,7 @@ router.get(
     }
 
     const renderArgs = {
-      resetUrl: `${process.env.HOST}/users/${user._id}/reset-password?token=${
+      resetUrl: `${config.get('HOST')}/users/${user._id}/reset-password?token=${
         user.passwordResetToken
       }`,
     };

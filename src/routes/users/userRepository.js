@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+const config = require('../../shared/config');
 const User = require('./userModel');
 const {
   UnauthorizedError,
@@ -184,7 +185,7 @@ exports.resetPassword = async (userId, token, password) => {
 
 function verifyJwtExpiration(token) {
   return new Promise(resolve => {
-    jwt.verify(token, process.env.JWT_SECRET, err => {
+    jwt.verify(token, config.get('JWT_SECRET'), err => {
       resolve(!!err);
     });
   });

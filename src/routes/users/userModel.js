@@ -5,9 +5,11 @@ const jwt = require('jsonwebtoken');
 const dateFns = require('date-fns');
 const Schema = mongoose.Schema;
 
-const JWT_SECRET = process.env.JWT_SECRET;
-
 const mail = require('../../shared/services/mail');
+const config = require('../../shared/config');
+
+const JWT_SECRET = config.get('JWT_SECRET');
+
 const { USER_ROLES, USER_GENDER_TYPES } = require('../../shared/constants');
 
 const UserSchema = new Schema(
@@ -116,7 +118,7 @@ UserSchema.method('sendPasswordResetEmail', async function() {
     throw new Error('no_reset_token');
   }
 
-  const resetUrl = `${process.env.HOST}/users/${
+  const resetUrl = `${config.get('HOST')}/users/${
     user._id
   }/reset-password?token=${user.passwordResetToken}`;
 
@@ -138,7 +140,7 @@ UserSchema.method('sendVerificationEmail', async function() {
     throw new Error('no_verification_token');
   }
 
-  const verifyUrl = `${process.env.HOST}/users/${user._id}/verify?token=${
+  const verifyUrl = `${config.get('HOST')}/users/${user._id}/verify?token=${
     user.verificationToken
   }`;
 

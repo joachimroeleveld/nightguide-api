@@ -1,5 +1,7 @@
 const request = require('request-promise');
 const addSeconds = require('date-fns/add_seconds');
+
+const config = require('../config');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
 class FacebookApi {
@@ -16,8 +18,8 @@ class FacebookApi {
         uri: `/oauth/access_token`,
         qs: {
           grant_type: 'fb_exchange_token',
-          client_id: process.env.FACEBOOK_CLIENT_ID,
-          client_secret: process.env.FACEBOOK_CLIENT_SECRET,
+          client_id: config.get('FACEBOOK_CLIENT_ID'),
+          client_secret: config.get('FACEBOOK_CLIENT_SECRET'),
           fb_exchange_token: exchangeToken,
         },
       });

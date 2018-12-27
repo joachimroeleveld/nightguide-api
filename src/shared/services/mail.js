@@ -3,9 +3,11 @@ const path = require('path');
 const Handlebars = require('hbs');
 const sgMail = require('@sendgrid/mail');
 
+const config = require('../config');
+
 const hbs = Handlebars.create();
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+sgMail.setApiKey(config.get('SENDGRID_API_KEY'));
 
 const templateFile = fs.readFileSync(
   path.resolve(__dirname, '../templates/mail/basic.html'),

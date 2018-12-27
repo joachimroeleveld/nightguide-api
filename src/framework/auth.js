@@ -1,6 +1,7 @@
-const { getUserById } = require('../routes/users/userRepository');
 const jwt = require('jsonwebtoken');
 
+const config = require('../shared/config');
+const { getUserById } = require('../routes/users/userRepository');
 const { UnauthorizedError } = require('../shared/errors');
 
 function getUserFromToken(token) {
@@ -9,7 +10,7 @@ function getUserFromToken(token) {
       return reject(new UnauthorizedError('invalid_token'));
     }
 
-    jwt.verify(token, process.env.JWT_SECRET, async (err, decoded) => {
+    jwt.verify(token, config.get('JWT_SECRET'), async (err, decoded) => {
       if (err instanceof jwt.TokenExpiredError) {
         reject(new UnauthorizedError('token_expired'));
       } else if (err) {
