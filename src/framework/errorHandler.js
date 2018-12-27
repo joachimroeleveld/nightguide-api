@@ -22,7 +22,7 @@ function handle(res, error, next) {
     message,
   };
 
-  if (!config.isProduction && error.stack) {
+  if (!config.getIsProduction() && error.stack) {
     response.stack = error.stack;
   }
 
