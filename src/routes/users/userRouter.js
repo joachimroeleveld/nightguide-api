@@ -88,6 +88,7 @@ router.get(
   asyncMiddleware(async (req, res) => {
     const renderArgs = {
       expired: false,
+      staticUrl: config.get('STATIC_URL'),
     };
 
     try {
@@ -141,6 +142,7 @@ router.get(
       resetUrl: `${config.get('HOST')}/users/${user._id}/reset-password?token=${
         user.passwordResetToken
       }`,
+      staticUrl: config.get('STATIC_URL'),
     };
 
     res.render('pages/reset-password', renderArgs);
