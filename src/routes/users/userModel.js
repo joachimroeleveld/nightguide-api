@@ -37,13 +37,16 @@ const UserSchema = new Schema(
       select: false,
     },
     facebook: {
-      token: {
-        type: String,
-        select: false,
+      type: {
+        token: {
+          type: String,
+          select: false,
+        },
+        tokenExpires: Date,
+        permissions: Array,
+        userId: String,
       },
-      tokenExpires: Date,
-      permissions: Array,
-      userId: String,
+      default: null,
     },
     salt: {
       type: String,

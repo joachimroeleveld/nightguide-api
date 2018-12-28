@@ -129,6 +129,12 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '412':
+          description: Invalid autentication type (account was created throught different authentication method)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           $ref: '#/components/responses/ServerError'
   /users/login-fb:
@@ -234,7 +240,7 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
-        '422':
+        '412':
           description: Account has already been verified.
           content:
             application/json:

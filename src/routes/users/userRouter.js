@@ -28,7 +28,15 @@ router.post(
   '/',
   validator.validate('post', '/users'),
   asyncMiddleware(async (req, res) => {
-    const user = await createUser(req.body);
+    const user = await createUser({
+      email: req.body.email,
+      password: req.body.password,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      birthday: req.body.birthday,
+      gender: req.body.gender,
+      role: req.body.role,
+    });
 
     res.status(CREATED).json(user.sanitize());
   })

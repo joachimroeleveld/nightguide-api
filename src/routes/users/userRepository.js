@@ -11,18 +11,26 @@ const {
 } = require('../../shared/errors');
 const FacebookApi = require('../../shared/services/facebook');
 
-exports.createUser = async (data, verified = false) => {
-  const existingUser = await exports.getUserByEmail(data.email);
-  if (existingUser) {
+exports.createUser = async (data, isVerified = false) => {
+  const existingUser = await exports.getUserByEmail(data.email, '+password');
+  if (existingUser && !!existingUser.password) {
     throw new ConflictError('email_exists');
   }
 
-  const user = await User.create(data);
+  let user;
+  if (!existingUser) {
+    user = await User.create(data);
+  } else if (!existingUser.password) {
+    Object.assign(existingUser, data);
+    user = await existingUser.save();
+  }
 
-  if (verified) {
+  if (isVerified) {
     user.verificationToken = null;
     await user.save();
   }
+
+  delete user.password;
 
   return user;
 };
@@ -45,6 +53,16 @@ exports.getUserByEmail = async (email, select) => {
   }
 
   return await query.exec();
+};
+
+exports.updateUser = async (query, update, options = {}) => {
+  const select = typeof query === 'string' ? { _id: query } : query;
+  const defaultedOptions = {
+    new: true,
+    ...options,
+  };
+
+  return await User.findOneAndUpdate(select, update, defaultedOptions).exec();
 };
 
 exports.verifyAccount = async (userId, token) => {
@@ -74,6 +92,9 @@ exports.login = async (email, password, extraTokenPayload = {}) => {
   if (!user) {
     throw new NotFoundError('user_not_found');
   }
+  if (!user.password) {
+    throw new PreconditionFailedError('invalid_auth_type');
+  }
   if (!!user.verificationToken) {
     throw new UnauthorizedError('user_not_verified');
   }
@@ -96,6 +117,12 @@ exports.loginFb = async ({ exchangeToken, permissions, userId }) => {
   const fbApi = new FacebookApi();
   const { accessToken, expiresIn } = await fbApi.getAccessToken(exchangeToken);
   const { email } = await fbApi.getMe(['email']);
+  const userFbData = {
+    token: accessToken,
+    tokenExpires: expiresIn,
+    permissions,
+    userId,
+  };
 
   let user = await exports.getUserByEmail(email);
 
@@ -104,15 +131,14 @@ exports.loginFb = async ({ exchangeToken, permissions, userId }) => {
     user = await exports.createUser(
       {
         email: email,
-        facebook: {
-          token: accessToken,
-          tokenExpires: expiresIn,
-          permissions,
-          userId,
-        },
+        facebook: userFbData,
       },
       true
     );
+  } else if (!user.facebook) {
+    user = await exports.updateUser(user._id, {
+      $set: { facebook: userFbData },
+    });
   }
 
   const token = user.signJwt();

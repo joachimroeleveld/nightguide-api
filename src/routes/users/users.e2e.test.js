@@ -8,12 +8,21 @@ const validator = require('../../shared/validator');
 const FacebookApi = require('../../shared/services/facebook');
 const userRepository = require('./userRepository');
 const User = require('./userModel');
-const { TEST_USER_1, TEST_USER_2 } = require('../../shared/__test__/fixtures');
+const {
+  TEST_USER_1,
+  TEST_USER_2,
+  TEST_USER_FACEBOOK_1,
+} = require('../../shared/__test__/fixtures');
 const { clearDb } = require('../../shared/__test__/testUtils');
 const mailService = require('../../shared/services/mail');
 const { mockAuth, restoreAuth } = require('../../shared/__test__/authMock');
 
 const sandbox = sinon.createSandbox();
+const USER_SNAPSHOT_MATCHER = {
+  id: expect.any(String),
+  createdAt: expect.any(String),
+  updatedAt: expect.any(String),
+};
 
 describe('users e2e', () => {
   afterEach(async () => {
@@ -28,10 +37,24 @@ describe('users e2e', () => {
       const res = await request(global.app)
         .post('/users')
         .send(TEST_USER_1);
-      const body = res.body;
 
       expect(res.status).toEqual(201);
-      expect(body.email).toEqual(TEST_USER_1.email);
+      expect(res.body).toMatchSnapshot(USER_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('updates the user if another authentication method was used before', async () => {
+      await userRepository.createUser(TEST_USER_FACEBOOK_1, true);
+
+      const res = await request(global.app)
+        .post('/users')
+        .send({
+          ...TEST_USER_1,
+          email: TEST_USER_FACEBOOK_1.email,
+        });
+
+      expect(res.status).toEqual(201);
+      expect(res.body).toMatchSnapshot(USER_SNAPSHOT_MATCHER);
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -82,10 +105,8 @@ describe('users e2e', () => {
 
       expect(res.status).toEqual(200);
       expect(res.body).toMatchInlineSnapshot(
-        {
-          createdAt: expect.any(String),
-          updatedAt: expect.any(String),
-        },
+        USER_SNAPSHOT_MATCHER,
+
         `
 Object {
   "birthday": "1995-10-04",
@@ -93,7 +114,7 @@ Object {
   "email": "alice@rogers.nl",
   "firstName": "Alice",
   "gender": "female",
-  "id": "5c001cac8e84e1067f34695c",
+  "id": Any<String>,
   "lastName": "Rogers",
   "updatedAt": Any<String>,
 }
@@ -133,10 +154,7 @@ Object {
         });
 
       expect(res.status).toEqual(200);
-      expect(res.body.user).toMatchSnapshot({
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-      });
+      expect(res.body.user).toMatchSnapshot(USER_SNAPSHOT_MATCHER);
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -164,6 +182,20 @@ Object {
 
       expect(validateResponse(res)).toBeUndefined();
       expect(res.status).toEqual(401);
+    });
+
+    it('returns 412 when account was created with different authentication method', async () => {
+      await userRepository.createUser(TEST_USER_FACEBOOK_1);
+
+      const res = await request(global.app)
+        .post('/users/login')
+        .send({
+          email: TEST_USER_FACEBOOK_1.email,
+          password: 'dummypass',
+        });
+
+      expect(validateResponse(res)).toBeUndefined();
+      expect(res.status).toEqual(412);
     });
   });
 
@@ -198,11 +230,29 @@ Object {
         .send(dummyPayload);
 
       expect(res.status).toEqual(200);
-      expect(res.body.user).toMatchSnapshot({
-        createdAt: expect.any(String),
-        updatedAt: expect.any(String),
-      });
+      expect(res.body.user).toMatchSnapshot(USER_SNAPSHOT_MATCHER);
       expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('adds facebook data if a different authentication method was used before', async () => {
+      const user = await userRepository.createUser(TEST_USER_1);
+
+      sandbox.stub(FacebookApi.prototype, 'getAccessToken').resolves({
+        accessToken: dummyExchangeToken,
+      });
+      sandbox.stub(FacebookApi.prototype, 'getMe').resolves({
+        email: user.email,
+      });
+
+      const res = await request(global.app)
+        .post('/users/login-fb')
+        .send(dummyPayload);
+
+      expect(res.status).toEqual(200);
+      expect(validateResponse(res)).toBeUndefined();
+
+      const userWithFacebook = await userRepository.getUserById(user._id);
+      expect(userWithFacebook.facebook.token).toEqual(dummyExchangeToken);
     });
 
     it('creates a user if no user exists for the email address', async () => {

@@ -10,7 +10,7 @@ const {
   VENUE_DOORPOLICIES,
   PAYMENT_METHODS,
 } = require('../../shared/constants');
-const { PointSchema, getWeekSchema } = require('../../shared/schemas');
+const { PointSchema } = require('../../shared/schemas');
 
 const VenueContactSchema = new Schema({
   name: String,

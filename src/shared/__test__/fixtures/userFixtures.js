@@ -20,7 +20,18 @@ const TEST_USER_2 = Object.freeze({
   gender: USER_GENDER_TYPES.GENDER_MALE,
 });
 
+const TEST_USER_FACEBOOK_1 = Object.freeze({
+  _id: '5c25359626569c001187a14b',
+  email: 'facebook@roy.com',
+  facebook: {
+    permissions: ['public_profile'],
+    userId: 'facebookuserId',
+    token: 'testtoken',
+  },
+});
+
 module.exports = {
   TEST_USER_1,
   TEST_USER_2,
+  TEST_USER_FACEBOOK_1,
 };

@@ -17,7 +17,7 @@ beforeAll(cb => {
   }
 
   mockAuth();
-  configMock.mockKey('HOST', 'http://fakehost');
+  configMock.mockKey('HOST', 'http://localhost:8080');
 
   global.app = createExpressApp();
 
