@@ -35,5 +35,6 @@ steps:
   args:
     - '-c'
     - |
+      VERSION=${_VERSION}
       rm cloudbuild* &&
-      make appengine-deploy version=${SHORT_SHA} env=${_ENV}
+      make appengine-deploy version=${VERSION:-$SHORT_SHA} env=${_ENV}
