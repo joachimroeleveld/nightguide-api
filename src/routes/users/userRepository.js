@@ -11,7 +11,7 @@ const {
 } = require('../../shared/errors');
 const FacebookApi = require('../../shared/services/facebook');
 
-exports.createUser = async (data, isVerified = false) => {
+exports.createUser = async (data, setVerified = false) => {
   const existingUser = await exports.getUserByEmail(data.email, '+password');
   if (existingUser && !!existingUser.password) {
     throw new ConflictError('email_exists');
@@ -20,17 +20,19 @@ exports.createUser = async (data, isVerified = false) => {
   let user;
   if (!existingUser) {
     user = await User.create(data);
+    // If user has been authenticated through other methods before
   } else if (!existingUser.password) {
     Object.assign(existingUser, data);
     user = await existingUser.save();
   }
 
-  if (isVerified) {
-    user.verificationToken = null;
+  if (!setVerified) {
+    user.verificationToken = user.signJwt({}, '1h');
     await user.save();
+    await user.sendVerificationEmail().catch(e => {
+      console.error('Error sending verification mail:', e.message);
+    });
   }
-
-  delete user.password;
 
   return user;
 };

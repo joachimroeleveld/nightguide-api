@@ -88,13 +88,6 @@ UserSchema.pre('save', async function(cb) {
     user.password = await hashPassword(user.password, user.salt);
   }
 
-  if (user.isNew && !!user.password) {
-    user.verificationToken = user.signJwt({}, '1h');
-    await user.sendVerificationEmail().catch(e => {
-      console.error('Error sending verification mail:', e.message);
-    });
-  }
-
   cb();
 });
 
