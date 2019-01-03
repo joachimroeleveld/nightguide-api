@@ -197,6 +197,20 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
       expect(res.status).toEqual(412);
     });
+
+    it('returns 401 when the account is not verified', async () => {
+      await userRepository.createUser(TEST_USER_1);
+
+      const res = await request(global.app)
+        .post('/users/login')
+        .send({
+          email: TEST_USER_1.email,
+          password: TEST_USER_1.password,
+        });
+
+      expect(validateResponse(res)).toBeUndefined();
+      expect(res.status).toEqual(401);
+    });
   });
 
   describe('POST /users/login-fb', () => {

@@ -89,7 +89,10 @@ exports.verifyAccount = async (userId, token) => {
 };
 
 exports.login = async (email, password, extraTokenPayload = {}) => {
-  const user = await exports.getUserByEmail(email, '+salt +password');
+  const user = await exports.getUserByEmail(
+    email,
+    '+salt +password +verificationToken'
+  );
 
   if (!user) {
     throw new NotFoundError('user_not_found');
