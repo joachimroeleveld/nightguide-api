@@ -29,7 +29,11 @@ async function startServer() {
   mongoose
     .connect(
       config.get('MONGO_URI'),
-      { useNewUrlParser: true }
+      {
+        useNewUrlParser: true,
+        server: { socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 } },
+        replset: { socketOptions: { keepAlive: 1, connectTimeoutMS: 30000 } },
+      }
     )
     .then(() => {
       app.listen(PORT, () => {

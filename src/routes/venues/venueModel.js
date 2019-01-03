@@ -12,13 +12,6 @@ const {
 } = require('../../shared/constants');
 const { PointSchema } = require('../../shared/schemas');
 
-const VenueContactSchema = new Schema({
-  name: String,
-  emailAddress: String,
-  phone: String,
-  notes: String,
-});
-
 const VenueSchema = new Schema(
   {
     name: {
@@ -45,7 +38,6 @@ const VenueSchema = new Schema(
       },
       coordinates: PointSchema,
     },
-    contactInfo: VenueContactSchema,
     website: String,
     facebook: {
       pageUrl: String,

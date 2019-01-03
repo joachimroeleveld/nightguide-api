@@ -15,7 +15,7 @@ const templateFile = fs.readFileSync(
 );
 const template = hbs.compile(templateFile);
 
-function sendBasicEmail(toEmail, subject, body) {
+function sendBasicEmail(toEmail, subject, body, opts) {
   const html = template({
     heading: subject,
     body,
@@ -26,6 +26,7 @@ function sendBasicEmail(toEmail, subject, body) {
     from: 'noreply@nightguide.app',
     subject,
     html,
+    ...opts,
   };
 
   return sgMail.send(msg);

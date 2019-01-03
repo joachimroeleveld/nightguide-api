@@ -20,12 +20,6 @@ const TEST_VENUE_1 = Object.freeze({
       coordinates: [-122.5, 37.7],
     },
   },
-  contactInfo: {
-    name: 'Bob van de Meer',
-    emailAddress: 'bob@gmail.com',
-    phone: '0623676279',
-    notes: 'Contact info note',
-  },
   website: 'https://www.tivolivredenburg.nl',
   facebook: {
     pageUrl: 'https://www.facebook.com/TivoliVredenburgUtrecht/',

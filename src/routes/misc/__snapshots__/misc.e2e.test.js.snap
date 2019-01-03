@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`users e2e POST /misc/user-feedback happy path 1`] = `
+Array [
+  "feedback@nightguide.app",
+  "User app feedback",
+  "
+<strong>User alice@rogers.nl sent you message:</strong><br/>
+<br/>
+<p style=\\"font-style:italic;\\">test message</p>    
+    ",
+  Object {
+    "replyTo": "alice@rogers.nl",
+  },
+]
+`;

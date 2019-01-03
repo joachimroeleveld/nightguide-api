@@ -1,5 +1,7 @@
 const SPEC_FILE_NAME = 'openapi-spec.yaml';
 
+const FEEDBACK_EMAIL = 'feedback@nightguide.app';
+
 const USER_ROLES = {
   ROLE_STANDARD: 'standard',
   ROLE_ADMIN: 'admin',
@@ -52,4 +54,5 @@ module.exports = {
   VENUE_DOORPOLICIES,
   PAYMENT_METHODS,
   USER_GENDER_TYPES,
+  FEEDBACK_EMAIL,
 };
