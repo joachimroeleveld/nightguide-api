@@ -11,7 +11,7 @@ const TagSchema = new Schema({
   type: {
     type: String,
     required: true,
-    enum: TAG_TYPES,
+    enum: Object.values(TAG_TYPES),
     index: true,
   },
 });

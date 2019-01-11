@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Mixed = mongoose.Mixed;
 
+const Tag = require('../tags/tagModel');
 const VenueImage = require('./venueImageModel');
 const {
   VENUE_CATEGORIES,
@@ -10,7 +11,7 @@ const {
   VENUE_DOORPOLICIES,
   PAYMENT_METHODS,
 } = require('../../shared/constants');
-const { PointSchema } = require('../../shared/schemas');
+const { PointSchema, TranslatedSchema } = require('../../shared/schemas');
 
 const VenueSchema = new Schema(
   {
@@ -18,7 +19,7 @@ const VenueSchema = new Schema(
       type: String,
       required: true,
     },
-    description: String,
+    description: TranslatedSchema(),
     category: {
       type: String,
       enum: Object.values(VENUE_CATEGORIES),
@@ -36,19 +37,19 @@ const VenueSchema = new Schema(
         required: true,
         enum: Object.values(COUNTRIES),
       },
-      coordinates: PointSchema,
+      coordinates: PointSchema(true),
     },
     website: String,
     facebook: {
       pageUrl: String,
     },
-    tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
+    tags: [{ type: String, ref: 'Tag' }],
     doorPolicy: {
       policy: {
         type: String,
         enum: Object.values(VENUE_DOORPOLICIES),
       },
-      notes: String,
+      notes: TranslatedSchema(),
     },
     prices: {
       class: {
@@ -80,7 +81,10 @@ const VenueSchema = new Schema(
       amount: Number,
     },
     payment: {
-      methods: Object.values(PAYMENT_METHODS),
+      methods: {
+        type: String,
+        enum: Object.values(PAYMENT_METHODS),
+      },
     },
     entranceFee: {
       charge: Mixed,
@@ -101,8 +105,12 @@ VenueSchema.method('sanitize', function() {
   delete venue._id;
   delete venue.__v;
 
-  venue.images = venue.images.map(venueImage => venueImage.sanitize());
-  venue.tags = venue.tags.map(tag => tag.sanitize());
+  if (venue.images) {
+    venue.images = venue.images.map(venueImage => venueImage.sanitize());
+  }
+  if (venue.tags && venue.tags.length && venue.tags[0] instanceof Tag) {
+    venue.tags = venue.tags.map(tag => tag.sanitize());
+  }
 
   return venue;
 });

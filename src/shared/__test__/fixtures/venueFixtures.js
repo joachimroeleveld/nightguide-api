@@ -8,7 +8,9 @@ const {
 
 const TEST_VENUE_1 = Object.freeze({
   name: 'Tivoli',
-  description: 'Tivoli Vredenburg.',
+  description: {
+    en: 'Tivoli Vredenburg.',
+  },
   category: VENUE_CATEGORIES.CATEGORY_LOUNGE,
   location: {
     address: 'Vechtplantsoen 56-1',

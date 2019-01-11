@@ -11,8 +11,24 @@ function createVenue(data) {
   return Venue.create(data);
 }
 
-function getVenues() {
-  return Venue.find().exec();
+function updateVenue(id, data, options) {
+  return Venue.findByIdAndUpdate(id, data, { new: true, ...options }).exec();
+}
+
+function getVenues(opts) {
+  const query = Venue.find();
+
+  if (opts.fields) {
+    query.select(opts.fields);
+  }
+  if (opts.offset) {
+    query.skip(opts.offset);
+  }
+  if (opts.limit) {
+    query.limit(opts.limit);
+  }
+
+  return query.exec();
 }
 
 function getVenue(venueId) {
@@ -58,5 +74,6 @@ module.exports = {
   createVenue,
   getVenues,
   getVenue,
+  updateVenue,
   uploadVenueImage,
 };

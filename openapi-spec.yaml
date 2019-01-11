@@ -3,7 +3,8 @@ info:
   title: NightGuide API
   version: 0.1.0
 servers:
-  - url: https://nightguide.app/api
+  - url: https://api.nightguide.app
+  - url: https://api.dev.nightguide.app
 
 paths:
   /health:
@@ -38,13 +39,18 @@ paths:
             schema:
               allOf:
                 - type: object
-                  required:
-                    - password
                   properties:
                     password:
                       type: string
                       minLength: 6
                 - $ref: '#/components/schemas/User'
+              required:
+                - email
+                - password
+                - firstName
+                - lastName
+                - gender
+                - birthday
       responses:
         '201':
           description: User created.
@@ -158,6 +164,8 @@ paths:
                   type: string
                 permissions:
                   type: array
+                  items:
+                    type: string
                 userId:
                   type: string
       responses:
@@ -347,6 +355,57 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
   /venues:
+    get:
+      summary: Get venues.
+      operationId: getVenues
+      tags:
+        - venues
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            minimum: 0
+          description: Number of items to skip
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 50
+          description: Number of items to return. Defaults to 20.
+        - in: query
+          name: fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [name, category, tags, images, description, location, website, facebook]
+          description: Fields to return. Returns limited set of fields by default.
+      responses:
+        '200':
+          description: Result venues.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Venue'
+                  offset:
+                    type: integer
+                  limit:
+                    type: integer
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
     post:
       summary: Create a venue.
       operationId: createVenue
@@ -361,6 +420,33 @@ paths:
       responses:
         '201':
           description: Venue created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venue'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /venues/{venueId}:
+    put:
+      summary: Update a venue.
+      operationId: updateVenue
+      tags:
+        - venues
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Venue'
+      responses:
+        '200':
+          description: Venue updated.
           content:
             application/json:
               schema:
@@ -465,7 +551,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-    ConflictError:
+    Conflict:
       description: Conflict
       content:
         application/json:
@@ -494,9 +580,13 @@ components:
         name:
           type: string
         description:
-          type: string
+          $ref: '#/components/schemas/TranslatedObject'
         category:
           type: string
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/VenueImage'
     VenueImage:
       type: object
       required:
@@ -545,6 +635,13 @@ components:
         updatedAt:
           type: string
           format: date-time
+    TranslatedObject:
+      type: object
+      properties:
+        en:
+          type: string
+        nl:
+          type: string
     Error:
       type: object
       properties:

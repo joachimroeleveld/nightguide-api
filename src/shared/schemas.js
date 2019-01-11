@@ -1,19 +1,22 @@
-// https://mongoosejs.com/docs/geojson.html
-
-const mongoose = require('mongoose');
-
-const PointSchema = new mongoose.Schema({
+const PointSchema = (required = false) => ({
   type: {
     type: String,
     enum: ['Point'],
-    required: true,
+    required,
   },
   coordinates: {
     type: [Number],
-    required: true,
+    required,
+    default: undefined,
   },
+});
+
+const TranslatedSchema = () => ({
+  en: String,
+  nl: String,
 });
 
 module.exports = {
   PointSchema,
+  TranslatedSchema,
 };

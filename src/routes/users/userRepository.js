@@ -110,7 +110,7 @@ exports.login = async (email, password, extraTokenPayload = {}) => {
     throw new UnauthorizedError('incorrect_credentials');
   }
 
-  const token = user.signJwt();
+  const token = user.signJwt({}, '1h');
 
   return {
     token,

@@ -14,6 +14,8 @@ const USER_GENDER_TYPES = {
 };
 
 const VENUE_CATEGORIES = {
+  CATEGORY_CLUB: 'club',
+  CATEGORY_BAR: 'bar',
   CATEGORY_LOUNGE: 'lounge',
 };
 
@@ -36,6 +38,7 @@ const COUNTRIES = {
 
 const TAG_TYPES = {
   TAG_MUSIC_GENRE: 1,
+  TAG_VISITOR_TYPE: 2,
 };
 
 const PAYMENT_METHODS = {

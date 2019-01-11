@@ -35,7 +35,6 @@ router.post(
       lastName: req.body.lastName,
       birthday: req.body.birthday,
       gender: req.body.gender,
-      role: req.body.role,
     });
 
     res.status(CREATED).json(user.sanitize());
