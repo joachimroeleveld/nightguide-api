@@ -1,5 +1,6 @@
 const path = require('path');
 const request = require('request-promise-native');
+const imgSize = require('image-size');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
@@ -61,7 +62,11 @@ async function uploadVenueImage(venueId, { buffer, mime, name }) {
   try {
     await imagesService.upload(image.filename, mime, buffer);
 
+    const dimensions = imgSize(buffer);
+
     image.url = await imagesService.getServeableUrl(image.filename);
+    image.width = dimensions.width;
+    image.height = dimensions.height;
 
     await image.save();
 

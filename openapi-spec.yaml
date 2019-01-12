@@ -620,6 +620,8 @@ components:
         - filetype
         - filesize
         - url
+        - width
+        - height
       properties:
         id:
           type: string
@@ -634,6 +636,12 @@ components:
         url:
           type: string
           description: Serveable image URL.
+        width:
+          type: string
+          description: Image width.
+        height:
+          type: string
+          description: Image height.
     User:
       type: object
       required:

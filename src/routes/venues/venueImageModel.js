@@ -14,6 +14,8 @@ const VenueImageSchema = new Schema({
   },
   filetype: String,
   filesize: Number,
+  width: Number,
+  height: Number,
   url: {
     type: String,
     required: true,

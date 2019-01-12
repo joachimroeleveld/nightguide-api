@@ -12,15 +12,15 @@ function getUserFromToken(token) {
 
     jwt.verify(token, config.get('JWT_SECRET'), async (err, decoded) => {
       if (err instanceof jwt.TokenExpiredError) {
-        reject(new UnauthorizedError('token_expired'));
+        return reject(new UnauthorizedError('token_expired'));
       } else if (err) {
-        reject(new UnauthorizedError('invalid_token'));
+        return reject(new UnauthorizedError('invalid_token'));
       }
 
       const user = await getUserById(decoded.sub);
 
       if (!user) {
-        reject(new UnauthorizedError('invalid_token'));
+        return reject(new UnauthorizedError('invalid_token'));
       }
 
       resolve(user);
