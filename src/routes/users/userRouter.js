@@ -63,7 +63,11 @@ router.post(
   '/login',
   validator.validate('post', '/users/login'),
   asyncMiddleware(async (req, res) => {
-    const { token, user } = await login(req.body.email, req.body.password);
+    const { token, user } = await login(
+      req.body.email,
+      req.body.password,
+      req.client
+    );
 
     res.json({
       token,
@@ -80,6 +84,7 @@ router.post(
       exchangeToken: req.body.token,
       permissions: req.body.permissions,
       userId: req.body.userId,
+      client: req.client,
     });
 
     res.json({

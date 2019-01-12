@@ -10,6 +10,7 @@ const {
   ConflictError,
 } = require('../../shared/errors');
 const FacebookApi = require('../../shared/services/facebook');
+const { API_CLIENTS } = require('../../shared/constants');
 
 exports.createUser = async (data, setVerified = false) => {
   const existingUser = await exports.getUserByEmail(data.email, '+password');
@@ -27,7 +28,7 @@ exports.createUser = async (data, setVerified = false) => {
   }
 
   if (!setVerified) {
-    user.verificationToken = user.signJwt({}, '1h');
+    user.verificationToken = user.signJwt({}, '1d');
     await user.save();
     await user.sendVerificationEmail().catch(e => {
       console.error('Error sending verification mail:', e.message);
@@ -88,7 +89,7 @@ exports.verifyAccount = async (userId, token) => {
   await user.save();
 };
 
-exports.login = async (email, password, extraTokenPayload = {}) => {
+exports.login = async (email, password, client = null) => {
   const user = await exports.getUserByEmail(
     email,
     '+salt +password +verificationToken'
@@ -110,7 +111,7 @@ exports.login = async (email, password, extraTokenPayload = {}) => {
     throw new UnauthorizedError('incorrect_credentials');
   }
 
-  const token = user.signJwt({}, '1h');
+  const token = signLoginToken(user, client);
 
   return {
     token,
@@ -118,7 +119,7 @@ exports.login = async (email, password, extraTokenPayload = {}) => {
   };
 };
 
-exports.loginFb = async ({ exchangeToken, permissions, userId }) => {
+exports.loginFb = async ({ exchangeToken, permissions, userId, client }) => {
   const fbApi = new FacebookApi();
   const { accessToken, expiresIn } = await fbApi.getAccessToken(exchangeToken);
   const { email } = await fbApi.getMe(['email']);
@@ -146,7 +147,7 @@ exports.loginFb = async ({ exchangeToken, permissions, userId }) => {
     });
   }
 
-  const token = user.signJwt();
+  const token = signLoginToken(user, client);
 
   return {
     user,
@@ -213,6 +214,19 @@ exports.resetPassword = async (userId, token, password) => {
   user.passwordResetToken = null;
   await user.save();
 };
+
+function signLoginToken(user, client = null) {
+  let expiry = '1h';
+  const payload = {};
+  if (client) {
+    payload.aud = client;
+  }
+  if (client === API_CLIENTS.CLIENT_APP) {
+    // Never expire app for app clients
+    expiry = undefined;
+  }
+  return user.signJwt(payload, expiry);
+}
 
 function verifyJwtExpiration(token) {
   return new Promise(resolve => {

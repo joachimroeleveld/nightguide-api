@@ -2,6 +2,7 @@ const errorHandler = require('./errorHandler');
 const auth = require('./auth');
 
 const { UnauthorizedError } = require('../shared/errors');
+const { USER_ROLES, API_CLIENTS } = require('../shared/constants');
 
 /**
  * Authenticate request with JWT and user role.
@@ -35,6 +36,28 @@ function checkRole(roles) {
 }
 
 /**
+ * Check if app token header is provided.
+ * @returns {Function}
+ */
+function authenticateAppClient() {
+  return (req, res, next) => {
+    const isAdmin =
+      req.user &&
+      req.user.checkRole &&
+      req.user.checkRole(USER_ROLES.ROLE_ADMIN);
+    if (isAdmin) {
+      return next();
+    }
+    if (!auth.checkAppTokenHeader(req)) {
+      return next(new UnauthorizedError());
+    } else {
+      req.client = API_CLIENTS.CLIENT_APP;
+    }
+    next();
+  };
+}
+
+/**
  * Pass errors to the error handler and send back the error to the client
  * @returns {Function}
  */
@@ -48,4 +71,5 @@ module.exports = {
   handleError,
   jwtAuth,
   checkRole,
+  authenticateAppClient,
 };

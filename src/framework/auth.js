@@ -28,6 +28,11 @@ function getUserFromToken(token) {
   });
 }
 
+function checkAppTokenHeader(req) {
+  return req.headers['app-token'] === config.get('MOBILE_APP_TOKEN');
+}
+
 module.exports = {
   getUserFromToken,
+  checkAppTokenHeader,
 };

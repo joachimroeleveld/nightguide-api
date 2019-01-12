@@ -15,7 +15,10 @@ const {
 } = require('../../shared/__test__/fixtures');
 const { clearDb } = require('../../shared/__test__/testUtils');
 const mailService = require('../../shared/services/mail');
-const { mockAuth, restoreAuth } = require('../../shared/__test__/authMock');
+const {
+  mockUserAuth,
+  restoreUserAuth,
+} = require('../../shared/__test__/authMock');
 
 const sandbox = sinon.createSandbox();
 const USER_SNAPSHOT_MATCHER = {
@@ -124,7 +127,7 @@ Object {
     });
 
     it('only admins can request other users', async () => {
-      restoreAuth();
+      restoreUserAuth();
 
       const user1 = await userRepository.createUser(TEST_USER_1);
       const user2 = await userRepository.createUser(TEST_USER_2);
@@ -136,7 +139,7 @@ Object {
       expect(res.status).toEqual(401);
       expect(validateResponse(res)).toBeUndefined();
 
-      mockAuth();
+      mockUserAuth();
     });
   });
 

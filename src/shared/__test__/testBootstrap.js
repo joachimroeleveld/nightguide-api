@@ -6,7 +6,7 @@ const mongoose = require('mongoose');
 const config = require('../config');
 
 const sandbox = require('sinon').createSandbox();
-const { mockAuth } = require('./authMock');
+const { mockUserAuth, mockAppClientAuth } = require('./authMock');
 const configMock = require('./configMock');
 
 const { createExpressApp } = require('../../framework/expressServer');
@@ -17,7 +17,10 @@ beforeAll(cb => {
     global.sandbox = sandbox;
   }
 
-  mockAuth();
+  configMock.mockConfig();
+
+  mockUserAuth();
+  mockAppClientAuth();
 
   configMock.mockKey('HOST', 'http://localhost:8080');
 

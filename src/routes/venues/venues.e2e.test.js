@@ -155,6 +155,8 @@ Object {
       expect(res.body.results[0].url).toEqual('testurl');
       expect(res.body.results[0].filesize).toEqual(1884);
       expect(res.body.results[0].filetype).toEqual('image/jpeg');
+      expect(res.body.results[0].width).toEqual(400);
+      expect(res.body.results[0].height).toEqual(400);
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -180,6 +182,8 @@ Object {
       expect(res.body.results[0].url).toEqual('testurl');
       expect(res.body.results[0].filesize).toEqual(1884);
       expect(res.body.results[0].filetype).toEqual('image/jpeg');
+      expect(res.body.results[0].width).toEqual(400);
+      expect(res.body.results[0].height).toEqual(400);
       expect(validateResponse(res)).toBeUndefined();
     });
   });

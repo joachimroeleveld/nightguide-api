@@ -637,10 +637,10 @@ components:
           type: string
           description: Serveable image URL.
         width:
-          type: string
+          type: number
           description: Image width.
         height:
-          type: string
+          type: number
           description: Image height.
     User:
       type: object
