@@ -4,7 +4,7 @@ const request = require('supertest');
 const sinon = require('sinon');
 
 const { clearDb } = require('../../shared/__test__/testUtils');
-const validator = require('../../shared/validator');
+const { validator } = require('../../shared/openapi');
 const mailService = require('../../shared/services/mail');
 
 const sandbox = sinon.createSandbox();

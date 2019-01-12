@@ -1,10 +1,12 @@
 const { Router } = require('express');
 const multer = require('multer');
 
-const validator = require('../../shared/validator');
+const { validator, coerce } = require('../../shared/openapi');
 const venueRepository = require('./venueRepository');
+const Venue = require('./venueModel');
 const { standardAuth, adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
+const VenueImage = require('../venues/venueImageModel');
 
 const upload = multer();
 const router = new Router();
@@ -12,6 +14,7 @@ const router = new Router();
 router.get(
   '/',
   standardAuth(),
+  coerce('get', '/venues'),
   validator.validate('get', '/venues'),
   asyncMiddleware(async (req, res, next) => {
     const offset = parseInt(req.query.offset) || 0;
@@ -24,19 +27,21 @@ router.get(
       'website',
       'facebook',
     ];
+    const populate = fields.filter(field => ['images'].includes(field));
 
     const venues = await venueRepository.getVenues({
       offset,
       limit,
       fields,
+      populate,
       filter: req.query.filter,
       sort: req.query.sort,
     });
 
-    const sanitized = venues.map(venue => venue.sanitize());
+    const results = venues.map(Venue.deserialize);
 
     res.json({
-      results: sanitized,
+      results,
       offset,
       limit,
     });
@@ -48,9 +53,10 @@ router.post(
   adminAuth(),
   validator.validate('post', '/venues'),
   asyncMiddleware(async (req, res, next) => {
-    const venue = await venueRepository.createVenue(req.body);
+    const doc = Venue.serialize(req.body);
+    const venue = await venueRepository.createVenue(doc);
 
-    res.status(201).json(venue.sanitize());
+    res.status(201).json(venue.deserialize());
   })
 );
 
@@ -59,28 +65,38 @@ router.put(
   adminAuth(),
   validator.validate('put', '/venues/{venueId}'),
   asyncMiddleware(async (req, res, next) => {
-    const venue = await venueRepository.updateVenue(
-      req.params.venueId,
-      req.body
-    );
+    const doc = Venue.serialize(req.body);
+    const venue = await venueRepository.updateVenue(req.params.venueId, doc);
 
-    res.json(venue.sanitize());
+    res.json(venue.deserialize());
   })
 );
 
 router.post(
   '/:venueId/images',
   adminAuth(),
-  upload.single('image'),
+  validator.validate('post', '/venues/{venueId}/images'),
+  upload.array('images', 10),
   asyncMiddleware(async (req, res, next) => {
-    const image = await venueRepository.uploadVenueImage(req.params.venueId, {
-      buffer: req.file.buffer,
-      mime: req.file.mimetype,
-      name: req.file.originalname,
-      size: req.file.size,
-    });
+    let promises;
+    if (req.files) {
+      promises = req.files.map(file =>
+        venueRepository.uploadVenueImage(req.params.venueId, {
+          buffer: file.buffer,
+          mime: file.mimetype,
+          name: file.originalname,
+        })
+      );
+    } else {
+      promises = req.body.urls.map(url =>
+        venueRepository.uploadVenueImageByUrl(req.params.venueId, url)
+      );
+    }
 
-    res.status(200).json(image.sanitize());
+    let images = await Promise.all(promises);
+    const results = images.map(VenueImage.deserialize);
+
+    res.status(200).json({ results });
   })
 );
 

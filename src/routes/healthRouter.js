@@ -1,6 +1,6 @@
 const { Router } = require('express');
 
-const validator = require('../shared/validator');
+const { validator } = require('../shared/openapi');
 
 const router = new Router();
 

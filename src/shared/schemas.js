@@ -1,22 +1,28 @@
-const PointSchema = (required = false) => ({
-  type: {
-    type: String,
-    enum: ['Point'],
-    required,
-  },
-  coordinates: {
-    type: [Number],
-    required,
-    default: undefined,
-  },
-});
+const mongoose = require('mongoose');
 
-const TranslatedSchema = () => ({
-  en: String,
-  nl: String,
-});
+const pointSchema = new mongoose.Schema(
+  {
+    type: {
+      type: String,
+      enum: ['Point'],
+    },
+    coordinates: {
+      type: [Number],
+      default: undefined,
+    },
+  },
+  { _id: false }
+);
+
+const translatedSchema = new mongoose.Schema(
+  {
+    en: String,
+    nl: String,
+  },
+  { _id: false }
+);
 
 module.exports = {
-  PointSchema,
-  TranslatedSchema,
+  pointSchema,
+  translatedSchema,
 };

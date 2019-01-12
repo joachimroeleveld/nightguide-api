@@ -1,4 +1,5 @@
 const path = require('path');
+const request = require('request-promise-native');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
@@ -27,6 +28,9 @@ function getVenues(opts) {
   if (opts.limit) {
     query.limit(opts.limit);
   }
+  if (opts.populate) {
+    query.populate(opts.populate.join(' '));
+  }
 
   return query.exec();
 }
@@ -37,9 +41,9 @@ function getVenue(venueId) {
     .exec();
 }
 
-async function uploadVenueImage(venueId, { buffer, mime, name, size }) {
+async function uploadVenueImage(venueId, { buffer, mime, name }) {
   if (!IMAGE_MIME_TYPES.includes(mime)) {
-    return cb(new InvalidArgumentError('invalid_mime'));
+    throw new InvalidArgumentError('invalid_mime');
   }
 
   const venue = await Venue.findById(venueId).exec();
@@ -48,18 +52,20 @@ async function uploadVenueImage(venueId, { buffer, mime, name, size }) {
   }
 
   const image = new VenueImage({
-    filesize: size,
+    filesize: buffer.byteLength,
     filetype: mime,
   });
 
   image.filename = image._id + path.extname(name);
 
   try {
-    await imagesService.upload(image.filename, buffer);
+    await imagesService.upload(image.filename, mime, buffer);
 
     image.url = await imagesService.getServeableUrl(image.filename);
 
-    venue.images.push(image);
+    await image.save();
+
+    venue.images.push(image._id);
 
     await venue.save();
 
@@ -70,10 +76,23 @@ async function uploadVenueImage(venueId, { buffer, mime, name, size }) {
   }
 }
 
+async function uploadVenueImageByUrl(venueId, uri) {
+  const res = await request.get({
+    uri,
+    resolveWithFullResponse: true,
+    encoding: null,
+  });
+  const name = uri.split('/').pop();
+  const mime = res.headers['content-type'];
+
+  return await uploadVenueImage(venueId, { buffer: res.body, name, mime });
+}
+
 module.exports = {
   createVenue,
   getVenues,
   getVenue,
   updateVenue,
   uploadVenueImage,
+  uploadVenueImageByUrl,
 };

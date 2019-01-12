@@ -4,6 +4,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const dateFns = require('date-fns');
 const Schema = mongoose.Schema;
+const _ = require('lodash');
 
 const mail = require('../../shared/services/mail');
 const config = require('../../shared/config');
@@ -151,8 +152,12 @@ You can verify your account by following <a href="${verifyUrl}" target="_blank">
   );
 });
 
-UserSchema.method('sanitize', function() {
-  const user = this.toObject();
+UserSchema.static('deserialize', user => {
+  if (user.toObject) {
+    user = user.toObject();
+  } else {
+    user = _.cloneDeep(user);
+  }
 
   if (user.birthday) {
     user.birthday = dateFns.format(user.birthday, 'YYYY-MM-DD');
@@ -169,6 +174,10 @@ UserSchema.method('sanitize', function() {
   delete user.facebook;
 
   return user;
+});
+
+UserSchema.method('deserialize', function() {
+  return UserSchema.statics.deserialize(this);
 });
 
 UserSchema.static('hashPassword', hashPassword);

@@ -3,7 +3,7 @@ const { Router } = require('express');
 const { standardAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const mail = require('../../shared/services/mail');
-const validator = require('../../shared/validator');
+const { validator } = require('../../shared/openapi');
 const { FEEDBACK_EMAIL } = require('../../shared/constants');
 
 const router = new Router();

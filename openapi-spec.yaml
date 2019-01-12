@@ -365,12 +365,14 @@ paths:
           name: offset
           schema:
             type: integer
+            format: int32
             minimum: 0
           description: Number of items to skip
         - in: query
           name: limit
           schema:
             type: integer
+            format: int32
             minimum: 1
             maximum: 50
           description: Number of items to return. Defaults to 20.
@@ -396,8 +398,10 @@ paths:
                       $ref: '#/components/schemas/Venue'
                   offset:
                     type: integer
+                    format: int32
                   limit:
                     type: integer
+                    format: int32
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -438,6 +442,13 @@ paths:
       operationId: updateVenue
       tags:
         - venues
+      parameters:
+        - in: path
+          name: venueId
+          schema:
+            type: string
+          required: true
+          description: Venue ID.
       requestBody:
         required: true
         content:
@@ -479,16 +490,31 @@ paths:
             schema:
               type: object
               properties:
-                image:
-                  type: string
-                  format: binary
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                urls:
+                  type: array
+                  items:
+                    type: string
       responses:
         '200':
           description: Image uploaded.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VenueImage'
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/VenueImage'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -571,9 +597,6 @@ components:
   schemas:
     Venue:
       type: object
-      required:
-        - name
-        - category
       properties:
         id:
           type: string
@@ -586,7 +609,9 @@ components:
         images:
           type: array
           items:
-            $ref: '#/components/schemas/VenueImage'
+            oneOf:
+              - type: string
+              - $ref: '#/components/schemas/VenueImage'
     VenueImage:
       type: object
       required:

@@ -1,6 +1,7 @@
 const dotenv = require('dotenv');
 dotenv.load();
 
+const sgMail = require('@sendgrid/mail');
 const mongoose = require('mongoose');
 const config = require('../config');
 
@@ -17,7 +18,11 @@ beforeAll(cb => {
   }
 
   mockAuth();
+
   configMock.mockKey('HOST', 'http://localhost:8080');
+
+  // Mock SendGrid
+  sandbox.stub(sgMail, 'send').resolves();
 
   global.app = createExpressApp();
 

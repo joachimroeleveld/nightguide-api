@@ -1,4 +1,4 @@
-const request = require('request-promise');
+const request = require('request-promise-native');
 const addSeconds = require('date-fns/add_seconds');
 
 const config = require('../config');

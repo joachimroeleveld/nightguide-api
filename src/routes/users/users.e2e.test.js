@@ -4,7 +4,7 @@ const addSeconds = require('date-fns/add_seconds');
 const request = require('supertest');
 const sinon = require('sinon');
 
-const validator = require('../../shared/validator');
+const { validator } = require('../../shared/openapi');
 const FacebookApi = require('../../shared/services/facebook');
 const userRepository = require('./userRepository');
 const User = require('./userModel');

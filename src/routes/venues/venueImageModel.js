@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const uuidv4 = require('uuid/v4');
+const _ = require('lodash');
 
 const VenueImageSchema = new Schema({
   _id: {
@@ -19,14 +20,22 @@ const VenueImageSchema = new Schema({
   },
 });
 
-VenueImageSchema.method('sanitize', function() {
-  const venueImage = this.toObject();
+VenueImageSchema.static('deserialize', venueImage => {
+  if (venueImage.toObject) {
+    venueImage = venueImage.toObject();
+  } else {
+    venueImage = _.cloneDeep(venueImage);
+  }
 
   venueImage.id = venueImage._id;
   delete venueImage._id;
   delete venueImage.__v;
 
   return venueImage;
+});
+
+VenueImageSchema.method('deserialize', function() {
+  return VenueImageSchema.statics.deserialize(this);
 });
 
 module.exports = mongoose.model('VenueImage', VenueImageSchema);

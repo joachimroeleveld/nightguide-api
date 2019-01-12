@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const Mixed = mongoose.Mixed;
+const _ = require('lodash');
 
 const Tag = require('../tags/tagModel');
 const VenueImage = require('./venueImageModel');
@@ -11,7 +12,7 @@ const {
   VENUE_DOORPOLICIES,
   PAYMENT_METHODS,
 } = require('../../shared/constants');
-const { PointSchema, TranslatedSchema } = require('../../shared/schemas');
+const { pointSchema, translatedSchema } = require('../../shared/schemas');
 
 const VenueSchema = new Schema(
   {
@@ -19,12 +20,12 @@ const VenueSchema = new Schema(
       type: String,
       required: true,
     },
-    description: TranslatedSchema(),
+    description: translatedSchema,
     category: {
       type: String,
       enum: Object.values(VENUE_CATEGORIES),
     },
-    images: [VenueImage.schema],
+    images: [{ type: String, ref: 'VenueImage' }],
     location: {
       address: String,
       postalCode: String,
@@ -37,7 +38,10 @@ const VenueSchema = new Schema(
         required: true,
         enum: Object.values(COUNTRIES),
       },
-      coordinates: PointSchema(true),
+      coordinates: {
+        type: pointSchema,
+        required: true,
+      },
     },
     website: String,
     facebook: {
@@ -49,7 +53,7 @@ const VenueSchema = new Schema(
         type: String,
         enum: Object.values(VENUE_DOORPOLICIES),
       },
-      notes: TranslatedSchema(),
+      notes: translatedSchema,
     },
     prices: {
       class: {
@@ -98,21 +102,50 @@ const VenueSchema = new Schema(
   }
 );
 
-VenueSchema.method('sanitize', function() {
-  const venue = this.toObject();
+VenueSchema.static('serialize', data => {
+  if (data.location && data.location.coordinates) {
+    data.location.coordinates = {
+      type: 'Point',
+      coordinates: [
+        data.location.coordinates.longitude,
+        data.location.coordinates.latitude,
+      ],
+    };
+  }
+  return data;
+});
+
+VenueSchema.static('deserialize', venue => {
+  if (venue.toObject) {
+    venue = venue.toObject();
+  } else {
+    venue = _.cloneDeep(venue);
+  }
 
   venue.id = venue._id;
   delete venue._id;
   delete venue.__v;
 
   if (venue.images) {
-    venue.images = venue.images.map(venueImage => venueImage.sanitize());
+    venue.images = venue.images.map(VenueImage.deserialize);
   }
   if (venue.tags && venue.tags.length && venue.tags[0] instanceof Tag) {
-    venue.tags = venue.tags.map(tag => tag.sanitize());
+    venue.tags = venue.tags.map(Tag.deserialize);
+  }
+  if (venue.location && venue.location.coordinates) {
+    const longitude = venue.location.coordinates.coordinates[0];
+    const latitude = venue.location.coordinates.coordinates[1];
+    venue.location.coordinates = {
+      longitude,
+      latitude,
+    };
   }
 
   return venue;
+});
+
+VenueSchema.method('deserialize', function() {
+  return VenueSchema.statics.deserialize(this);
 });
 
 module.exports = mongoose.model('Venue', VenueSchema);

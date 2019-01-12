@@ -15,7 +15,7 @@ const {
 } = require('./userRepository');
 const { standardAuth } = require('../../shared/auth');
 const { USER_ROLES } = require('../../shared/constants');
-const validator = require('../../shared/validator');
+const { validator } = require('../../shared/openapi');
 const {
   NotFoundError,
   TokenExpiredError,
@@ -37,7 +37,7 @@ router.post(
       gender: req.body.gender,
     });
 
-    res.status(CREATED).json(user.sanitize());
+    res.status(CREATED).json(user.deserialize());
   })
 );
 
@@ -55,7 +55,7 @@ router.get(
 
     const user = await getUserById(req.params.userId);
 
-    res.json(user.sanitize());
+    res.json(user.deserialize());
   })
 );
 
@@ -67,7 +67,7 @@ router.post(
 
     res.json({
       token,
-      user: user.sanitize(),
+      user: user.deserialize(),
     });
   })
 );
@@ -84,7 +84,7 @@ router.post(
 
     res.json({
       token,
-      user: user.sanitize(),
+      user: user.deserialize(),
     });
   })
 );
