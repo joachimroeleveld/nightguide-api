@@ -13,7 +13,7 @@ const {
   resendVerificationToken,
   resetPassword,
 } = require('./userRepository');
-const { standardAuth } = require('../../shared/auth');
+const { standardAuth, checkIsApp } = require('../../shared/auth');
 const { USER_ROLES } = require('../../shared/constants');
 const { validator } = require('../../shared/openapi');
 const {
@@ -26,6 +26,7 @@ const router = new Router();
 
 router.post(
   '/',
+  checkIsApp(),
   validator.validate('post', '/users'),
   asyncMiddleware(async (req, res) => {
     const user = await createUser({
@@ -61,6 +62,7 @@ router.get(
 
 router.post(
   '/login',
+  checkIsApp(),
   validator.validate('post', '/users/login'),
   asyncMiddleware(async (req, res) => {
     const { token, user } = await login(
@@ -78,6 +80,7 @@ router.post(
 
 router.post(
   '/login-fb',
+  checkIsApp(),
   validator.validate('post', '/users/login-fb'),
   asyncMiddleware(async (req, res) => {
     const { token, user } = await loginFb({

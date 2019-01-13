@@ -4,7 +4,7 @@ const sinon = require('sinon');
 
 const authMock = require('../shared/__test__/authMock');
 const configMock = require('../shared/__test__/configMock');
-const { jwtAuth, authenticateAppClient } = require('./middleware');
+const { jwtAuth, authenticateAppClient, setClientId } = require('./middleware');
 const User = require('../routes/users/userModel');
 const { TEST_USER_1 } = require('../shared/__test__/fixtures');
 const { UnauthorizedError } = require('../shared/errors');
@@ -77,20 +77,12 @@ describe('middleware', () => {
     });
   });
 
-  describe('authenticateAppClient', () => {
-    beforeAll(() => {
+  describe('setClientId', () => {
+    it('sets the CLIENT_APP id if the App-Token header is present', () => {
       authMock.restoreAppClientAuth();
-    });
-
-    afterAll(() => {
-      authMock.mockAppClientAuth();
-    });
-
-    it('happy path', async () => {
       configMock.mockKey('MOBILE_APP_TOKEN', 'testToken');
 
       const req = {
-        locals: {},
         headers: {
           'app-token': 'testToken',
         },
@@ -100,18 +92,31 @@ describe('middleware', () => {
         expect(err).toBeUndefined();
       };
 
-      authenticateAppClient()(req, res, next);
+      setClientId()(req, res, next);
 
       expect(req.clientId).toBe(CLIENT_IDS.CLIENT_APP);
 
       configMock.restoreKey('MOBILE_APP_TOKEN');
+      authMock.mockAppClientAuth();
+    });
+  });
+
+  describe('authenticateAppClient', () => {
+    it('happy path', async () => {
+      const req = {
+        clientId: CLIENT_IDS.CLIENT_APP,
+      };
+      const res = {};
+      const next = err => {
+        expect(err).toBeUndefined();
+      };
+
+      authenticateAppClient()(req, res, next);
     });
 
-    it('returns UnauthorizedError if header is invalid', () => {
+    it('returns UnauthorizedError if client is not app', () => {
       const req = {
-        headers: {
-          'app-token': 'invalid-token',
-        },
+        clientId: null,
       };
       const res = {};
       const next = err => {

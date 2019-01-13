@@ -36,6 +36,19 @@ function checkRole(roles) {
 }
 
 /**
+ * Set clientId on request.
+ * @returns {Function}
+ */
+function setClientId() {
+  return (req, res, next) => {
+    if (auth.checkAppTokenHeader(req)) {
+      req.clientId = CLIENT_IDS.CLIENT_APP;
+    }
+    next();
+  };
+}
+
+/**
  * Check if app token header is provided.
  * @returns {Function}
  */
@@ -48,10 +61,8 @@ function authenticateAppClient() {
     if (isAdmin) {
       return next();
     }
-    if (!auth.checkAppTokenHeader(req)) {
+    if (req.clientId !== CLIENT_IDS.CLIENT_APP) {
       return next(new UnauthorizedError());
-    } else {
-      req.clientId = CLIENT_IDS.CLIENT_APP;
     }
     next();
   };
@@ -71,5 +82,6 @@ module.exports = {
   handleError,
   jwtAuth,
   checkRole,
+  setClientId,
   authenticateAppClient,
 };
