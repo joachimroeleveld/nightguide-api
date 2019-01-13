@@ -95,9 +95,12 @@ UserSchema.pre('save', async function(cb) {
 UserSchema.method('signJwt', function(extraTokenPayload = {}, expires = '1h') {
   const user = this;
 
-  return jwt.sign({ sub: user._id, ...extraTokenPayload }, JWT_SECRET, {
-    expiresIn: expires,
-  });
+  const opts = {};
+  if (expires) {
+    opts.expiresIn = expires;
+  }
+
+  return jwt.sign({ sub: user._id, ...extraTokenPayload }, JWT_SECRET, opts);
 });
 
 UserSchema.method('checkRole', function(roles) {

@@ -229,7 +229,7 @@ function signLoginToken(user, clientId = null) {
   let expiry = '1h';
   if (clientId === CLIENT_IDS.CLIENT_APP) {
     // Never expire app for app clients
-    expiry = undefined;
+    expiry = null;
   }
 
   return user.signJwt(payload, expiry);
