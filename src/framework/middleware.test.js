@@ -2,12 +2,13 @@ require('../shared/__test__/testBootstrap');
 
 const sinon = require('sinon');
 
+const authMock = require('../shared/__test__/authMock');
 const configMock = require('../shared/__test__/configMock');
 const { jwtAuth, authenticateAppClient } = require('./middleware');
 const User = require('../routes/users/userModel');
 const { TEST_USER_1 } = require('../shared/__test__/fixtures');
 const { UnauthorizedError } = require('../shared/errors');
-const { API_CLIENTS } = require('../shared/constants');
+const { CLIENT_IDS } = require('../shared/constants');
 
 const sandbox = sinon.sandbox.create();
 
@@ -77,13 +78,21 @@ describe('middleware', () => {
   });
 
   describe('authenticateAppClient', () => {
+    beforeAll(() => {
+      authMock.restoreAppClientAuth();
+    });
+
+    afterAll(() => {
+      authMock.mockAppClientAuth();
+    });
+
     it('happy path', async () => {
       configMock.mockKey('MOBILE_APP_TOKEN', 'testToken');
 
       const req = {
         locals: {},
         headers: {
-          'App-Token': 'testToken',
+          'app-token': 'testToken',
         },
       };
       const res = {};
@@ -93,7 +102,7 @@ describe('middleware', () => {
 
       authenticateAppClient()(req, res, next);
 
-      expect(req.client).toBe(API_CLIENTS.CLIENT_APP);
+      expect(req.clientId).toBe(CLIENT_IDS.CLIENT_APP);
 
       configMock.restoreKey('MOBILE_APP_TOKEN');
     });
@@ -101,7 +110,7 @@ describe('middleware', () => {
     it('returns UnauthorizedError if header is invalid', () => {
       const req = {
         headers: {
-          'App-Token': 'invalid-token',
+          'app-token': 'invalid-token',
         },
       };
       const res = {};

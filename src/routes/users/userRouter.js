@@ -66,7 +66,7 @@ router.post(
     const { token, user } = await login(
       req.body.email,
       req.body.password,
-      req.client
+      req.clientId
     );
 
     res.json({
@@ -84,7 +84,7 @@ router.post(
       exchangeToken: req.body.token,
       permissions: req.body.permissions,
       userId: req.body.userId,
-      client: req.client,
+      clientId: req.clientId,
     });
 
     res.json({

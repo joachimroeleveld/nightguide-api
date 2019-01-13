@@ -2,7 +2,7 @@ const errorHandler = require('./errorHandler');
 const auth = require('./auth');
 
 const { UnauthorizedError } = require('../shared/errors');
-const { USER_ROLES, API_CLIENTS } = require('../shared/constants');
+const { USER_ROLES, CLIENT_IDS } = require('../shared/constants');
 
 /**
  * Authenticate request with JWT and user role.
@@ -51,7 +51,7 @@ function authenticateAppClient() {
     if (!auth.checkAppTokenHeader(req)) {
       return next(new UnauthorizedError());
     } else {
-      req.client = API_CLIENTS.CLIENT_APP;
+      req.clientId = CLIENT_IDS.CLIENT_APP;
     }
     next();
   };

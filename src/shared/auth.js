@@ -1,10 +1,15 @@
 const compose = require('compose-middleware').compose;
 
-const { jwtAuth, checkRole } = require('../framework/middleware');
+const {
+  jwtAuth,
+  checkRole,
+  authenticateAppClient,
+} = require('../framework/middleware');
 const { USER_ROLES } = require('./constants');
 
 const standardAuth = () =>
   compose([
+    authenticateAppClient(),
     jwtAuth(),
     checkRole([USER_ROLES.ROLE_STANDARD, USER_ROLES.ROLE_ADMIN]),
   ]);

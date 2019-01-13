@@ -7,8 +7,8 @@ const USER_ROLES = {
   ROLE_ADMIN: 'admin',
 };
 
-const API_CLIENTS = {
-  CLIENT_APP: '2YWAErBAYTkBENQtWbSXIUvmYGWHvXDmGjz4bu74',
+const CLIENT_IDS = {
+  CLIENT_APP: 'oaj46HciSDZ3qqi',
 };
 
 const USER_GENDER_TYPES = {
@@ -62,5 +62,5 @@ module.exports = {
   PAYMENT_METHODS,
   USER_GENDER_TYPES,
   FEEDBACK_EMAIL,
-  API_CLIENTS,
+  CLIENT_IDS,
 };

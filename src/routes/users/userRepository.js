@@ -10,7 +10,7 @@ const {
   ConflictError,
 } = require('../../shared/errors');
 const FacebookApi = require('../../shared/services/facebook');
-const { API_CLIENTS } = require('../../shared/constants');
+const { CLIENT_IDS } = require('../../shared/constants');
 
 exports.createUser = async (data, setVerified = false) => {
   const existingUser = await exports.getUserByEmail(data.email, '+password');
@@ -89,7 +89,7 @@ exports.verifyAccount = async (userId, token) => {
   await user.save();
 };
 
-exports.login = async (email, password, client = null) => {
+exports.login = async (email, password, clientId = null) => {
   const user = await exports.getUserByEmail(
     email,
     '+salt +password +verificationToken'
@@ -111,7 +111,7 @@ exports.login = async (email, password, client = null) => {
     throw new UnauthorizedError('incorrect_credentials');
   }
 
-  const token = signLoginToken(user, client);
+  const token = signLoginToken(user, clientId);
 
   return {
     token,
@@ -119,7 +119,12 @@ exports.login = async (email, password, client = null) => {
   };
 };
 
-exports.loginFb = async ({ exchangeToken, permissions, userId, client }) => {
+exports.loginFb = async ({
+  exchangeToken,
+  permissions,
+  userId,
+  clientId = null,
+}) => {
   const fbApi = new FacebookApi();
   const { accessToken, expiresIn } = await fbApi.getAccessToken(exchangeToken);
   const { email } = await fbApi.getMe(['email']);
@@ -147,7 +152,7 @@ exports.loginFb = async ({ exchangeToken, permissions, userId, client }) => {
     });
   }
 
-  const token = signLoginToken(user, client);
+  const token = signLoginToken(user, clientId);
 
   return {
     user,
@@ -215,14 +220,14 @@ exports.resetPassword = async (userId, token, password) => {
   await user.save();
 };
 
-function signLoginToken(user, client = null) {
+function signLoginToken(user, clientId = null) {
   const payload = {};
-  if (client) {
-    payload.aud = client;
+  if (clientId) {
+    payload.aud = clientId;
   }
 
   let expiry = '1h';
-  if (client === API_CLIENTS.CLIENT_APP) {
+  if (clientId === CLIENT_IDS.CLIENT_APP) {
     // Never expire app for app clients
     expiry = undefined;
   }
