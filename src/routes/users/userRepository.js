@@ -216,15 +216,17 @@ exports.resetPassword = async (userId, token, password) => {
 };
 
 function signLoginToken(user, client = null) {
-  let expiry = '1h';
   const payload = {};
   if (client) {
     payload.aud = client;
   }
+
+  let expiry = '1h';
   if (client === API_CLIENTS.CLIENT_APP) {
     // Never expire app for app clients
     expiry = undefined;
   }
+
   return user.signJwt(payload, expiry);
 }
 
