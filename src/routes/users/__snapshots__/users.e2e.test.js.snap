@@ -196,9 +196,9 @@ Array [
   "alice@rogers.nl",
   "Verify your account",
   "
-You can verify your account by following <a href=\\"http://localhost:8080/users/5c001cac8e84e1067f34695c/verify?token=testtoken\\" target=\\"_blank\\">this link</a>. After you verified your account, you can login and start using your account.<br/>
+You can verify your account by following <a href=\\"http://localhost:8080/users/5c001cac8e84e1067f34695c/verify-account?token=testtoken\\" target=\\"_blank\\">this link</a>. After you verified your account, you can login and start using your account.<br/>
 <br/>
-<a href=\\"http://localhost:8080/users/5c001cac8e84e1067f34695c/verify?token=testtoken\\" target=\\"_blank\\">http://localhost:8080/users/5c001cac8e84e1067f34695c/verify?token=testtoken</a>
+<a href=\\"http://localhost:8080/users/5c001cac8e84e1067f34695c/verify-account?token=testtoken\\" target=\\"_blank\\">http://localhost:8080/users/5c001cac8e84e1067f34695c/verify-account?token=testtoken</a>
     ",
 ]
 `;

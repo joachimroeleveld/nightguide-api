@@ -137,9 +137,9 @@ UserSchema.method('sendVerificationEmail', async function() {
     throw new Error('no_verification_token');
   }
 
-  const verifyUrl = `${config.get('HOST')}/users/${user._id}/verify?token=${
-    user.verificationToken
-  }`;
+  const verifyUrl = `${config.get('HOST')}/users/${
+    user._id
+  }/verify-account?token=${user.verificationToken}`;
 
   return mail.sendBasicEmail(
     user.email,
