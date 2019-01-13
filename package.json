@@ -7,7 +7,7 @@
     "node": ">=8"
   },
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint ./src",
     "prettier": "prettier --write \"{{src,scripts}/**/*.js\"}",
     "test-unit": "jest --config jest.unit.config.js",
     "test-e2e": "jest --runInBand --config jest.e2e.config.js",
