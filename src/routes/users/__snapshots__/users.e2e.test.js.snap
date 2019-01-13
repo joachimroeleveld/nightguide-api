@@ -178,19 +178,6 @@ Object {
 }
 `;
 
-exports[`users e2e POST /users should set a verification token on the user 1`] = `
-Object {
-  "birthday": "1995-10-04",
-  "createdAt": Any<String>,
-  "email": "facebook@roy.com",
-  "firstName": "Alice",
-  "gender": "female",
-  "id": Any<String>,
-  "lastName": "Rogers",
-  "updatedAt": Any<String>,
-}
-`;
-
 exports[`users e2e POST /users updates the user if another authentication method was used before 1`] = `
 Object {
   "birthday": "1995-10-04",
@@ -217,32 +204,6 @@ You can verify your account by following <a href=\\"http://localhost:8080/users/
 `;
 
 exports[`users e2e POST /users/login happy path 1`] = `
-Object {
-  "birthday": "1995-10-04",
-  "createdAt": Any<String>,
-  "email": "alice@rogers.nl",
-  "firstName": "Alice",
-  "gender": "female",
-  "id": Any<String>,
-  "lastName": "Rogers",
-  "updatedAt": Any<String>,
-}
-`;
-
-exports[`users e2e POST /users/login returns 401 when passing wrong password 1`] = `
-Object {
-  "birthday": "1995-10-04",
-  "createdAt": Any<String>,
-  "email": "alice@rogers.nl",
-  "firstName": "Alice",
-  "gender": "female",
-  "id": Any<String>,
-  "lastName": "Rogers",
-  "updatedAt": Any<String>,
-}
-`;
-
-exports[`users e2e POST /users/login returns 404 when user is not found 1`] = `
 Object {
   "birthday": "1995-10-04",
   "createdAt": Any<String>,
