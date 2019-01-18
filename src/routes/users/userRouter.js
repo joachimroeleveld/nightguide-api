@@ -20,6 +20,7 @@ const {
   NotFoundError,
   TokenExpiredError,
   UnauthorizedError,
+  PreconditionFailedError,
 } = require('../../shared/errors');
 
 const router = new Router();
@@ -102,7 +103,7 @@ router.get(
   validator.validate('get', '/users/{userId}/verify-account'),
   asyncMiddleware(async (req, res) => {
     const renderArgs = {
-      expired: false,
+      problem: false,
       staticUrl: config.get('STATIC_URL'),
     };
 
@@ -110,10 +111,15 @@ router.get(
       await verifyAccount(req.params.userId, req.query.token);
     } catch (e) {
       if (e instanceof TokenExpiredError) {
-        renderArgs.expired = true;
+        renderArgs.problem = e.type;
         renderArgs.resendTokenUrl = `${config.get('HOST')}/users/${
           req.params.userId
         }/resend-verification-token?token=${req.query.token}`;
+      } else if (
+        e instanceof UnauthorizedError ||
+        e instanceof PreconditionFailedError
+      ) {
+        renderArgs.problem = e.type;
       } else {
         throw e;
       }

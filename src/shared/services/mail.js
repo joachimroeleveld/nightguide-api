@@ -1,22 +1,19 @@
-const fs = require('fs');
 const path = require('path');
-const Handlebars = require('hbs');
 const sgMail = require('@sendgrid/mail');
 
 const config = require('../config');
-
-const hbs = Handlebars.create();
+const hbs = require('../../framework/hbs');
 
 sgMail.setApiKey(config.get('SENDGRID_API_KEY'));
 
-const templateFile = fs.readFileSync(
-  path.resolve(__dirname, '../templates/mail/basic.html'),
-  'utf-8'
+const BASIC_TEMPLATE_PATH = path.resolve(
+  __dirname,
+  '../templates/mail/basic.html'
 );
-const template = hbs.compile(templateFile);
 
 function sendBasicEmail(toEmail, subject, body, opts) {
-  const html = template({
+  const html = hbs.render(BASIC_TEMPLATE_PATH, {
+    staticUrl: config.get('STATIC_URL'),
     heading: subject,
     body,
   });

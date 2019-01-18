@@ -75,6 +75,9 @@ exports.verifyAccount = async (userId, token) => {
     throw new NotFoundError();
   }
 
+  if (!user.verificationToken) {
+    throw new PreconditionFailedError('account_already_verified');
+  }
   if (user.verificationToken !== token) {
     throw new UnauthorizedError('invalid_token');
   }

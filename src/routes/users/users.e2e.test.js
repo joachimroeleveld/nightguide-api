@@ -357,15 +357,16 @@ Object {
       expect(res.text).toEqual(expect.stringMatching('The token has expired'));
     });
 
-    it('returns 401 when token is invalid', async () => {
+    it('shows a message when the token is invalid', async () => {
       const user = await userRepository.createUser(TEST_USER_1);
 
       const res = await request(global.app).get(
         `/users/${user._id}/verify-account?token=invalid-token`
       );
 
+      expect(res.status).toEqual(200);
       expect(validateResponse(res)).toBeUndefined();
-      expect(res.status).toEqual(401);
+      expect(res.text).toEqual(expect.stringMatching('The link is incorrect'));
     });
   });
 

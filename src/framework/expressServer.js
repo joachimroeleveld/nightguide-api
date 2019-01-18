@@ -6,6 +6,7 @@ const middleware = require('./middleware');
 const config = require('../shared/config');
 const { NotFoundError } = require('../shared/errors/index');
 const routes = require('../routes/index');
+const hbs = require('./hbs');
 
 function createExpressApp() {
   try {
@@ -16,7 +17,8 @@ function createExpressApp() {
       app.use(morgan(logFormat));
     }
 
-    app.set('view engine', 'hbs');
+    app.engine('.hbs', hbs.engine);
+    app.set('view engine', '.hbs');
     app.set('views', './src/shared/templates');
 
     app.use(express.json());
