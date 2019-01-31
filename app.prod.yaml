@@ -13,6 +13,9 @@ handlers:
   - url: .*
     script: auto
 
+skip_files:
+  - volumes/
+
 resources:
   cpu: 1
   memory_gb: 0.5
