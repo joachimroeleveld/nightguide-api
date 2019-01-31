@@ -1,0 +1,22 @@
+service: api
+
+runtime: nodejs
+env: flex
+
+liveness_check:
+  path: "/health"
+
+readiness_check:
+  path: "/health"
+
+handlers:
+  - url: .*
+    script: auto
+
+resources:
+  cpu: 1
+  memory_gb: 0.5
+  disk_size_gb: 10
+
+manual_scaling:
+  instances: 1
