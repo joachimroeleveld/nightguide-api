@@ -36,9 +36,11 @@ function getVenues(opts) {
   return query.exec();
 }
 
-function getVenue(venueId) {
+function getVenue(venueId, opts = {}) {
+  const { populate } = opts;
+
   return Venue.findById(venueId)
-    .populate('tags')
+    .populate(opts.populate.join(' '))
     .exec();
 }
 

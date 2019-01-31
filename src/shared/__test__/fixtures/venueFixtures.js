@@ -8,6 +8,7 @@ const {
 
 const TEST_VENUE_1 = Object.freeze({
   _id: '5c001cac8e84e1067f34695c',
+  sourceId: 1,
   name: 'Tivoli',
   description: {
     en: 'Tivoli Vredenburg.',
@@ -75,6 +76,7 @@ const TEST_VENUE_1 = Object.freeze({
 const TEST_VENUE_2 = Object.freeze({
   ...TEST_VENUE_1,
   _id: '5c0261a0801b80bed2f047dd',
+  sourceId: 2,
 });
 
 module.exports = {

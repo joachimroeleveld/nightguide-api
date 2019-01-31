@@ -16,6 +16,12 @@ const {
 const { clearDb } = require('../../shared/__test__/testUtils');
 const venueRepository = require('./venueRepository');
 
+const VENUE_SNAPSHOT_MATCHER = {
+  id: expect.any(String),
+  createdAt: expect.any(String),
+  updatedAt: expect.any(String),
+};
+
 const sandbox = sinon.createSandbox();
 
 describe('venues e2e', () => {
@@ -33,7 +39,8 @@ describe('venues e2e', () => {
       const res = await request(global.app).get('/venues');
 
       expect(res.status).toEqual(200);
-      expect(res.body.results[0]).toMatchInlineSnapshot(`
+      expect(res.body.results[0]).toMatchInlineSnapshot(
+        `
 Object {
   "category": "lounge",
   "description": Object {
@@ -56,7 +63,9 @@ Object {
   "name": "Tivoli",
   "website": "https://www.tivolivredenburg.nl",
 }
-`);
+`,
+        VENUE_SNAPSHOT_MATCHER
+      );
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -105,6 +114,25 @@ Object {
 
       expect(res.status).toEqual(201);
       expect(body.name).toEqual(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('GET /venues/:venueId', () => {
+    const validateResponse = validator.validateResponse(
+      'get',
+      '/venues/{venueId}'
+    );
+
+    it('happy path', async () => {
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+
+      const res = await request(global.app)
+        .get(`/venues/${venue1._id}`)
+        .send(TEST_VENUE_1)
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(VENUE_SNAPSHOT_MATCHER);
       expect(validateResponse(res)).toBeUndefined();
     });
   });

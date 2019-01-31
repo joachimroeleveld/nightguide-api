@@ -30,8 +30,12 @@ function createExpressApp() {
       app.use(`/${basePath}`, routes[basePath]);
     });
 
-    // catch 404 and forward to error handler
+    // Catch 404 and forward to error handler
     app.use((req, res, next) => {
+      if (['robots.txt', 'favicon.ico'].includes(req.path.slice(1))) {
+        res.status(404).end();
+      }
+
       next(
         new NotFoundError(
           'not_found',

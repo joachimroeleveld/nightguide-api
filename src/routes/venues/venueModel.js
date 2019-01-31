@@ -16,6 +16,7 @@ const { pointSchema, translatedSchema } = require('../../shared/schemas');
 
 const VenueSchema = new Schema(
   {
+    sourceId: Number, // Airtable ID
     name: {
       type: String,
       required: true,
@@ -125,6 +126,7 @@ VenueSchema.static('deserialize', venue => {
   venue.id = venue._id;
   delete venue._id;
   delete venue.__v;
+  delete venue.sourceId;
 
   if (venue.images) {
     venue.images = venue.images.map(VenueImage.deserialize);

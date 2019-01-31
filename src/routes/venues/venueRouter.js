@@ -60,6 +60,19 @@ router.post(
   })
 );
 
+router.get(
+  '/:venueId',
+  standardAuth(),
+  validator.validate('get', '/venues/{venueId}'),
+  asyncMiddleware(async (req, res, next) => {
+    const venue = await venueRepository.getVenue(req.params.venueId, {
+      populate: ['tags', 'images'],
+    });
+
+    res.json(venue.deserialize());
+  })
+);
+
 router.put(
   '/:venueId',
   adminAuth(),

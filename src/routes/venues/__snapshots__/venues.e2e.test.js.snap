@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`venues e2e GET /venues/:venueId happy path 1`] = `
+Object {
+  "category": "lounge",
+  "createdAt": Any<String>,
+  "description": Object {
+    "en": "Tivoli Vredenburg.",
+  },
+  "facebook": Object {
+    "pageUrl": "https://www.facebook.com/TivoliVredenburgUtrecht/",
+  },
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address": "Vechtplantsoen 56-1",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 37.7,
+      "longitude": -122.5,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+  },
+  "name": "Tivoli",
+  "tags": Array [],
+  "updatedAt": Any<String>,
+  "website": "https://www.tivolivredenburg.nl",
+}
+`;
