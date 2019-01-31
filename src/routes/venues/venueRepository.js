@@ -19,28 +19,29 @@ function updateVenue(id, data, options) {
 
 function getVenues(opts) {
   const query = Venue.find();
+  const { populate = [], fields, offset, limit } = opts;
 
-  if (opts.fields) {
-    query.select(opts.fields);
+  if (fields) {
+    query.select(fields);
   }
-  if (opts.offset) {
-    query.skip(opts.offset);
+  if (offset) {
+    query.skip(offset);
   }
-  if (opts.limit) {
-    query.limit(opts.limit);
+  if (limit) {
+    query.limit(limit);
   }
-  if (opts.populate) {
-    query.populate(opts.populate.join(' '));
+  if (populate) {
+    query.populate(populate.join(' '));
   }
 
   return query.exec();
 }
 
 function getVenue(venueId, opts = {}) {
-  const { populate } = opts;
+  const { populate = [] } = opts;
 
   return Venue.findById(venueId)
-    .populate(opts.populate.join(' '))
+    .populate(populate.join(' '))
     .exec();
 }
 
