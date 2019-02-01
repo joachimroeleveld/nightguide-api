@@ -3,14 +3,15 @@ const Schema = mongoose.Schema;
 const Mixed = mongoose.Mixed;
 const _ = require('lodash');
 
-const Tag = require('../tags/tagModel');
 const VenueImage = require('./venueImageModel');
 const {
   VENUE_CATEGORIES,
   COUNTRIES,
   VENUE_PRICE_CLASSES,
   VENUE_DOORPOLICIES,
-  PAYMENT_METHODS,
+  VENUE_PAYMENT_METHODS,
+  VENUE_MUSIC_TYPES,
+  VENUE_VISITOR_TYPES,
 } = require('../../shared/constants');
 const { pointSchema, translatedSchema } = require('../../shared/schemas');
 
@@ -22,13 +23,16 @@ const VenueSchema = new Schema(
       required: true,
     },
     description: translatedSchema,
-    category: {
-      type: String,
-      enum: Object.values(VENUE_CATEGORIES),
-    },
+    categories: [
+      {
+        type: String,
+        enum: Object.values(VENUE_CATEGORIES),
+      },
+    ],
     images: [{ type: String, ref: 'VenueImage' }],
     location: {
-      address: String,
+      address1: String,
+      address2: String,
       postalCode: String,
       city: {
         type: String,
@@ -46,9 +50,25 @@ const VenueSchema = new Schema(
     },
     website: String,
     facebook: {
-      pageUrl: String,
+      id: String,
     },
-    tags: [{ type: String, ref: 'Tag' }],
+    instagram: {
+      id: String,
+      explorePage: String,
+    },
+    twitterHandle: String,
+    musicTypes: [
+      {
+        type: String,
+        enum: Object.values(VENUE_MUSIC_TYPES),
+      },
+    ],
+    visitorTypes: [
+      {
+        type: String,
+        enum: Object.values(VENUE_VISITOR_TYPES),
+      },
+    ],
     doorPolicy: {
       policy: {
         type: String,
@@ -88,7 +108,7 @@ const VenueSchema = new Schema(
     payment: {
       methods: {
         type: String,
-        enum: Object.values(PAYMENT_METHODS),
+        enum: Object.values(VENUE_PAYMENT_METHODS),
       },
     },
     entranceFee: {
@@ -130,9 +150,6 @@ VenueSchema.static('deserialize', venue => {
 
   if (venue.images) {
     venue.images = venue.images.map(VenueImage.deserialize);
-  }
-  if (venue.tags && venue.tags.length && venue.tags[0] instanceof Tag) {
-    venue.tags = venue.tags.map(Tag.deserialize);
   }
   if (venue.location && venue.location.coordinates) {
     const longitude = venue.location.coordinates.coordinates[0];

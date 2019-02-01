@@ -382,7 +382,17 @@ paths:
             type: array
             items:
               type: string
-              enum: [name, category, tags, images, description, location, website, facebook]
+              enum:
+                [
+                  name,
+                  categories,
+                  tags,
+                  images,
+                  description,
+                  location,
+                  website,
+                  facebook,
+                ]
           description: Fields to return. Returns limited set of fields by default.
       responses:
         '200':
@@ -638,10 +648,63 @@ components:
           format: int32
         name:
           type: string
+        categories:
+          type: array
+          items:
+            type: string
+            enum:
+              ['bar', 'club', 'special_beer_bar', 'cocktail_bar', 'concert_venue']
         description:
           $ref: '#/components/schemas/TranslatedObject'
-        category:
+        location:
+          type: object
+          properties:
+            address1:
+              type: string
+            address2:
+              type: string
+            postalCode:
+              type: string
+            city:
+              type: string
+            country:
+              type: string
+              enum: ['NL']
+            coordinates:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  format: float
+                longitude:
+                  type: number
+                  format: float
+        website:
           type: string
+        facebook:
+          type: object
+          properties:
+            id:
+              type: string
+        instagram:
+          type: object
+          properties:
+            id:
+              type: string
+            explorePage:
+              type: string
+        twitterHandle:
+          type: string
+        musicTypes:
+          type: array
+          items:
+            type: string
+            enum: ['varying', 'jazz', 'dance', 'live']
+        visitorTypes:
+          type: array
+          items:
+            type: string
+            enum: ['students', 'young_professionals']
         images:
           type: array
           items:

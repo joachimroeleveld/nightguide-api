@@ -21,6 +21,7 @@ function getVenues(opts) {
   const query = Venue.find();
   const { populate = [], fields, offset, limit } = opts;
 
+  query.populate(populate.join(' '));
   if (fields) {
     query.select(fields);
   }
@@ -29,9 +30,6 @@ function getVenues(opts) {
   }
   if (limit) {
     query.limit(limit);
-  }
-  if (populate) {
-    query.populate(populate.join(' '));
   }
 
   return query.exec();

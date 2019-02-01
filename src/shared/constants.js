@@ -7,20 +7,40 @@ const USER_ROLES = {
   ROLE_ADMIN: 'admin',
 };
 
-const CLIENT_IDS = {
-  CLIENT_APP: 'oaj46HciSDZ3qqi',
-};
-
 const USER_GENDER_TYPES = {
   GENDER_MALE: 'male',
   GENDER_FEMALE: 'female',
   GENDER_OTHER: 'other',
 };
 
+const CLIENT_IDS = {
+  CLIENT_APP: 'oaj46HciSDZ3qqi',
+};
+
+const COUNTRIES = {
+  COUNTRY_NL: 'NL',
+};
+
+const VENUE_MUSIC_TYPES = {
+  MUSIC_TECHNO: 'techno',
+  MUSIC_DANCE: 'dance',
+  MUSIC_LIVE: 'live',
+  MUSIC_VARYING: 'varying',
+  MUSIC_JAZZ: 'jazz',
+};
+
+const VENUE_VISITOR_TYPES = {
+  VISITOR_STUDENT: 'students',
+  VISITOR_YOUNG_PROFESSIONAL: 'young_professionals',
+};
+
 const VENUE_CATEGORIES = {
   CATEGORY_CLUB: 'club',
   CATEGORY_BAR: 'bar',
   CATEGORY_LOUNGE: 'lounge',
+  CATEGORY_SPECIAL_BEER_BAR: 'special_beer_bar',
+  CATEGORY_COCKTAIL_BAR: 'cocktail_bar',
+  CATEGORY_CONCERT_VENUE: 'concert_venue',
 };
 
 const VENUE_PRICE_CLASSES = {
@@ -36,16 +56,7 @@ const VENUE_DOORPOLICIES = {
   POLICY_GUESTLIST: 'guestlist',
 };
 
-const COUNTRIES = {
-  COUNTRY_NL: 'NL',
-};
-
-const TAG_TYPES = {
-  TAG_MUSIC_GENRE: 1,
-  TAG_VISITOR_TYPE: 2,
-};
-
-const PAYMENT_METHODS = {
+const VENUE_PAYMENT_METHODS = {
   METHOD_CREDITCARD: 'creditcard',
   METHOD_DEBITCARD: 'debitcard',
   METHOD_CASH: 'cash',
@@ -53,14 +64,15 @@ const PAYMENT_METHODS = {
 
 module.exports = {
   SPEC_FILE_NAME,
+  CLIENT_IDS,
   USER_ROLES,
-  VENUE_CATEGORIES,
-  VENUE_PRICE_CLASSES,
   COUNTRIES,
-  TAG_TYPES,
-  VENUE_DOORPOLICIES,
-  PAYMENT_METHODS,
+  VENUE_PAYMENT_METHODS,
   USER_GENDER_TYPES,
   FEEDBACK_EMAIL,
-  CLIENT_IDS,
+  VENUE_CATEGORIES,
+  VENUE_PRICE_CLASSES,
+  VENUE_DOORPOLICIES,
+  VENUE_MUSIC_TYPES,
+  VENUE_VISITOR_TYPES,
 };

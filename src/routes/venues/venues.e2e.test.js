@@ -42,20 +42,23 @@ describe('venues e2e', () => {
       expect(res.body.results[0]).toMatchInlineSnapshot(
         `
 Object {
-  "category": "lounge",
+  "categories": Array [
+    "bar",
+  ],
   "description": Object {
     "en": "Tivoli Vredenburg.",
   },
   "facebook": Object {
-    "pageUrl": "https://www.facebook.com/TivoliVredenburgUtrecht/",
+    "id": "TivoliVredenburgUtrecht",
   },
   "id": "5c001cac8e84e1067f34695c",
   "location": Object {
-    "address": "Vechtplantsoen 56-1",
+    "address1": "Vechtplantsoen 56",
+    "address2": "1",
     "city": "Utrecht",
     "coordinates": Object {
-      "latitude": 37.7,
-      "longitude": -122.5,
+      "latitude": 5.113,
+      "longitude": 52.0926,
     },
     "country": "NL",
     "postalCode": "3554TG",

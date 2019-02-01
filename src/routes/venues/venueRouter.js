@@ -22,7 +22,7 @@ router.get(
     const fields = req.query.fields || [
       'name',
       'description',
-      'category',
+      'categories',
       'location',
       'website',
       'facebook',
@@ -66,7 +66,7 @@ router.get(
   validator.validate('get', '/venues/{venueId}'),
   asyncMiddleware(async (req, res, next) => {
     const venue = await venueRepository.getVenue(req.params.venueId, {
-      populate: ['tags', 'images'],
+      populate: ['images'],
     });
 
     res.json(venue.deserialize());

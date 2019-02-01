@@ -3,31 +3,40 @@ const {
   COUNTRIES,
   VENUE_DOORPOLICIES,
   VENUE_PRICE_CLASSES,
-  PAYMENT_METHODS,
+  VENUE_PAYMENT_METHODS,
+  VENUE_MUSIC_TYPES,
+  VENUE_VISITOR_TYPES,
 } = require('../../../shared/constants');
 
 const TEST_VENUE_1 = Object.freeze({
   _id: '5c001cac8e84e1067f34695c',
   sourceId: 1,
   name: 'Tivoli',
+  categories: [VENUE_CATEGORIES.CATEGORY_BAR],
   description: {
     en: 'Tivoli Vredenburg.',
   },
-  category: VENUE_CATEGORIES.CATEGORY_LOUNGE,
   location: {
-    address: 'Vechtplantsoen 56-1',
+    address1: 'Vechtplantsoen 56',
+    address2: '1',
     postalCode: '3554TG',
     city: 'Utrecht',
     country: COUNTRIES.COUNTRY_NL,
     coordinates: {
       type: 'Point',
-      coordinates: [-122.5, 37.7],
+      coordinates: [52.0926, 5.113],
     },
   },
   website: 'https://www.tivolivredenburg.nl',
   facebook: {
-    pageUrl: 'https://www.facebook.com/TivoliVredenburgUtrecht/',
+    id: 'TivoliVredenburgUtrecht',
   },
+  instagram: {
+    id: 'tivolivredenburg',
+  },
+  twitterHandle: 'TiVredenburg',
+  musicTypes: [VENUE_MUSIC_TYPES.MUSIC_DANCE],
+  visitorTypes: [VENUE_VISITOR_TYPES.VISITOR_STUDENT],
   // doorPolicy: {
   //   policy: VENUE_DOORPOLICIES.POLICY_MODERATE,
   //   notes: 'Moderately strict',
