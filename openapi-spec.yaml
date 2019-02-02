@@ -653,7 +653,7 @@ components:
           items:
             type: string
             enum:
-              ['bar', 'club', 'special_beer_bar', 'cocktail_bar', 'concert_venue']
+              ['bar', 'club', 'craft_beer_bar', 'cocktail_bar', 'concert_venue']
         description:
           $ref: '#/components/schemas/TranslatedObject'
         location:

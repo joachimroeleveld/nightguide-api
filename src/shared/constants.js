@@ -38,7 +38,7 @@ const VENUE_CATEGORIES = {
   CATEGORY_CLUB: 'club',
   CATEGORY_BAR: 'bar',
   CATEGORY_LOUNGE: 'lounge',
-  CATEGORY_SPECIAL_BEER_BAR: 'special_beer_bar',
+  CATEGORY_CRAFT_BEER_BAR: 'craft_beer_bar',
   CATEGORY_COCKTAIL_BAR: 'cocktail_bar',
   CATEGORY_CONCERT_VENUE: 'concert_venue',
 };
