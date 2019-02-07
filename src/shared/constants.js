@@ -32,6 +32,8 @@ const VENUE_MUSIC_TYPES = {
 const VENUE_VISITOR_TYPES = {
   VISITOR_STUDENT: 'students',
   VISITOR_YOUNG_PROFESSIONAL: 'young_professionals',
+  VISITOR_MIDDLE_AGED: 'middle_aged',
+  VISITOR_VARYING: 'varying',
 };
 
 const VENUE_CATEGORIES = {

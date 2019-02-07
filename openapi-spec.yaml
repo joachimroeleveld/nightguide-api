@@ -704,7 +704,7 @@ components:
           type: array
           items:
             type: string
-            enum: ['students', 'young_professionals']
+            enum: ['students', 'young_professionals', 'middle_aged', 'varying']
         images:
           type: array
           items:
