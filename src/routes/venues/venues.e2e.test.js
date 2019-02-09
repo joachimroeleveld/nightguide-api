@@ -12,6 +12,9 @@ const imagesService = require('../../shared/services/images');
 const {
   TEST_VENUE_1,
   TEST_VENUE_2,
+  COORDINATES_THE_HAGUE,
+  COORDINATES_WOERDEN,
+  COORDINATES_UTRECHT,
 } = require('../../shared/__test__/fixtures');
 const { clearDb } = require('../../shared/__test__/testUtils');
 const venueRepository = require('./venueRepository');
@@ -103,6 +106,56 @@ Object {
         _.pick(TEST_VENUE_1, ['id', 'name'])
       );
       expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('should filter results on name based on query parameter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        name: 'tobefiltered',
+      });
+      await venueRepository.createVenue(TEST_VENUE_2);
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          query: 'tobefiltered',
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe('tobefiltered');
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('should sort results based on distance if specified', async () => {
+      await venueRepository.createVenue(
+        setFixtureLocation(TEST_VENUE_1, COORDINATES_THE_HAGUE)
+      );
+      await venueRepository.createVenue(
+        setFixtureLocation(TEST_VENUE_2, COORDINATES_WOERDEN)
+      );
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          sortBy: 'distance',
+          latitude: COORDINATES_UTRECHT[0],
+          longitude: COORDINATES_UTRECHT[1],
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('should throw if sorted by distance and no coordinates supplied', async () => {
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          sortBy: 'distance',
+        });
+
+      expect(res.status).toEqual(400);
     });
   });
 
@@ -219,3 +272,16 @@ Object {
     });
   });
 });
+
+function setFixtureLocation(fixture, coordinates) {
+  return {
+    ...fixture,
+    location: {
+      ...fixture.location,
+      coordinates: {
+        type: 'Point',
+        coordinates: coordinates,
+      },
+    },
+  };
+}

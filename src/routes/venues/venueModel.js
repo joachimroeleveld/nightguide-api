@@ -123,6 +123,9 @@ const VenueSchema = new Schema(
   }
 );
 
+VenueSchema.index({ 'location.coordinates': '2dsphere' });
+VenueSchema.index({ name: 'text' });
+
 VenueSchema.static('serialize', data => {
   if (data.location && data.location.coordinates) {
     data.location.coordinates = {

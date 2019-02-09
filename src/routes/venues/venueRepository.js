@@ -18,10 +18,39 @@ function updateVenue(id, data, options) {
 }
 
 function getVenues(opts) {
-  const query = Venue.find();
-  const { populate = [], fields, offset, limit } = opts;
+  const {
+    populate = [],
+    fields,
+    offset,
+    limit,
+    query: textFilter,
+    sortBy,
+    longitude,
+    latitude,
+  } = opts;
+
+  const conditions = {};
+  if (textFilter && textFilter.length > 2) {
+    conditions.name = new RegExp(`\\b${textFilter}`, 'i');
+  }
+  if (sortBy && sortBy.distance) {
+    if (!longitude || !latitude) {
+      throw new InvalidArgumentError('missing_coordinates');
+    }
+    conditions['location.coordinates'] = {
+      $near: {
+        $geometry: {
+          type: 'Point',
+          coordinates: [longitude, latitude],
+        },
+      },
+    };
+  }
+
+  const query = Venue.find(conditions);
 
   query.populate(populate.join(' '));
+
   if (fields) {
     query.select(fields);
   }

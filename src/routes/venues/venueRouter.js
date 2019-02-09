@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const multer = require('multer');
 
+const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
 const venueRepository = require('./venueRepository');
 const Venue = require('./venueModel');
@@ -35,7 +36,10 @@ router.get(
       fields,
       populate,
       filter: req.query.filter,
-      sort: req.query.sort,
+      sortBy: deserializeSort(req.query.sortBy),
+      query: req.query.query,
+      longitude: req.query.longitude,
+      latitude: req.query.latitude,
     });
 
     const results = venues.map(Venue.deserialize);

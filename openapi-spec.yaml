@@ -362,6 +362,27 @@ paths:
         - venues
       parameters:
         - in: query
+          name: query
+          schema:
+            type: string
+            maxLength: 255
+          description: Search query
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Sort with optional order separated by comma (e.g. distance,desc)
+        - in: query
+          name: longitude
+          schema:
+            type: number
+          description: Longitude for distance sort
+        - in: query
+          name: latitude
+          schema:
+            type: number
+          description: Latitude for distance sort
+        - in: query
           name: offset
           schema:
             type: integer

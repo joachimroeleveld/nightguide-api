@@ -8,6 +8,10 @@ const {
   VENUE_VISITOR_TYPES,
 } = require('../../../shared/constants');
 
+const COORDINATES_UTRECHT = [5.085487, 52.118273];
+const COORDINATES_WOERDEN = [4.873716, 52.083686];
+const COORDINATES_THE_HAGUE = [4.282958, 52.072532];
+
 const TEST_VENUE_1 = Object.freeze({
   _id: '5c001cac8e84e1067f34695c',
   sourceId: 1,
@@ -24,7 +28,7 @@ const TEST_VENUE_1 = Object.freeze({
     country: COUNTRIES.COUNTRY_NL,
     coordinates: {
       type: 'Point',
-      coordinates: [52.0926, 5.113],
+      coordinates: COORDINATES_UTRECHT,
     },
   },
   website: 'https://www.tivolivredenburg.nl',
@@ -91,4 +95,7 @@ const TEST_VENUE_2 = Object.freeze({
 module.exports = {
   TEST_VENUE_1,
   TEST_VENUE_2,
+  COORDINATES_UTRECHT,
+  COORDINATES_THE_HAGUE,
+  COORDINATES_WOERDEN,
 };
