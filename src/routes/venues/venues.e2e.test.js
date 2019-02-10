@@ -60,8 +60,8 @@ Object {
     "address2": "1",
     "city": "Utrecht",
     "coordinates": Object {
-      "latitude": 5.113,
-      "longitude": 52.0926,
+      "latitude": 52.118273,
+      "longitude": 5.085487,
     },
     "country": "NL",
     "postalCode": "3554TG",
