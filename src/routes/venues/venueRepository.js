@@ -30,7 +30,7 @@ function getVenues(opts) {
   } = opts;
 
   const conditions = {};
-  if (textFilter && textFilter.length > 2) {
+  if (textFilter && textFilter.length >= 2) {
     conditions.name = new RegExp(`\\b${textFilter}`, 'i');
   }
   if (sortBy && sortBy.distance) {

@@ -11,8 +11,8 @@ const BASIC_TEMPLATE_PATH = path.resolve(
   '../templates/mail/basic.html'
 );
 
-function sendBasicEmail(toEmail, subject, body, opts) {
-  const html = hbs.render(BASIC_TEMPLATE_PATH, {
+async function sendBasicEmail(toEmail, subject, body, opts) {
+  const html = await hbs.render(BASIC_TEMPLATE_PATH, {
     staticUrl: config.get('STATIC_URL'),
     heading: subject,
     body,
