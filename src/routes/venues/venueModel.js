@@ -7,11 +7,12 @@ const VenueImage = require('./venueImageModel');
 const {
   VENUE_CATEGORIES,
   COUNTRIES,
-  VENUE_PRICE_CLASSES,
   VENUE_DOORPOLICIES,
   VENUE_PAYMENT_METHODS,
   VENUE_MUSIC_TYPES,
   VENUE_VISITOR_TYPES,
+  VENUE_DRESSCODES,
+  VENUE_FACILITIES,
 } = require('../../shared/constants');
 const { pointSchema, translatedSchema } = require('../../shared/schemas');
 
@@ -74,20 +75,9 @@ const VenueSchema = new Schema(
         type: String,
         enum: Object.values(VENUE_DOORPOLICIES),
       },
-      notes: translatedSchema,
+      description: translatedSchema,
     },
-    prices: {
-      class: {
-        type: Number,
-        enum: Object.values(VENUE_PRICE_CLASSES),
-      },
-    },
-    vip: {
-      hasVipArea: Boolean,
-    },
-    smoking: {
-      hasSmokingArea: Boolean,
-    },
+    prices: Object,
     timeline: {
       dineUntil: Mixed,
       bitesUntil: Mixed,
@@ -95,28 +85,27 @@ const VenueSchema = new Schema(
       partyFrom: Mixed,
       closedAt: Mixed,
     },
-    wardrobe: {
-      hasSecuredWardrobe: Boolean,
+    capacity: Number,
+    paymentMethods: {
+      type: String,
+      enum: Object.values(VENUE_PAYMENT_METHODS),
     },
-    outdoorSeating: {
-      hasOutdoorSeating: Boolean,
-      hasHeaters: Boolean,
+    fees: {
+      entrance: Number,
+      wardrobe: Number,
     },
-    capacity: {
-      amount: Number,
-    },
-    payment: {
-      methods: {
+    dresscode: {
+      type: {
         type: String,
-        enum: Object.values(VENUE_PAYMENT_METHODS),
+        enum: Object.values(VENUE_DRESSCODES),
       },
     },
-    entranceFee: {
-      charge: Mixed,
-    },
-    parking: {
-      hasParking: Boolean,
-    },
+    facilities: [
+      {
+        type: String,
+        enum: Object.values(VENUE_FACILITIES),
+      },
+    ],
   },
   {
     timestamps: true,

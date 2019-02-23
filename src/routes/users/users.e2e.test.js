@@ -302,6 +302,7 @@ Object {
         tokenExpires: expect.any(Date),
       });
       expect(res.status).toEqual(200);
+      expect(res.body.isNew).toBe(true);
       expect(validateResponse(res)).toBeUndefined();
     });
 

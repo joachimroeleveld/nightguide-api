@@ -12,6 +12,7 @@ Object {
   "facebook": Object {
     "id": "TivoliVredenburgUtrecht",
   },
+  "facilities": Array [],
   "id": Any<String>,
   "images": Array [],
   "instagram": Object {

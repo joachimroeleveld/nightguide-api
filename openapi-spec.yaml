@@ -177,11 +177,14 @@ paths:
                 required:
                   - token
                   - user
+                  - isNew
                 properties:
                   token:
                     type: string
                   user:
                     $ref: '#/components/schemas/User'
+                  isNew:
+                    type: boolean
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -675,7 +678,28 @@ components:
           items:
             type: string
             enum:
-              ['bar', 'club', 'craft_beer_bar', 'cocktail_bar', 'concert_venue']
+              [
+                'club',
+                'bar',
+                'lounge',
+                'craft_beer_bar',
+                'cocktail_bar',
+                'concert_venue',
+                'adult',
+                'blues_bar',
+                'casino',
+                'comedy_bar',
+                'country_bar',
+                'hookah_bar',
+                'irish_pub',
+                'jazz_bar',
+                'karaoke_bar',
+                'lgbtq_bar',
+                'piano_bar',
+                'sports_bar',
+                'wine_bar',
+                'whisky_bar',
+              ]
         description:
           $ref: '#/components/schemas/TranslatedObject'
         location:
@@ -721,12 +745,42 @@ components:
           type: array
           items:
             type: string
-            enum: ['varying', 'jazz', 'dance', 'live']
+            enum:
+              [
+                'techno',
+                'dance',
+                'live',
+                'varying',
+                'jazz',
+                'apres_ski',
+                'country',
+                'miscellaneous',
+                'folk',
+                'house',
+                'lounge',
+                'no_music',
+                'hip_hop',
+                'rock',
+                'classical',
+                '80s_90s',
+                'disco',
+                'latin',
+              ]
         visitorTypes:
           type: array
           items:
             type: string
-            enum: ['students', 'young_professionals', 'middle_aged', 'varying']
+            enum:
+              [
+                'seniors',
+                'students',
+                'young_professionals',
+                'middle_aged',
+                'varying',
+                'international',
+                'locals',
+                'lbgtq',
+              ]
         images:
           type: array
           items:

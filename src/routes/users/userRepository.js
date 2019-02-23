@@ -138,9 +138,11 @@ exports.loginFb = async ({
     userId,
   };
 
+  let isNew = false;
   let user = await exports.getUserByEmail(email);
 
   if (!user) {
+    isNew = true;
     // Create a user with the data from Facebook
     user = await exports.createUser(
       {
@@ -160,6 +162,7 @@ exports.loginFb = async ({
   return {
     user,
     token,
+    isNew,
   };
 };
 

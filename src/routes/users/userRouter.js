@@ -84,7 +84,7 @@ router.post(
   checkIsApp(),
   validator.validate('post', '/users/login-fb'),
   asyncMiddleware(async (req, res) => {
-    const { token, user } = await loginFb({
+    const { token, user, isNew } = await loginFb({
       exchangeToken: req.body.token,
       permissions: req.body.permissions,
       userId: req.body.userId,
@@ -94,6 +94,7 @@ router.post(
     res.json({
       token,
       user: user.deserialize(),
+      isNew,
     });
   })
 );

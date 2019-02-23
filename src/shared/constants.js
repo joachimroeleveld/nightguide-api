@@ -27,13 +27,30 @@ const VENUE_MUSIC_TYPES = {
   MUSIC_LIVE: 'live',
   MUSIC_VARYING: 'varying',
   MUSIC_JAZZ: 'jazz',
+  MUSIC_APRES_SKI: 'apres_ski',
+  MUSIC_COUNTRY: 'country',
+  MUSIC_MISCELLANEOUS: 'miscellaneous',
+  MUSIC_FOLK: 'folk',
+  MUSIC_HOUSE: 'house',
+  MUSIC_LOUNGE: 'lounge',
+  MUSIC_NO_MUSIC: 'no_music',
+  MUSIC_HIPHOP: 'hip_hop',
+  MUSIC_ROCK: 'rock',
+  MUSIC_CLASSICAL: 'classical',
+  MUSIC_80_90: '80s_90s',
+  MUSIC_DISCO: 'disco',
+  MUSIC_LATIN: 'latin',
 };
 
 const VENUE_VISITOR_TYPES = {
+  VISITOR_SENIOR: 'seniors',
   VISITOR_STUDENT: 'students',
   VISITOR_YOUNG_PROFESSIONAL: 'young_professionals',
   VISITOR_MIDDLE_AGED: 'middle_aged',
   VISITOR_VARYING: 'varying',
+  VISITOR_INTERNATIONAL: 'international',
+  VISITOR_LOCALS: 'locals',
+  VISITOR_LGBTQ: 'lbgtq',
 };
 
 const VENUE_CATEGORIES = {
@@ -43,13 +60,20 @@ const VENUE_CATEGORIES = {
   CATEGORY_CRAFT_BEER_BAR: 'craft_beer_bar',
   CATEGORY_COCKTAIL_BAR: 'cocktail_bar',
   CATEGORY_CONCERT_VENUE: 'concert_venue',
-};
-
-const VENUE_PRICE_CLASSES = {
-  CLASS_1: 1,
-  CLASS_2: 1,
-  CLASS_3: 1,
-  CLASS_4: 1,
+  CATEGORY_ADULT: 'adult',
+  CATEGORY_BLUES_BAR: 'blues_bar',
+  CATEGORY_CASINO: 'casino',
+  CATEGORY_COMEDY_BAR: 'comedy_bar',
+  CATEGORY_COUNTRY_BAR: 'country_bar',
+  CATEGORY_HOOKAH_BAR: 'hookah_bar',
+  CATEGORY_IRISH_PUB: 'irish_pub',
+  CATEGORY_JAZZ_BAR: 'jazz_bar',
+  CATEGORY_KARAOKE_BAR: 'karaoke_bar',
+  CATEGORY_LGBTQ_BAR: 'lgbtq_bar',
+  CATEGORY_PIANO_BAR: 'piano_bar',
+  CATEGORY_SPORTS_BAR: 'sports_bar',
+  CATEGORY_WINE_BAR: 'wine_bar',
+  CATEGORY_WHISKY_BAR: 'whisky_bar',
 };
 
 const VENUE_DOORPOLICIES = {
@@ -64,6 +88,25 @@ const VENUE_PAYMENT_METHODS = {
   METHOD_CASH: 'cash',
 };
 
+const VENUE_DRESSCODES = {
+  DRESSCODE_CASUAL: 'casual',
+  DRESSCODE_CHIQUE: 'chique',
+  DRESSCODE_ALTERNATIVE: 'alternative',
+};
+
+const VENUE_FACILITIES = {
+  FACILITY_VIP: 'vip_area',
+  FACILITY_SMOKING_AREA: 'smoking_area',
+  FACILITY_BOUNCERS: 'bouncers',
+  FACILITY_KITCHEN: 'kitchen',
+  FACILITY_SECURED_WARDROBE: 'secured_wardrobe',
+  FACILITY_TERRACE: 'terrace',
+  FACILITY_TERRACE_HEATERS: 'terrace_heaters',
+  FACILITY_PARKING: 'parking',
+  FACILITY_CIGARETTES: 'cigarettes',
+  FACILITY_ACCESSIBLE: 'accessible',
+};
+
 module.exports = {
   SPEC_FILE_NAME,
   CLIENT_IDS,
@@ -73,8 +116,9 @@ module.exports = {
   USER_GENDER_TYPES,
   FEEDBACK_EMAIL,
   VENUE_CATEGORIES,
-  VENUE_PRICE_CLASSES,
   VENUE_DOORPOLICIES,
   VENUE_MUSIC_TYPES,
   VENUE_VISITOR_TYPES,
+  VENUE_DRESSCODES,
+  VENUE_FACILITIES,
 };
