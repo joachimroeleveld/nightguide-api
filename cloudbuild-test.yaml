@@ -1,6 +1,6 @@
 steps:
   # Decrypt secrets, authenticate gcloud and create .env
-  - name: 'gcr.io/nightguide-cloudbuild/docker-gcloud-make'
+  - name: 'gcr.io/nightguide-infra/docker-gcloud-make'
     entrypoint: bash
     args:
       - '-c'

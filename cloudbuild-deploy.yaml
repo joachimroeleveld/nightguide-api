@@ -1,6 +1,6 @@
 steps:
   # Decrypt secrets, authenticate gcloud and create .env
-- name: 'gcr.io/nightguide-cloudbuild/docker-gcloud-make'
+- name: 'gcr.io/nightguide-infra/docker-gcloud-make'
   entrypoint: bash
   args:
     - '-c'
@@ -29,7 +29,7 @@ steps:
   - 'MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin'
 
   # Deploy
-- name: 'gcr.io/nightguide-cloudbuild/docker-gcloud-make'
+- name: 'gcr.io/nightguide-infra/docker-gcloud-make'
   entrypoint: '/bin/bash'
   timeout: 600s
   args:
