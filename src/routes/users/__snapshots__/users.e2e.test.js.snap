@@ -53,7 +53,7 @@ exports[`users e2e GET /users/:userId/reset-password happy path 1`] = `
     </style>
     <main>
       <p>
-        <img alt=\\"NightGuide logo\\" src=\\"https://storage.googleapis.com/static.nightguide.app/logo.svg\\" width=\\"183\\" style=\\"max-width:183px; padding-bottom: 0; display: inline !important; vertical-align: bottom;\\" class=\\"mcnImage\\">
+        <img alt=\\"NightGuide logo\\" src=\\"https://static.nightguide.app/logo.svg\\" width=\\"183\\" style=\\"max-width:183px; padding-bottom: 0; display: inline !important; vertical-align: bottom;\\" class=\\"mcnImage\\">
       </p>
       <p>
         <h1>Reset your password</h1>
@@ -154,7 +154,7 @@ exports[`users e2e GET /users/:userId/verify-account happy path 1`] = `
     </style>
     <main>
       <p>
-        <img alt=\\"NightGuide logo\\" src=\\"https://storage.googleapis.com/static.nightguide.app/logo.svg\\" width=\\"183\\" style=\\"max-width:183px; padding-bottom: 0; display: inline !important; vertical-align: bottom;\\" class=\\"mcnImage\\">
+        <img alt=\\"NightGuide logo\\" src=\\"https://static.nightguide.app/logo.svg\\" width=\\"183\\" style=\\"max-width:183px; padding-bottom: 0; display: inline !important; vertical-align: bottom;\\" class=\\"mcnImage\\">
       </p>
       <p>
           <h1>Your account has been verified</h1>
