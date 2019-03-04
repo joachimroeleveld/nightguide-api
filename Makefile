@@ -3,25 +3,18 @@ export PATH := $(CURDIR)/bin:$(PATH)
 
 SERVICE_NAME = api
 ENVS = dev stg prod
-GCP_REGION = europe-west1
 SECRET_DIR = .config/secret
 
 include make/env.mk
 include make/secret.mk
 include make/appengine.mk
 
-.DEFAULT_GOAL=readme
+setup: | config-set config-auth
 
-setup: | config-set config-auth sa-setup
-
-config-auth-sa:
+config-auth: | _auth_validate
 	gcloud auth activate-service-account --key-file .config/secret/gcloud-key.json
 
-config-auth-login:
-	gcloud auth login
-	gcloud auth application-default login
-
-config-set: env
+config-set: | env
 	gcloud config set project $(GCP_PROJECT_ID)
 	gcloud config set compute/zone $(GCP_REGION)
 
@@ -34,3 +27,6 @@ config-show: | env
 	@echo
 	@echo '========= Current gcloud config =========='
 	gcloud config list
+
+_auth_validate:
+	@[ -f $(SECRET_DIR)/gcloud-key.json ] ||  (echo "ERROR: .secret/gcloud-key.json is not found." && exit 1)
