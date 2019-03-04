@@ -6,7 +6,6 @@ steps:
       - '-c'
       - |
         make secret-decrypt env=${_ENV}
-        make setup
         cat .config/secret/secret.env .config/${_ENV}.env > .env
         echo "MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin" >> .env
 

@@ -1,12 +1,11 @@
 steps:
-  # Decrypt secrets, authenticate gcloud and create .env
+  # Decrypt secrets and create .env
 - name: 'gcr.io/nightguide-infra/docker-gcloud-make'
   entrypoint: bash
   args:
     - '-c'
     - |
       make secret-decrypt env=${_ENV}
-      make setup
       cat .config/secret/secret.env .config/${_ENV}.env > .env
 
   # Install dependencies
@@ -35,6 +34,6 @@ steps:
   args:
     - '-c'
     - |
+      make setup env=${_ENV}
       VERSION=${_VERSION}
-      rm cloudbuild* &&
       make appengine-deploy version=${VERSION:-$SHORT_SHA} env=${_ENV}
