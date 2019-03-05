@@ -5,7 +5,7 @@ steps:
   - decrypt
   - --project=nightguide-app-${_ENV}
   - --ciphertext-file=secret.${_ENV}.enc
-  - --plaintext-file=.config/${_ENV}/secret.env
+  - --plaintext-file=.config/secret/${_ENV}/secret.env
   - --location=global
   - --keyring=api
   - --key=secret-conf

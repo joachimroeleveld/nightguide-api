@@ -1,6 +1,6 @@
 .PHONY: secret
 
-KMS_ARGS=--location=$(GCP_REGION) --keyring=$(SERVICE_NAME) --key=secret-conf --ciphertext-file=secret.$(env).enc --plaintext-file=-
+KMS_ARGS=--location=global --keyring=$(SERVICE_NAME) --key=secret-conf --ciphertext-file=secret.$(env).enc --plaintext-file=-
 
 secret-encrypt: config-set
 	tar cvf - $(SECRET_DIR)| gcloud kms encrypt $(KMS_ARGS)
