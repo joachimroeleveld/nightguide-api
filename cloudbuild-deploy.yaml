@@ -34,6 +34,6 @@ steps:
   args:
     - '-c'
     - |
-      make config-sa
+      make config-sa env=${_ENV}
       VERSION=${_VERSION}
       make appengine-deploy version=${VERSION:-$SHORT_SHA} env=${_ENV}
