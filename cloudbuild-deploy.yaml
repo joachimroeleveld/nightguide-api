@@ -11,8 +11,8 @@ steps:
   args:
     - '-c'
     - |
-      gcloud config set project _PROJECT
-      gcloud config set compute/zone _REGION
+      gcloud config set project ${_PROJECT}
+      gcloud config set compute/zone ${_REGION}
 
   # Decrypt secrets
 - name: gcr.io/cloud-builders/gcloud
