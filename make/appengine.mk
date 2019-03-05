@@ -1,4 +1,4 @@
 .PHONY: appengine
 
-appengine-deploy: env
+appengine-deploy: config-set
 	gcloud --quiet app deploy app.${env}.yaml --no-promote --version="${version}"
