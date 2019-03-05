@@ -1,7 +1,8 @@
 steps:
   # Create config directory
 - name: gcr.io/cloud-builders/gcloud
-  args: [ "mkdir -p .config/secret/${_ENV}" ]
+  entrypoint: bash
+  args: [ "-c", "mkdir -p .config/secret/${_ENV}" ]
 
   # Decrypt secrets
 - name: gcr.io/cloud-builders/gcloud
@@ -17,7 +18,8 @@ steps:
 
   # Create .env
 - name: gcr.io/cloud-builders/gcloud
-  args: [ "cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env" ]
+  entrypoint: bash
+  args: [ "-c", "cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env" ]
 
   # Install dependencies
 - name: 'gcr.io/cloud-builders/npm'
@@ -25,7 +27,8 @@ steps:
 
   # Add Cloudbuild network config for compose
 - name: gcr.io/cloud-builders/gcloud
-  args: [ 'printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml' ]
+  entrypoint: bash
+  args: [ "-c", 'printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml' ]
 
   # Spin up MongoDB container for tests
 - name: 'docker/compose:1.23.1'
