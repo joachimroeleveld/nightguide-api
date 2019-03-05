@@ -1,15 +1,24 @@
 steps:
+
   # Create config directory
 - name: gcr.io/cloud-builders/gcloud
   entrypoint: bash
   args: [ "-c", "mkdir -p .config/secret/${_ENV}" ]
+
+  # Create config directory
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: bash
+  args:
+    - '-c'
+    - |
+      gcloud config set project _PROJECT
+      gcloud config set compute/zone _REGION
 
   # Decrypt secrets
 - name: gcr.io/cloud-builders/gcloud
   args:
   - kms
   - decrypt
-  - --project=nightguide-app-${_ENV}
   - --ciphertext-file=secret.${_ENV}.enc
   - --plaintext-file=.config/secret/${_ENV}/secret.env
   - --location=global
@@ -43,9 +52,6 @@ steps:
   # Deploy
 - name: "gcr.io/cloud-builders/gcloud"
   entrypoint: bash
-  args:
-    - '-c'
-    - |
-      gcloud app deploy app.${_ENV}.yaml --version=${_VERSION:-$SHORT_SHA}
+  args: ["-c", "gcloud app deploy app.${_ENV}.yaml --version=${_VERSION:-$SHORT_SHA}"]
 
 timeout: "1600s"
