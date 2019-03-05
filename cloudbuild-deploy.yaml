@@ -1,4 +1,9 @@
 steps:
+  # Create config directory
+- name: gcr.io/cloud-builders/gcloud
+  args: [ "mkdir -p .config/secret/${_ENV}" ]
+
+  # Decrypt secrets
 - name: gcr.io/cloud-builders/gcloud
   args:
   - kms
@@ -10,26 +15,17 @@ steps:
   - --keyring=api
   - --key=secret-conf
 
-  # Decrypt secrets and create .env
-- name: 'gcr.io/nightguide-infra/docker-gcloud-make'
-  entrypoint: bash
-  args:
-    - '-c'
-    - |
-      cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env
+  # Create .env
+- name: gcr.io/cloud-builders/gcloud
+  args: [ "cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env" ]
 
   # Install dependencies
 - name: 'gcr.io/cloud-builders/npm'
   args: ['install']
 
-  # Add Cloudbuild network config to docker-compose file and override Mongo connection URI
-- name: 'gcr.io/cloud-builders/docker'
-  entrypoint: '/bin/bash'
-  args:
-    - '-c'
-    - |
-      printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml
-      echo "MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin" >> .env
+  # Add Cloudbuild network config for compose
+- name: gcr.io/cloud-builders/gcloud
+  args: [ "printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml" ]
 
   # Spin up MongoDB container for tests
 - name: 'docker/compose:1.23.1'
