@@ -46,6 +46,6 @@ steps:
   args:
     - '-c'
     - |
-      app deploy app.${_ENV}.yaml --version=${_VERSION:-$SHORT_SHA}
+      gcloud app deploy app.${_ENV}.yaml --version=${_VERSION:-$SHORT_SHA}
 
 timeout: "1600s"
