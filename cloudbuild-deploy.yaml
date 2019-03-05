@@ -42,6 +42,10 @@ steps:
 
   # Deploy
 - name: "gcr.io/cloud-builders/gcloud"
-  args: ["app", "deploy", "app.${_ENV}.yaml", "--version=${VERSION:-$SHORT_SHA}"]
+  entrypoint: bash
+  args:
+    - '-c'
+    - |
+      app deploy app.${_ENV}.yaml --version=${_VERSION:-$SHORT_SHA}
 
 timeout: "1600s"
