@@ -25,7 +25,7 @@ steps:
 
   # Add Cloudbuild network config for compose
 - name: gcr.io/cloud-builders/gcloud
-  args: [ "printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml" ]
+  args: [ 'printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml' ]
 
   # Spin up MongoDB container for tests
 - name: 'docker/compose:1.23.1'
