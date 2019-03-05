@@ -11,6 +11,7 @@ steps:
   - kms
   - decrypt
   - --ciphertext-file=secret.${_ENV}.enc
+  - --project=${_PROJECT}
   - --plaintext-file=.config/secret/${_ENV}/secret.env
   - --location=global
   - --keyring=api
