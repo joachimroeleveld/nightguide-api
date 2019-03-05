@@ -6,7 +6,7 @@ steps:
     - '-c'
     - |
       make secret-decrypt env=${_ENV}
-      cat .config/secret/secret.env .config/${_ENV}.env > .env
+      cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env
 
   # Install dependencies
 - name: 'gcr.io/cloud-builders/npm'

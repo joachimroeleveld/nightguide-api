@@ -6,5 +6,6 @@ secret-encrypt: env
 	tar cvf - $(SECRET_DIR)| gcloud --project=$(GCP_PROJECT_ID) kms encrypt $(KMS_ARGS)
 
 secret-decrypt: env
+	mkdir -p $(SECRET_DIR)
 	gcloud --project=$(GCP_PROJECT_ID) kms decrypt $(KMS_ARGS) | tar vxf  -
 

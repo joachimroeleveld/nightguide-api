@@ -13,5 +13,5 @@ ifeq ($(filter $(env),$(ENVS)),)
 endif
 
 _secret-env-validate:
-	@[ -f $(SECRET_DIR)/secret.env ] ||  (echo "ERROR: .secret/secret.env is not found." && exit 1)
+	@[ -f $(SECRET_DIR)/secret.env ] ||  (echo "ERROR: .secret/$(env)/secret.env is not found." && exit 1)
 

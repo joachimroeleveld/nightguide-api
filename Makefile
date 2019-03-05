@@ -3,7 +3,7 @@ export PATH := $(CURDIR)/bin:$(PATH)
 
 SERVICE_NAME = api
 ENVS = dev stg prod
-SECRET_DIR = .config/secret
+SECRET_DIR = .config/secret/$(env)
 
 include make/env.mk
 include make/secret.mk
@@ -12,7 +12,7 @@ include make/appengine.mk
 setup: | config-set config-auth
 
 config-auth: | _auth_validate
-	gcloud auth activate-service-account --key-file .config/secret/gcloud-key.json
+	gcloud auth activate-service-account --key-file $(SECRET_DIR)/gcloud-key.json
 
 config-set: | env
 	gcloud config set project $(GCP_PROJECT_ID)
@@ -29,4 +29,4 @@ config-show: | env
 	gcloud config list
 
 _auth_validate:
-	@[ -f $(SECRET_DIR)/gcloud-key.json ] ||  (echo "ERROR: .secret/gcloud-key.json is not found." && exit 1)
+	@[ -f $(SECRET_DIR)/gcloud-key.json ] ||  (echo "ERROR: $(SECRET_DIR)/gcloud-key.json is not found." && exit 1)
