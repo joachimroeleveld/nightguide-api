@@ -9,9 +9,7 @@ include make/env.mk
 include make/secret.mk
 include make/appengine.mk
 
-setup: | config-set config-auth
-
-config-auth: | _auth_validate
+config-sa: | _auth_validate
 	gcloud auth activate-service-account --key-file $(SECRET_DIR)/gcloud-key.json
 
 config-set: | env

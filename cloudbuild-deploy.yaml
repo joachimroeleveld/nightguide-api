@@ -5,6 +5,7 @@ steps:
   args:
     - '-c'
     - |
+      make config-set
       make secret-decrypt env=${_ENV}
       cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env
 
@@ -34,6 +35,6 @@ steps:
   args:
     - '-c'
     - |
-      make setup env=${_ENV}
+      make config-sa
       VERSION=${_VERSION}
       make appengine-deploy version=${VERSION:-$SHORT_SHA} env=${_ENV}
