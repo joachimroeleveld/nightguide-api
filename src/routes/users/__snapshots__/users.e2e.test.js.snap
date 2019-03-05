@@ -117,8 +117,7 @@ exports[`users e2e GET /users/:userId/reset-password happy path 1`] = `
       </p>
     </main>
   </body>
-</html>
-"
+</html>"
 `;
 
 exports[`users e2e GET /users/:userId/verify-account happy path 1`] = `
@@ -161,8 +160,7 @@ exports[`users e2e GET /users/:userId/verify-account happy path 1`] = `
       </p>
     </main>
   </body>
-</html>
-"
+</html>"
 `;
 
 exports[`users e2e POST /users happy path 1`] = `
