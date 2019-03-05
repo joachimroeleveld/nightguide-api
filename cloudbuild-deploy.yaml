@@ -1,11 +1,20 @@
 steps:
+- name: gcr.io/cloud-builders/gcloud
+  args:
+  - kms
+  - decrypt
+  - --ciphertext-file=secret.${_ENV}.enc
+  - --plaintext-file=.config/${_ENV}/secret.env
+  - --location=global
+  - --keyring=api
+  - --key=secret-conf
+
   # Decrypt secrets and create .env
 - name: 'gcr.io/nightguide-infra/docker-gcloud-make'
   entrypoint: bash
   args:
     - '-c'
     - |
-      make secret-decrypt env=${_ENV}
       cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env
 
   # Install dependencies
@@ -32,12 +41,7 @@ steps:
   - 'MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin'
 
   # Deploy
-- name: 'gcr.io/nightguide-infra/docker-gcloud-make'
-  entrypoint: '/bin/bash'
-  timeout: 600s
-  args:
-    - '-c'
-    - |
-      make config-sa env=${_ENV}
-      VERSION=${_VERSION}
-      make appengine-deploy version=${VERSION:-$SHORT_SHA} env=${_ENV}
+- name: "gcr.io/cloud-builders/gcloud"
+  args: ["app", "deploy", "app.${_ENV}.yaml", "--version=${VERSION:-$SHORT_SHA}"]
+
+timeout: "1600s"
