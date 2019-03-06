@@ -20,5 +20,6 @@ npm-debug.log
 
 volumes/
 .env
-.config/secret/**
+env.*
+!env.*.enc
 temp/

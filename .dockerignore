@@ -4,8 +4,6 @@ volumes/
 .git
 .idea
 infra/
-secret.*.enc
+env.*
 .env
-.config/secret
 temp/
-

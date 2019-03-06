@@ -37,6 +37,14 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: "/usr/src/app/.env"
+              name: env
+              readOnly: true
+      volumes:
+      - name: env
+        secret:
+          secretName: "{{ .Values.secrets.env.name }}"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

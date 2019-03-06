@@ -3,14 +3,17 @@ export PATH := $(CURDIR)/bin:$(PATH)
 
 SERVICE_NAME = api
 ENVS = dev stg prod
-SECRET_DIR = .config/secret/$(env)
 
-include make/env.mk
-include make/secret.mk
-include make/appengine.mk
+KMS_ARGS=--location=global --keyring=$(SERVICE_NAME) --project=$(GCP_PROJECT_ID) --key=env --ciphertext-file=env.$(env).enc --plaintext-file=-
 
-config-sa: | _auth_validate
-	gcloud auth activate-service-account --key-file $(SECRET_DIR)/gcloud-key.json
+env: | _env-validate
+	$(eval include env.$(env))
+
+env-encrypt: config-set
+	cat env.$(env) | gcloud kms encrypt $(KMS_ARGS)
+
+env-decrypt: config-set
+	gcloud kms decrypt $(KMS_ARGS) > env.$(env)
 
 config-set: | env
 	gcloud config set project $(GCP_PROJECT_ID)
@@ -26,5 +29,6 @@ config-show: | env
 	@echo '========= Current gcloud config =========='
 	gcloud config list
 
-_auth_validate:
-	@[ -f $(SECRET_DIR)/gcloud-key.json ] ||  (echo "ERROR: $(SECRET_DIR)/gcloud-key.json is not found." && exit 1)
+_env-validate:
+	@[ -f env.$(env) ] ||  (echo "ERROR: env.$(env) is not found." && exit 1)
+

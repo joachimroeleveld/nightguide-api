@@ -3,11 +3,14 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-
 image:
   repository:
   tag: latest
   pullPolicy: IfNotPresent
+
+secrets:
+  env:
+    name:
 
 nameOverride: ""
 fullnameOverride: ""
@@ -18,11 +21,18 @@ service:
 
 ingress:
   enabled: true
-  annotations: {}
+  annotations:
+    kubernetes.io/ingress.allow-http: false
   paths: []
   hosts: []
 
 resources: {}
+   limits:
+    cpu:
+    memory:
+   requests:
+    cpu:
+    memory:
 
 nodeSelector: {}
 
