@@ -60,20 +60,20 @@ steps:
   # Create chart archive
 - name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: bash
-  args: ['-c', 'tar -czvf ${TAG_NAME}.tgz -C infra/helm/api .']
+  args: ['-c', 'tar -czvf chart.tgz -C infra/helm/api .']
 
   # Upload chart archive
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', '${TAG_NAME}.tgz', 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}.tgz']
+  args: ['cp', 'chart.tgz', 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}/chart.tgz']
 
   # Upload encrypted secrets
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', 'secrets.*.enc', 'gs://${_BUILDS_BUCKET}/api/']
+  args: ['cp', 'secrets.*.enc', 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}/']
 
 artifacts:
   objects:
-    location: 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}.tgz'
-    paths: ['$TAG_NAME.tgz', 'secret.${_ENV}.enc']
+    location: 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}'
+    paths: ['chart.tgz', 'secret.${_ENV}.enc']
 
 images:
   - ${_IMAGE_REPO}/$PROJECT_ID/api
