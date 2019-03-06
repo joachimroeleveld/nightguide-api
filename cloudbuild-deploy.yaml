@@ -21,19 +21,19 @@ steps:
 
   # Build Docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'build', '-t', '$CONTAINER_REPO/$PROJECT_ID/api', '.' ]
+  args: [ 'build', '-t', '${_IMAGE_REPO}/$PROJECT_ID/api', '.' ]
 
   # Tag image with git tag
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'tag', '$CONTAINER_REPO/$PROJECT_ID/api', '$CONTAINER_REPO/$PROJECT_ID/api:$TAG_NAME']
+  args: [ 'tag', '${_IMAGE_REPO}/$PROJECT_ID/api', '${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME']
 
   # Push image
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'push', '$CONTAINER_REPO/$PROJECT_ID/api' ]
+  args: [ 'push', '${_IMAGE_REPO}/$PROJECT_ID/api' ]
 
   # Push image tag
 - name: 'gcr.io/cloud-builders/docker'
-  args: [ 'push', '$CONTAINER_REPO/$PROJECT_ID/api:$TAG_NAME' ]
+  args: [ 'push', '${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME' ]
 
   # Create chart archive
 - name: 'gcr.io/cloud-builders/gcloud'
@@ -42,17 +42,17 @@ steps:
 
   # Upload chart archive
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', '${TAG_NAME}.tgz', 'gs://${BUILDS_BUCKET}/api/${TAG_NAME}.tgz']
+  args: ['cp', '${TAG_NAME}.tgz', 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}.tgz']
 
   # Upload encrypted secrets
 - name: 'gcr.io/cloud-builders/gsutil'
-  args: ['cp', 'secrets.*.enc', 'gs://${BUILDS_BUCKET}/api/']
+  args: ['cp', 'secrets.*.enc', 'gs://${_BUILDS_BUCKET}/api/']
 
 artifacts:
   objects:
-    location: 'gs://${BUILDS_BUCKET}/api/${TAG_NAME}.tgz'
+    location: 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}.tgz'
     paths: ['$TAG_NAME.tgz', 'secret.dev.enc', 'secret.prod.enc']
 
 images:
-  - $CONTAINER_REPO/$PROJECT_ID/api
-  - $CONTAINER_REPO/$PROJECT_ID/api:$TAG_NAME
+  - ${_IMAGE_REPO}/$PROJECT_ID/api
+  - ${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME
