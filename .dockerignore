@@ -1,0 +1,6 @@
+volumes/
+.git
+.idea
+.env
+.config/secret
+temp/
