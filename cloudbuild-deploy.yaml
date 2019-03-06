@@ -1,7 +1,7 @@
 steps:
 
 # Decrypt secrets and create .env
-- name: '${_IMAGE_REPO}/docker-gcloud-make'
+- name: 'eu.gcr.io/docker-gcloud-make'
 	entrypoint: bash
 	args:
 		- '-c'
