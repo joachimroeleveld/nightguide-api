@@ -1,33 +1,11 @@
 steps:
 
-  # Create config directory
-- name: gcr.io/cloud-builders/gcloud
-  entrypoint: bash
-  args: [ "-c", "mkdir -p .config/secret/${_ENV}" ]
-
-  # Decrypt secrets
-- name: gcr.io/cloud-builders/gcloud
-  args:
-  - kms
-  - decrypt
-  - --ciphertext-file=secret.${_ENV}.enc
-  - --project=${_PROJECT}
-  - --plaintext-file=.config/secret/${_ENV}/secret.env
-  - --location=global
-  - --keyring=api
-  - --key=secret-conf
-
-  # Create .env
-- name: gcr.io/cloud-builders/gcloud
-  entrypoint: bash
-  args: [ "-c", "cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env" ]
-
   # Install dependencies
 - name: 'gcr.io/cloud-builders/npm'
   args: ['install']
 
   # Add Cloudbuild network config for compose
-- name: gcr.io/cloud-builders/gcloud
+- name: 'gcr.io/cloud-builders/gcloud'
   entrypoint: bash
   args: [ "-c", 'printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml' ]
 
@@ -41,9 +19,40 @@ steps:
   env:
   - 'MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin'
 
-  # Deploy
-- name: "gcr.io/cloud-builders/gcloud"
-  entrypoint: bash
-  args: ["-c", "gcloud app deploy --project=${_PROJECT} app.${_ENV}.yaml --version=${_VERSION:-$SHORT_SHA} --no-promote"]
+  # Build Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', '-t', '$CONTAINER_REPO/$PROJECT_ID/api', '.' ]
 
-timeout: "1600s"
+  # Tag image with git tag
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'tag', '$CONTAINER_REPO/$PROJECT_ID/api', '$CONTAINER_REPO/$PROJECT_ID/api:$TAG_NAME']
+
+  # Push image
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'push', '$CONTAINER_REPO/$PROJECT_ID/api' ]
+
+  # Push image tag
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'push', '$CONTAINER_REPO/$PROJECT_ID/api:$TAG_NAME' ]
+
+  # Create chart archive
+- name: 'gcr.io/cloud-builders/gcloud'
+  entrypoint: bash
+  args: ['-c', 'tar -czvf ${TAG_NAME}.tgz -C infra/helm/api .']
+
+  # Upload chart archive
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['cp', '${TAG_NAME}.tgz', 'gs://${BUILDS_BUCKET}/api/${TAG_NAME}.tgz']
+
+  # Upload encrypted secrets
+- name: 'gcr.io/cloud-builders/gsutil'
+  args: ['cp', 'secrets.*.enc', 'gs://${BUILDS_BUCKET}/api/']
+
+artifacts:
+  objects:
+    location: 'gs://${BUILDS_BUCKET}/api/${TAG_NAME}.tgz'
+    paths: ['$TAG_NAME.tgz', 'secret.dev.enc', 'secret.prod.enc']
+
+images:
+  - $CONTAINER_REPO/$PROJECT_ID/api
+  - $CONTAINER_REPO/$PROJECT_ID/api:$TAG_NAME
