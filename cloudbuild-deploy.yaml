@@ -1,5 +1,27 @@
 steps:
 
+  # Create config directory
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: bash
+  args: [ "-c", "mkdir -p .config/secret/${_ENV}" ]
+
+  # Decrypt secrets
+- name: gcr.io/cloud-builders/gcloud
+  args:
+  - kms
+  - decrypt
+  - --ciphertext-file=secret.${_ENV}.enc
+  - --project=${_PROJECT}
+  - --plaintext-file=.config/secret/${_ENV}/secret.env
+  - --location=global
+  - --keyring=api
+  - --key=secret-conf
+
+  # Create .env
+- name: gcr.io/cloud-builders/gcloud
+  entrypoint: bash
+  args: [ "-c", "cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env" ]
+
   # Install dependencies
 - name: 'gcr.io/cloud-builders/npm'
   args: ['install']
@@ -51,7 +73,7 @@ steps:
 artifacts:
   objects:
     location: 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}.tgz'
-    paths: ['$TAG_NAME.tgz', 'secret.dev.enc', 'secret.prod.enc']
+    paths: ['$TAG_NAME.tgz', 'secret.${_ENV}.enc']
 
 images:
   - ${_IMAGE_REPO}/$PROJECT_ID/api
