@@ -1,67 +1,67 @@
 steps:
 
-# Decrypt secrets and create .env
-- name: 'eu.gcr.io/docker-gcloud-make'
-	entrypoint: bash
-	args:
-		- '-c'
-		- |
-			make env-decrypt env=${_ENV}
-			cp env.${_ENV} .env
+  # Decrypt secrets and create .env
+- name: '${_IMAGE_REPO}/docker-gcloud-make'
+  entrypoint: bash
+  args:
+    - '-c'
+    - |
+      make env-decrypt env=${_ENV}
+      cp env.${_ENV} .env
 
-	# Install dependencies
+  # Install dependencies
 - name: 'gcr.io/cloud-builders/npm'
-	args: ['install']
+  args: ['install']
 
-	# Add Cloudbuild network config for compose
+  # Add Cloudbuild network config for compose
 - name: 'gcr.io/cloud-builders/gcloud'
-	entrypoint: bash
-	args: [ "-c", 'printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml' ]
+  entrypoint: bash
+  args: [ "-c", 'printf "\nnetworks:\n   default:\n      external:\n        name: cloudbuild" >> docker-compose.yml' ]
 
-	# Spin up MongoDB container for tests
+  # Spin up MongoDB container for tests
 - name: 'docker/compose:1.23.1'
-	args: ['up', '-d', 'mongo']
+  args: ['up', '-d', 'mongo']
 
-	# Run tests
+  # Run tests
 - name: 'gcr.io/cloud-builders/npm'
-	args: ['test']
-	env:
-	- 'MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin'
+  args: ['test']
+  env:
+  - 'MONGO_URI=mongodb://root:root@mongo:27017/main-test?authSource=admin'
 
-	# Build Docker image
+  # Build Docker image
 - name: 'gcr.io/cloud-builders/docker'
-	args: [ 'build', '-t', '${_IMAGE_REPO}/$PROJECT_ID/api', '.' ]
+  args: [ 'build', '-t', '${_IMAGE_REPO}/$PROJECT_ID/api', '.' ]
 
-	# Tag image with git tag
+  # Tag image with git tag
 - name: 'gcr.io/cloud-builders/docker'
-	args: [ 'tag', '${_IMAGE_REPO}/$PROJECT_ID/api', '${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME']
+  args: [ 'tag', '${_IMAGE_REPO}/$PROJECT_ID/api', '${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME']
 
-	# Push image
+  # Push image
 - name: 'gcr.io/cloud-builders/docker'
-	args: [ 'push', '${_IMAGE_REPO}/$PROJECT_ID/api' ]
+  args: [ 'push', '${_IMAGE_REPO}/$PROJECT_ID/api' ]
 
-	# Push image tag
+  # Push image tag
 - name: 'gcr.io/cloud-builders/docker'
-	args: [ 'push', '${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME' ]
+  args: [ 'push', '${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME' ]
 
-	# Create chart archive
+  # Create chart archive
 - name: 'gcr.io/cloud-builders/gcloud'
-	entrypoint: bash
-	args: [ '-c', 'tar -czvf chart.tgz -C infra/helm/api .' ]
+  entrypoint: bash
+  args: [ '-c', 'tar -czvf chart.tgz -C infra/helm/api .' ]
 
-	# Upload chart archive
+  # Upload chart archive
 - name: 'gcr.io/cloud-builders/gsutil'
-	args: ['cp', 'chart.tgz', 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}/chart.tgz']
+  args: ['cp', 'chart.tgz', 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}/chart.tgz']
 
-	# Upload encrypted secrets
+  # Upload encrypted secrets
 - name: 'gcr.io/cloud-builders/gsutil'
-	args: ['cp', 'env.*.enc', 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}/']
+  args: ['cp', 'env.*.enc', 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}/']
 
 artifacts:
-	objects:
-		location: 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}'
-		paths: ['chart.tgz', 'env.${_ENV}.enc']
+  objects:
+    location: 'gs://${_BUILDS_BUCKET}/api/${TAG_NAME}'
+    paths: ['chart.tgz', 'env.${_ENV}.enc']
 
 images:
-	- ${_IMAGE_REPO}/$PROJECT_ID/api
-	- ${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME
+  - ${_IMAGE_REPO}/$PROJECT_ID/api
+  - ${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME
