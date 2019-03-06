@@ -1,6 +1,11 @@
+node_modules
+npm-debug.log
 volumes/
 .git
 .idea
+infra/
+secret.*.enc
 .env
 .config/secret
 temp/
+
