@@ -1,5 +1,4 @@
 SHELL := /bin/bash
-export PATH := $(CURDIR)/bin:$(PATH)
 
 PROJECT_PREFIX = nightguide-app
 SERVICE_NAME = api

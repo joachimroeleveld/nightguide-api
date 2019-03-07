@@ -31,6 +31,7 @@ class FacebookApi {
         expiresIn: addSeconds(new Date(), expiresIn),
       };
     } catch (e) {
+      console.error('FB error', e.message);
       throw new UnauthorizedError('invalid_exchange_token');
     }
   }

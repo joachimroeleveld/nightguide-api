@@ -3,14 +3,23 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
-image:
-  repository:
-  tag: latest
-  pullPolicy: IfNotPresent
+containers:
+  getenv:
+    repository: google/cloud-sdk
+    tag: 236.0.0-alpine
+    pullPolicy: IfNotPresent
+  api:
+    repository:
+    tag: latest
+    pullPolicy: IfNotPresent
 
 secrets:
-  env:
+  serviceaccount:
     name:
+  env:
+    url:
+    kmsKeyRing:
+    kmsKey:
 
 nameOverride: ""
 fullnameOverride: ""

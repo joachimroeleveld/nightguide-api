@@ -19,14 +19,47 @@ spec:
         app.kubernetes.io/name: {{ include "api.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      initContainers:
+        - name: getenv
+          image: "{{ .Values.containers.getenv.repository }}:{{ .Values.containers.getenv.tag }}"
+          imagePullPolicy: {{ .Values.containers.api.pullPolicy }}
+          command:
+            - "/bin/bash"
+            - "-ec"
+            - |
+              gsutil cp $ENV_URL /tmp/env.enc
+              gcloud kms decrypt \
+              --ciphertext-file=/tmp/env.enc \
+              --plaintext-file=/opt/env/.env \
+              --location=global \
+              --keyring=$KMS_KEYRING \
+              --key=$KMS_KEY
+          env:
+          - name: ENV_URL
+            value: "{{ .Values.secrets.env.url }}"
+          - name: KMS_KEYRING
+            value: "{{ .Values.secrets.env.kmsKeyring }}"
+          - name: KMS_KEY
+            value: "{{ .Values.secrets.env.kmsKey }}"
+          - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
+            value: "/google-key.json"
+          volumeMounts:
+            - mountPath: "/opt/env"
+              name: env
+            - mountPath: "/"
+              name: serviceaccount
+              readOnly: true
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.containers.api.repository }}:{{ .Values.containers.api.tag }}"
+          imagePullPolicy: {{ .Values.containers.api.pullPolicy }}
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/google-key.json"
           livenessProbe:
             httpGet:
               path: /health
@@ -41,10 +74,15 @@ spec:
             - mountPath: "/usr/src/app/"
               name: env
               readOnly: true
+            - mountPath: "/"
+              name: serviceaccount
+              readOnly: true
       volumes:
       - name: env
+        emptyDir: {}
+      - name: serviceacount
         secret:
-          secretName: "{{ .Values.secrets.env.name }}"
+          secretName: "{{ .Values.secrets.serviceaccount.name }}"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
