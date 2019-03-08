@@ -484,12 +484,6 @@ paths:
             type: string
           required: true
           description: Venue ID.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Venue'
       responses:
         '200':
           description: Venue data.
@@ -765,6 +759,7 @@ components:
                 '80s_90s',
                 'disco',
                 'latin',
+                'electro',
               ]
         visitorTypes:
           type: array
@@ -780,6 +775,76 @@ components:
                 'international',
                 'locals',
                 'lbgtq',
+              ]
+        dresscode:
+          type: string
+          enum:
+            [
+            'casual',
+            'chique',
+            'alternative'
+            ]
+        paymentMethods:
+          type: array
+          items:
+            type: string
+            enum:
+              [
+                'debit_card',
+                'credit_card',
+                'alternative'
+              ]
+        doorPolicy:
+          type: object
+          properties:
+            policy:
+              type: string
+              enum:
+                [
+                  'moderate',
+                  'strict',
+                  'guestlist'
+                ]
+            description:
+              type: string
+        prices:
+          type: object
+          properties:
+            cola:
+              type: number
+              format: double
+            beer:
+              type: number
+              format: double
+        fees:
+          type: object
+          properties:
+            wardrobe:
+              type: number
+              format: double
+            entrance:
+              type: number
+              format: double
+        capacity:
+          type: integer
+          format: int32
+          minimum: 0
+        facilities:
+          type: array
+          items:
+            type: string
+            enum:
+              [
+                'vip_area',
+                'smoking_area',
+                'bouncers',
+                'kitchen',
+                'coat_check',
+                'parking',
+                'cigarettes',
+                'accessible',
+                'terrace',
+                'terrace_heaters',
               ]
         images:
           type: array

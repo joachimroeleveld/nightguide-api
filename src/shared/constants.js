@@ -40,6 +40,7 @@ const VENUE_MUSIC_TYPES = {
   MUSIC_80_90: '80s_90s',
   MUSIC_DISCO: 'disco',
   MUSIC_LATIN: 'latin',
+  MUSIC_ELECTRO: 'electro',
 };
 
 const VENUE_VISITOR_TYPES = {
@@ -83,8 +84,8 @@ const VENUE_DOORPOLICIES = {
 };
 
 const VENUE_PAYMENT_METHODS = {
-  METHOD_CREDITCARD: 'creditcard',
-  METHOD_DEBITCARD: 'debitcard',
+  METHOD_CREDIT_CARD: 'credit_card',
+  METHOD_DEBIT_CARD: 'debit_card',
   METHOD_CASH: 'cash',
 };
 
@@ -99,12 +100,12 @@ const VENUE_FACILITIES = {
   FACILITY_SMOKING_AREA: 'smoking_area',
   FACILITY_BOUNCERS: 'bouncers',
   FACILITY_KITCHEN: 'kitchen',
-  FACILITY_SECURED_WARDROBE: 'secured_wardrobe',
-  FACILITY_TERRACE: 'terrace',
-  FACILITY_TERRACE_HEATERS: 'terrace_heaters',
+  FACILITY_COAT_CHECK: 'coat_check',
   FACILITY_PARKING: 'parking',
   FACILITY_CIGARETTES: 'cigarettes',
   FACILITY_ACCESSIBLE: 'accessible',
+  FACILITY_TERRACE: 'terrace',
+  FACILITY_TERRACE_HEATERS: 'terrace_heaters',
 };
 
 module.exports = {

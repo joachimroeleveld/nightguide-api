@@ -1,4 +1,5 @@
 const exphbs = require('express-handlebars');
+const path = require('path');
 
 const helpers = {
   ifeq: function(a, b, options) {
@@ -12,6 +13,7 @@ const helpers = {
 const hbs = exphbs.create({
   helpers,
   extname: '.hbs',
+  partialsDir: path.resolve(__dirname, '../shared/templates/mail'),
 });
 
 module.exports = hbs;
