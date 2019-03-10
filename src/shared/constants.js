@@ -44,6 +44,7 @@ const VENUE_MUSIC_TYPES = {
 };
 
 const VENUE_VISITOR_TYPES = {
+  VISITOR_TEENAGER: 'teenagers',
   VISITOR_SENIOR: 'seniors',
   VISITOR_STUDENT: 'students',
   VISITOR_YOUNG_PROFESSIONAL: 'young_professionals',
@@ -51,13 +52,13 @@ const VENUE_VISITOR_TYPES = {
   VISITOR_VARYING: 'varying',
   VISITOR_INTERNATIONAL: 'international',
   VISITOR_LOCALS: 'locals',
-  VISITOR_LGBTQ: 'lbgtq',
+  VISITOR_LGBTQ: 'lgbtq',
 };
 
 const VENUE_CATEGORIES = {
   CATEGORY_CLUB: 'club',
   CATEGORY_BAR: 'bar',
-  CATEGORY_LOUNGE: 'lounge',
+  CATEGORY_LOUNGE: 'lounge_bar',
   CATEGORY_CRAFT_BEER_BAR: 'craft_beer_bar',
   CATEGORY_COCKTAIL_BAR: 'cocktail_bar',
   CATEGORY_CONCERT_VENUE: 'concert_venue',

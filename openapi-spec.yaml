@@ -675,7 +675,7 @@ components:
               [
                 'club',
                 'bar',
-                'lounge',
+                'lounge_bar',
                 'craft_beer_bar',
                 'cocktail_bar',
                 'concert_venue',
@@ -774,7 +774,7 @@ components:
                 'seniors',
                 'international',
                 'locals',
-                'lbgtq',
+                'lgbtq',
                 'varying',
               ]
         dresscode:
