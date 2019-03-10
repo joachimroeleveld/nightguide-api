@@ -108,6 +108,15 @@ const VENUE_FACILITIES = {
   FACILITY_TERRACE_HEATERS: 'terrace_heaters',
 };
 
+const IMAGE_PERSPECTIVES = [
+  'front_bar',
+  'front_venue',
+  'front_stage',
+  'from_bar',
+  'from_stage',
+  'atmosphere',
+];
+
 module.exports = {
   SPEC_FILE_NAME,
   CLIENT_IDS,
@@ -122,4 +131,5 @@ module.exports = {
   VENUE_VISITOR_TYPES,
   VENUE_DRESSCODES,
   VENUE_FACILITIES,
+  IMAGE_PERSPECTIVES,
 };

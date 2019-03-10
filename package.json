@@ -40,6 +40,7 @@
     "lint-staged": "^8.1.0",
     "lodash": "^4.17.11",
     "mandrill-api": "^1.0.45",
+    "mime-types": "^2.1.22",
     "mongoose": "^5.3.4",
     "morgan": "^1.9.1",
     "multer": "^1.4.0",

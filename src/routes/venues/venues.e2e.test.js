@@ -18,6 +18,7 @@ const {
 } = require('../../shared/__test__/fixtures');
 const { clearDb } = require('../../shared/__test__/testUtils');
 const venueRepository = require('./venueRepository');
+const { IMAGE_PERSPECTIVES } = require('../../shared/constants');
 
 const VENUE_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -233,7 +234,7 @@ Object {
 
       const res = await request(global.app)
         .post(`/venues/${venue.id}/images`)
-        .attach('images', imagePath);
+        .attach(IMAGE_PERSPECTIVES[0], imagePath);
 
       expect(res.status).toEqual(200);
       expect(res.body.results[0].url).toEqual('testurl');
@@ -259,7 +260,9 @@ Object {
       const res = await request(global.app)
         .post(`/venues/${venue.id}/images`)
         .send({
-          urls: ['http://testurl.com'],
+          images: [
+            { url: 'http://testurl.com', perspective: IMAGE_PERSPECTIVES[0] },
+          ],
         });
 
       expect(res.status).toEqual(200);

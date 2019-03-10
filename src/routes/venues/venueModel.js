@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const Mixed = mongoose.Mixed;
 const _ = require('lodash');
 
 const VenueImage = require('./venueImageModel');
@@ -14,7 +13,11 @@ const {
   VENUE_DRESSCODES,
   VENUE_FACILITIES,
 } = require('../../shared/constants');
-const { pointSchema, translatedSchema } = require('../../shared/schemas');
+const {
+  pointSchema,
+  translatedSchema,
+  weekSchema,
+} = require('../../shared/schemas');
 
 const VenueSchema = new Schema(
   {
@@ -78,27 +81,29 @@ const VenueSchema = new Schema(
       description: translatedSchema,
     },
     prices: Object,
-    timeline: {
-      dineUntil: Mixed,
-      bitesUntil: Mixed,
-      drinksFrom: Mixed,
-      partyFrom: Mixed,
-      closedAt: Mixed,
+    timeSchedule: {
+      open: weekSchema,
+      kitchen: weekSchema,
+      terrace: weekSchema,
+      bitesUntil: weekSchema,
+      drinksFrom: weekSchema,
+      busyFrom: weekSchema,
+      dancingFrom: weekSchema,
     },
     capacity: Number,
-    paymentMethods: {
-      type: String,
-      enum: Object.values(VENUE_PAYMENT_METHODS),
-    },
+    paymentMethods: [
+      {
+        type: String,
+        enum: Object.values(VENUE_PAYMENT_METHODS),
+      },
+    ],
     fees: {
       entrance: Number,
       wardrobe: Number,
     },
     dresscode: {
-      type: {
-        type: String,
-        enum: Object.values(VENUE_DRESSCODES),
-      },
+      type: String,
+      enum: Object.values(VENUE_DRESSCODES),
     },
     facilities: [
       {

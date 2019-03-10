@@ -767,14 +767,15 @@ components:
             type: string
             enum:
               [
-                'seniors',
+                'teenagers',
                 'students',
                 'young_professionals',
                 'middle_aged',
-                'varying',
+                'seniors',
                 'international',
                 'locals',
                 'lbgtq',
+                'varying',
               ]
         dresscode:
           type: string
@@ -792,7 +793,7 @@ components:
               [
                 'debit_card',
                 'credit_card',
-                'alternative'
+                'cash'
               ]
         doorPolicy:
           type: object
@@ -806,7 +807,7 @@ components:
                   'guestlist'
                 ]
             description:
-              type: string
+              $ref: '#/components/schemas/TranslatedObject'
         prices:
           type: object
           properties:
@@ -882,6 +883,16 @@ components:
         height:
           type: number
           description: Image height.
+        perspective:
+          type: string
+          enum: [
+            'front_bar',
+            'front_venue',
+            'front_stage',
+            'from_bar',
+            'from_stage',
+            'atmosphere',
+          ]
     User:
       type: object
       required:

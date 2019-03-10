@@ -8,6 +8,7 @@ const Venue = require('./venueModel');
 const { standardAuth, adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const VenueImage = require('../venues/venueImageModel');
+const { IMAGE_PERSPECTIVES } = require('../../shared/constants');
 
 const upload = multer();
 const router = new Router();
@@ -93,20 +94,23 @@ router.post(
   '/:venueId/images',
   adminAuth(),
   validator.validate('post', '/venues/{venueId}/images'),
-  upload.array('images', 10),
+  upload.fields(
+    IMAGE_PERSPECTIVES.map(perspective => ({ name: perspective, maxCount: 1 }))
+  ),
   asyncMiddleware(async (req, res, next) => {
     let promises;
     if (req.files) {
-      promises = req.files.map(file =>
-        venueRepository.uploadVenueImage(req.params.venueId, {
+      promises = Object.keys(req.files).map(perspective => {
+        const file = req.files[perspective].shift();
+        return venueRepository.uploadVenueImage(req.params.venueId, {
           buffer: file.buffer,
           mime: file.mimetype,
-          name: file.originalname,
-        })
-      );
+          perspective,
+        });
+      });
     } else {
-      promises = req.body.urls.map(url =>
-        venueRepository.uploadVenueImageByUrl(req.params.venueId, url)
+      promises = req.body.images.map(image =>
+        venueRepository.uploadVenueImageByUrl(req.params.venueId, image)
       );
     }
 

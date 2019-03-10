@@ -1,6 +1,6 @@
-const path = require('path');
 const request = require('request-promise-native');
 const imgSize = require('image-size');
+const mimeTypes = require('mime-types');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
@@ -72,7 +72,7 @@ function getVenue(venueId, opts = {}) {
     .exec();
 }
 
-async function uploadVenueImage(venueId, { buffer, mime, name }) {
+async function uploadVenueImage(venueId, { buffer, mime, perspective }) {
   if (!IMAGE_MIME_TYPES.includes(mime)) {
     throw new InvalidArgumentError('invalid_mime');
   }
@@ -85,9 +85,10 @@ async function uploadVenueImage(venueId, { buffer, mime, name }) {
   const image = new VenueImage({
     filesize: buffer.byteLength,
     filetype: mime,
+    perspective,
   });
 
-  image.filename = image._id + path.extname(name);
+  image.filename = `${image._id}.${mimeTypes.extension(mime)}`;
 
   try {
     await imagesService.upload(image.filename, mime, buffer);
@@ -111,16 +112,20 @@ async function uploadVenueImage(venueId, { buffer, mime, name }) {
   }
 }
 
-async function uploadVenueImageByUrl(venueId, uri) {
+async function uploadVenueImageByUrl(venueId, image) {
+  const { url, perspective } = image;
   const res = await request.get({
-    uri,
+    uri: url,
     resolveWithFullResponse: true,
     encoding: null,
   });
-  const name = uri.split('/').pop();
   const mime = res.headers['content-type'];
 
-  return await uploadVenueImage(venueId, { buffer: res.body, name, mime });
+  return await uploadVenueImage(venueId, {
+    buffer: res.body,
+    perspective,
+    mime,
+  });
 }
 
 module.exports = {

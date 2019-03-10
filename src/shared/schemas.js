@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Mixed = mongoose.Schema.Types.Mixed;
 
 const pointSchema = new mongoose.Schema(
   {
@@ -22,7 +23,21 @@ const translatedSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const weekSchema = new mongoose.Schema(
+  {
+    mon: Mixed,
+    tue: Mixed,
+    wed: Mixed,
+    thu: Mixed,
+    fri: Mixed,
+    sat: Mixed,
+    sun: Mixed,
+  },
+  { _id: false }
+);
+
 module.exports = {
   pointSchema,
   translatedSchema,
+  weekSchema,
 };
