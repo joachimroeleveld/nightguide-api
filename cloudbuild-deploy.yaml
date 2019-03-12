@@ -66,7 +66,7 @@ steps:
 artifacts:
   objects:
     location: 'gs://${_BUILDS_BUCKET}'
-    paths: ['secrets/api/${TAG_NAME}/env.${_ENV}.enc']
+    paths: ['secrets/api/${TAG_NAME}/env.${_ENV}.enc', 'charts/${_ENV}/api-${TAG_NAME}.tgz']
 
 images:
   - ${_IMAGE_REPO}/$PROJECT_ID/api

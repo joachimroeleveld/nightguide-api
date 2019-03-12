@@ -33,6 +33,7 @@ Object {
     "dance",
   ],
   "name": "Tivoli",
+  "paymentMethods": Array [],
   "twitterHandle": "TiVredenburg",
   "updatedAt": Any<String>,
   "visitorTypes": Array [
