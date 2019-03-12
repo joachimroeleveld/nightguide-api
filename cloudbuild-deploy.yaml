@@ -57,8 +57,7 @@ steps:
     - |
       helm plugin install https://github.com/nouney/helm-gcs
       helm repo add repo ${_HELM_REPO}
-      CHART_NAME=api-${TAG_NAME//v/}
-      helm gcs push $CHART_NAME repo
+      helm gcs push api-${TAG_NAME//v/} repo
 
   # Upload encrypted secrets
 - name: 'gcr.io/cloud-builders/gsutil'
