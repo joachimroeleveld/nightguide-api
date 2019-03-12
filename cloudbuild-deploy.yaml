@@ -50,7 +50,7 @@ steps:
   args: [ '-c', 'tar -czvf api-${TAG_NAME}.tgz -C infra/helm/api .' ]
 
   # Push chart to Helm repository
-- name: 'gcr.io/cloud-builders/helm'
+- name: 'gcr.io/rimusz-lab1/cloud-builders-helm'
   entrypoint: bash
   args:
     - '-c'
