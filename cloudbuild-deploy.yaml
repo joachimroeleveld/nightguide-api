@@ -55,6 +55,7 @@ steps:
   args:
     - '-c'
     - |
+      helm init --client-only
       helm plugin install https://github.com/nouney/helm-gcs
       helm repo add repo gs://${_BUILDS_BUCKET}/charts/${_ENV}
       helm gcs push api-${TAG_NAME//v/} repo
