@@ -44,11 +44,6 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: [ 'push', '${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME' ]
 
-  # Create chart archive
-- name: 'gcr.io/cloud-builders/gcloud'
-  entrypoint: bash
-  args: [ '-c', 'tar -czvf chart.tgz -C infra/helm/api .' ]
-
   # Push chart to Helm repository
 - name: 'gcr.io/rimusz-lab1/cloud-builders-helm'
   entrypoint: bash
