@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-CHART_NAME=${VERSION//v/}
+CHART_NAME=api-${VERSION//v/}.tgz
 
 helm init --client-only
 helm plugin install https://github.com/nouney/helm-gcs
 helm repo add repo $REPO
-helm gcs push api-$CHART_NAME.tgz repo
+mv chart.tgz $CHART_NAME
+helm gcs push $CHART_NAME repo
