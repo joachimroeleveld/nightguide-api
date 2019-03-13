@@ -51,7 +51,8 @@ steps:
 
   # Push chart to Helm repository
 - name: 'gcr.io/rimusz-lab1/cloud-builders-helm'
-  args: ['bash', './scripts/push-helm-chart.sh']
+  entrypoint: bash
+  args: ['./scripts/push-helm-chart.sh']
   env:
     - 'REPO=gs://${_BUILDS_BUCKET}/charts/${_ENV}'
     - 'VERSION=${TAG_NAME}'
