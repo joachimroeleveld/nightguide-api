@@ -51,14 +51,10 @@ steps:
 
   # Push chart to Helm repository
 - name: 'gcr.io/rimusz-lab1/cloud-builders-helm'
-  entrypoint: bash
-  args:
-    - '-c'
-    - |
-      helm init --client-only
-      helm plugin install https://github.com/nouney/helm-gcs
-      helm repo add repo gs://${_BUILDS_BUCKET}/charts/${_ENV}
-      helm gcs push api-${TAG_NAME//v/} repo
+  args: ['bash', './scripts/push-helm-chart.sh']
+  env:
+    - 'REPO=gs://${_BUILDS_BUCKET}/charts/${_ENV}'
+    - 'VERSION=${TAG_NAME}'
 
   # Upload encrypted secrets
 - name: 'gcr.io/cloud-builders/gsutil'
