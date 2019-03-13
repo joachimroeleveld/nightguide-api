@@ -35,7 +35,7 @@ ingress:
   paths: []
   hosts: []
 
-resources: {}
+resources:
    limits:
     cpu:
     memory:
