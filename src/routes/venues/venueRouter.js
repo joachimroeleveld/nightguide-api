@@ -5,7 +5,7 @@ const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
 const venueRepository = require('./venueRepository');
 const Venue = require('./venueModel');
-const { standardAuth, adminAuth } = require('../../shared/auth');
+const { standardAuth, adminAuth, checkIsApp } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const VenueImage = require('../venues/venueImageModel');
 const { IMAGE_PERSPECTIVES } = require('../../shared/constants');
@@ -15,7 +15,7 @@ const router = new Router();
 
 router.get(
   '/',
-  standardAuth(),
+  checkIsApp(),
   coerce('get', '/venues'),
   validator.validate('get', '/venues'),
   asyncMiddleware(async (req, res, next) => {
@@ -67,7 +67,7 @@ router.post(
 
 router.get(
   '/:venueId',
-  standardAuth(),
+  checkIsApp(),
   validator.validate('get', '/venues/{venueId}'),
   asyncMiddleware(async (req, res, next) => {
     const venue = await venueRepository.getVenue(req.params.venueId, {
