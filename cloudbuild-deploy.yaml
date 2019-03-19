@@ -56,11 +56,6 @@ steps:
 - name: 'gcr.io/cloud-builders/gsutil'
   args: ['cp', 'env.*.enc', 'gs://${_BUILDS_BUCKET}/secrets/api/${TAG_NAME}/']
 
-artifacts:
-  objects:
-    location: 'gs://${_BUILDS_BUCKET}'
-    paths: ['secrets/api/${TAG_NAME}/env.${_ENV}.enc', 'charts/${_ENV}/api-${TAG_NAME}.tgz']
-
 images:
   - ${_IMAGE_REPO}/$PROJECT_ID/api
   - ${_IMAGE_REPO}/$PROJECT_ID/api:$TAG_NAME

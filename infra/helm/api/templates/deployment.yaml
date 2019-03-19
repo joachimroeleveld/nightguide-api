@@ -80,7 +80,7 @@ spec:
       volumes:
       - name: env
         emptyDir: {}
-      - name: serviceacount
+      - name: serviceaccount
         secret:
           secretName: "{{ .Values.secrets.serviceaccount.name }}"
       {{- with .Values.nodeSelector }}
