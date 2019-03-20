@@ -27,7 +27,7 @@ spec:
             - "/bin/bash"
             - "-ec"
             - |
-              gsutil cp $ENV_URL /tmp/env.enc
+              gsutil cp $ENV_FILE_URI /tmp/env.enc
               gcloud kms decrypt \
               --ciphertext-file=/tmp/env.enc \
               --plaintext-file=/opt/env/.env \
@@ -35,14 +35,14 @@ spec:
               --keyring=$KMS_KEYRING \
               --key=$KMS_KEY
           env:
-          - name: ENV_URL
-            value: "{{ .Values.secrets.env.url }}"
-          - name: KMS_KEYRING
-            value: "{{ .Values.secrets.env.kmsKeyring }}"
-          - name: KMS_KEY
-            value: "{{ .Values.secrets.env.kmsKey }}"
-          - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
-            value: "/google-key.json"
+            - name: ENV_FILE_URI
+              value: "{{ .Values.secrets.env.fileUri }}"
+            - name: KMS_KEYRING
+              value: "{{ .Values.secrets.env.kmsKeyring }}"
+            - name: KMS_KEY
+              value: "{{ .Values.secrets.env.kmsKey }}"
+            - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
+              value: "/google-key.json"
           volumeMounts:
             - mountPath: "/opt/env"
               name: env
@@ -78,11 +78,11 @@ spec:
               name: serviceaccount
               readOnly: true
       volumes:
-      - name: env
-        emptyDir: {}
-      - name: serviceaccount
-        secret:
-          secretName: "{{ .Values.secrets.serviceaccount.name }}"
+        - name: env
+          emptyDir: {}
+        - name: serviceaccount
+          secret:
+            secretName: "{{ .Values.secrets.serviceaccount.name }}"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
