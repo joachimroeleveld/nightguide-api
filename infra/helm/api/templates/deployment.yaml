@@ -42,11 +42,11 @@ spec:
             - name: KMS_KEY
               value: "{{ .Values.secrets.env.kmsKey }}"
             - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
-              value: "/google-key.json"
+              value: "/var/run/secrets/google-key.json"
           volumeMounts:
             - mountPath: "/opt/env"
               name: env
-            - mountPath: "/"
+            - mountPath: "/var/run/secrets"
               name: serviceaccount
               readOnly: true
           resources:
@@ -66,7 +66,7 @@ spec:
               protocol: TCP
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: "/google-key.json"
+              value: "/var/run/secrets/google-key.json"
           livenessProbe:
             httpGet:
               path: /health
@@ -81,7 +81,7 @@ spec:
             - mountPath: "/usr/src/app/"
               name: env
               readOnly: true
-            - mountPath: "/"
+            - mountPath: "/var/run/secrets"
               name: serviceaccount
               readOnly: true
       volumes:
