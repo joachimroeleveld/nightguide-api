@@ -31,9 +31,11 @@ service:
 ingress:
   enabled: true
   annotations: {}
-  backend:
-    serviceName:
-    servicePort: 80
+  paths:
+    - path: /
+      backend:
+        serviceName:
+        servicePort: 80
   hosts: []
 
 resources:
