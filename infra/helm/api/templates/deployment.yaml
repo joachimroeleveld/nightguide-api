@@ -49,6 +49,13 @@ spec:
             - mountPath: "/"
               name: serviceaccount
               readOnly: true
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100M
+            requests:
+              cpu: 100m
+              memory: 100M
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.containers.api.repository }}:{{ .Values.containers.api.tag }}"
