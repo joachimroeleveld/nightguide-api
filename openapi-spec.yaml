@@ -417,6 +417,7 @@ paths:
                   location,
                   website,
                   facebook,
+                  timeSchedule
                 ]
           description: Fields to return. Returns limited set of fields by default.
       responses:
