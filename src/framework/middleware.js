@@ -8,14 +8,18 @@ const { USER_ROLES, CLIENT_IDS } = require('../shared/constants');
  * Authenticate request with JWT and user role.
  * @returns {Function}
  */
-function jwtAuth() {
+function jwtAuth(required = true) {
   return async (req, res, next) => {
     try {
       req.user = await auth.getUserFromToken(req.token);
 
       next();
     } catch (e) {
-      next(e);
+      if (required) {
+        next(e);
+      } else {
+        next();
+      }
     }
   };
 }

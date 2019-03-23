@@ -24,6 +24,8 @@ function createExpressApp() {
     app.use(express.json());
     app.use(bearerToken());
     app.use(middleware.setClientId());
+    // Attach user object if bearer is provided
+    app.use(middleware.jwtAuth(false));
 
     // Add routes
     Object.keys(routes).forEach(basePath => {

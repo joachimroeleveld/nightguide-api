@@ -4,11 +4,16 @@ const sinon = require('sinon');
 
 const authMock = require('../shared/__test__/authMock');
 const configMock = require('../shared/__test__/configMock');
-const { jwtAuth, authenticateAppClient, setClientId } = require('./middleware');
+const {
+  jwtAuth,
+  authenticateAppClient,
+  setClientId,
+  checkRole,
+} = require('./middleware');
 const User = require('../routes/users/userModel');
 const { TEST_USER_1 } = require('../shared/__test__/fixtures');
 const { UnauthorizedError } = require('../shared/errors');
-const { CLIENT_IDS } = require('../shared/constants');
+const { CLIENT_IDS, USER_ROLES } = require('../shared/constants');
 
 const sandbox = sinon.sandbox.create();
 
@@ -62,18 +67,40 @@ describe('middleware', () => {
       jwtAuth()(req, res, next);
     });
 
+    it(`doesn't return an error when required=false`, () => {
+      const req = {};
+      const res = {};
+      const next = err => {
+        expect(err).toBeUndefined();
+      };
+
+      jwtAuth(false)(req, res, next);
+    });
+  });
+
+  describe('checkRole', () => {
+    it('happy path', async () => {
+      const user = new User(TEST_USER_1);
+
+      const req = {};
+      const res = {};
+      const next = err => {
+        expect(err).toBeUndefined();
+      };
+
+      checkRole(USER_ROLES.ROLE_STANDARD)(req, res, next);
+    });
+
     it('rejects an invalid role', async () => {
       const user = new User(TEST_USER_1);
 
-      const req = {
-        token: user.signJwt(),
-      };
+      const req = {};
       const res = {};
       const next = err => {
         expect(err).toBeInstanceOf(UnauthorizedError);
       };
 
-      jwtAuth('godmode')(req, res, next);
+      checkRole('godmode')(req, res, next);
     });
   });
 

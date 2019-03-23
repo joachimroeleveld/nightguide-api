@@ -1,6 +1,6 @@
 const { Router } = require('express');
 
-const { standardAuth } = require('../../shared/auth');
+const { checkIsApp } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const mail = require('../../shared/services/mail');
 const { validator } = require('../../shared/openapi');
@@ -10,19 +10,20 @@ const router = new Router();
 
 router.post(
   '/user-feedback',
-  standardAuth(),
+  checkIsApp(),
   validator.validate('post', '/misc/user-feedback'),
   asyncMiddleware(async (req, res, next) => {
+    const user = req.user ? req.user.email : 'Anonymous';
     await mail.sendBasicEmail(
       FEEDBACK_EMAIL,
       'User app feedback',
       `
-<strong>User ${req.user.email} sent you message:</strong><br/>
+<strong>User ${user} sent you message:</strong><br/>
 <br/>
 <p style="font-style:italic;">${req.body.message}</p>    
     `,
       {
-        replyTo: req.user.email,
+        replyTo: req.user ? req.user.email : undefined,
       }
     );
 
