@@ -28,6 +28,7 @@ spec:
             - "-ec"
             - |
               cat /var/run/secrets/google-key.json | base64 -d > /tmp/google-key.json
+              echo /tmp/google-key.json
               gsutil cp $ENV_FILE_URI /tmp/env.enc
               gcloud kms decrypt \
               --ciphertext-file=/tmp/env.enc \
