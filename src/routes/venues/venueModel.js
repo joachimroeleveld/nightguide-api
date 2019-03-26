@@ -99,7 +99,7 @@ const VenueSchema = new Schema(
     ],
     fees: {
       entrance: Number,
-      wardrobe: Number,
+      coatCheck: Number,
     },
     dresscode: {
       type: String,

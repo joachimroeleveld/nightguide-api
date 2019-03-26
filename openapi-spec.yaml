@@ -821,7 +821,7 @@ components:
         fees:
           type: object
           properties:
-            wardrobe:
+            coatCheck:
               type: number
               format: double
             entrance:
