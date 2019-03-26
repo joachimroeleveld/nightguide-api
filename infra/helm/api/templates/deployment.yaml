@@ -27,7 +27,6 @@ spec:
             - "/bin/bash"
             - "-ec"
             - |
-              cat /var/run/secrets/google-key.json | base64 -d > /tmp/google-key.json
               cat /tmp/google-key.json
               gsutil cp $ENV_FILE_URI /tmp/env.enc
               gcloud kms decrypt \
@@ -44,7 +43,7 @@ spec:
             - name: KMS_KEY
               value: "{{ .Values.secrets.env.kmsKey }}"
             - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
-              value: "/tmp/google-key.json"
+              value: "/var/run/secrets/google-key.json"
           volumeMounts:
             - mountPath: "/opt/env"
               name: env
