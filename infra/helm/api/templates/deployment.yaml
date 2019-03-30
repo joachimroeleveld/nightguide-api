@@ -50,7 +50,7 @@ spec:
               name: serviceaccount
               readOnly: true
             - mountPath: "/var/gcloud"
-              name: api-cloudsdk-config
+              name: cloudsdk-config
               readOnly: true
           resources:
             limits:
@@ -93,6 +93,9 @@ spec:
         - name: serviceaccount
           secret:
             secretName: "{{ .Values.secrets.serviceaccount.name }}"
+        - name: cloudsdk-config
+          configMap:
+            name: api-cloudsdk-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
