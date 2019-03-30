@@ -41,13 +41,16 @@ spec:
               value: "{{ .Values.secrets.env.kmsKeyring }}"
             - name: KMS_KEY
               value: "{{ .Values.secrets.env.kmsKey }}"
-            - name: CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE
-              value: "/var/run/secrets/google-key.json"
+            - name: CLOUDSDK_CONFIG
+              value: "/var/gcloud/config"
           volumeMounts:
             - mountPath: "/opt/env"
               name: env
             - mountPath: "/var/run/secrets"
               name: serviceaccount
+              readOnly: true
+            - mountPath: "/var/gcloud"
+              name: api-cloudsdk-config
               readOnly: true
           resources:
             limits:
@@ -102,3 +105,12 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
     {{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-cloudsdk-config
+data:
+  config: |
+    [auth]
+    credential_file_override = /var/run/secrets/google-key.json
