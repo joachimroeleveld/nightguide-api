@@ -57,7 +57,7 @@ spec:
               memory: 100M
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.containers.api.repository }}:{{ .Values.containers.api.tag }}"
+          image: "{{ .Values.containers.api.repository }}/api:{{ .Values.containers.api.tag }}"
           imagePullPolicy: {{ .Values.containers.api.pullPolicy }}
           ports:
             - name: http
