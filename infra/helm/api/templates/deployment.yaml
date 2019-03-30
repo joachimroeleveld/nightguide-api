@@ -39,7 +39,7 @@ spec:
             - name: ENV_FILE_URI
               value: "{{ .Values.secrets.env.fileUri }}"
             - name: KMS_KEYRING
-              value: "{{ .Values.secrets.env.kmsKeyring }}"
+              value: "{{ .Values.secrets.env.kmsKeyRing }}"
             - name: KMS_KEY
               value: "{{ .Values.secrets.env.kmsKey }}"
           volumeMounts:
