@@ -1,11 +1,13 @@
 const request = require('request-promise-native');
 const imgSize = require('image-size');
 const mimeTypes = require('mime-types');
+const unidecode = require('unidecode');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
 const Venue = require('./venueModel');
 const VenueImage = require('./venueImageModel');
+const { applyFilterOnQuery } = require('./lib/filters');
 
 const IMAGE_MIME_TYPES = ['image/png', 'image/jpg', 'image/jpeg'];
 
@@ -27,11 +29,12 @@ function getVenues(opts) {
     sortBy,
     longitude,
     latitude,
+    filter,
   } = opts;
 
   const conditions = {};
   if (textFilter && textFilter.length >= 2) {
-    conditions.name = new RegExp(`\\b${textFilter}`, 'i');
+    conditions.queryText = new RegExp(`\\b${unidecode(textFilter)}`, 'i');
   }
   if (sortBy && sortBy.distance) {
     if (!longitude || !latitude) {
@@ -51,14 +54,22 @@ function getVenues(opts) {
 
   query.populate(populate.join(' '));
 
+  if (!sortBy) {
+    // Order by name by default
+    query.sort({ name: 1 });
+  }
   if (fields) {
-    query.select(fields);
+    // Location field is required for serialization
+    query.select(['location.city', ...fields]);
   }
   if (offset) {
     query.skip(offset);
   }
   if (limit) {
     query.limit(limit);
+  }
+  if (filter) {
+    applyFilterOnQuery(query, filter);
   }
 
   return query.exec();

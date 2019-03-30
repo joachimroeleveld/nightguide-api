@@ -49,7 +49,6 @@ paths:
                 - password
                 - firstName
                 - lastName
-                - gender
                 - birthday
       responses:
         '201':
@@ -364,6 +363,7 @@ paths:
       tags:
         - venues
       parameters:
+        - $ref: '#/components/parameters/VenueFilter'
         - in: query
           name: query
           schema:
@@ -374,8 +374,10 @@ paths:
         - in: query
           name: sortBy
           schema:
-            type: string
-          description: Sort with optional order separated by comma (e.g. distance,desc)
+            type: array
+            items:
+              type: string
+          description: Sort with optional order
         - in: query
           name: longitude
           schema:
@@ -417,7 +419,9 @@ paths:
                   location,
                   website,
                   facebook,
-                  timeSchedule
+                  timeSchedule,
+                  capacity,
+                  prices
                 ]
           description: Fields to return. Returns limited set of fields by default.
       responses:
@@ -615,6 +619,55 @@ paths:
           $ref: '#/components/responses/ServerError'
 
 components:
+  parameters:
+    VenueFilter:
+      in: query
+      name: filter
+      schema:
+        type: object
+        properties:
+          cat:
+            $ref: '#/components/schemas/VenueCategories'
+          priceCat:
+            type: string
+          musicType:
+            $ref: '#/components/schemas/VenueMusicTypes'
+          visitorType:
+            $ref: '#/components/schemas/VenueVisitorTypes'
+          dresscode:
+            $ref: '#/components/schemas/VenueDresscodes'
+          paymentMethod:
+            $ref: '#/components/schemas/VenuePaymentMethods'
+          doorPolicy:
+            $ref: '#/components/schemas/VenueDoorPolicies'
+          cap:
+            type: string
+          bouncers:
+            type: boolean
+          noBouncers:
+            type: boolean
+          parking:
+            type: boolean
+          accessible:
+            type: boolean
+          vip:
+            type: boolean
+          noEntranceFee:
+            type: boolean
+          kitchen:
+            type: boolean
+          coatCheck:
+            type: boolean
+          noCoatCheckFee:
+            type: boolean
+          smoking:
+            type: boolean
+          cigarettes:
+            type: boolean
+          terrace:
+            type: boolean
+          heatedTerrace:
+            type: boolean
   responses:
     ServerError:
       description: Internal server error
@@ -626,7 +679,7 @@ components:
       description: The request did not satisfy the requirements
       content:
         application/json:
-          schema:
+         schema:
             $ref: '#/components/schemas/Error'
     NotFound:
       description: The specified resource was not found
@@ -668,33 +721,12 @@ components:
           format: int32
         name:
           type: string
+        queryText:
+          type: string
         categories:
           type: array
           items:
-            type: string
-            enum:
-              [
-                'club',
-                'bar',
-                'lounge_bar',
-                'craft_beer_bar',
-                'cocktail_bar',
-                'concert_venue',
-                'adult',
-                'blues_bar',
-                'casino',
-                'comedy_bar',
-                'country_bar',
-                'hookah_bar',
-                'irish_pub',
-                'jazz_bar',
-                'karaoke_bar',
-                'lgbtq_bar',
-                'piano_bar',
-                'sports_bar',
-                'wine_bar',
-                'whisky_bar',
-              ]
+            $ref: '#/components/schemas/VenueCategories'
         description:
           $ref: '#/components/schemas/TranslatedObject'
         location:
@@ -720,6 +752,8 @@ components:
                 longitude:
                   type: number
                   format: float
+            googlePlaceId:
+              type: string
         website:
           type: string
         facebook:
@@ -739,74 +773,22 @@ components:
         musicTypes:
           type: array
           items:
-            type: string
-            enum:
-              [
-                'techno',
-                'dance',
-                'live',
-                'varying',
-                'jazz',
-                'apres_ski',
-                'country',
-                'miscellaneous',
-                'folk',
-                'house',
-                'lounge',
-                'no_music',
-                'hip_hop',
-                'rock',
-                'classical',
-                '80s_90s',
-                'disco',
-                'latin',
-                'electro',
-              ]
+            $ref: '#/components/schemas/VenueMusicTypes'
         visitorTypes:
           type: array
           items:
-            type: string
-            enum:
-              [
-                'teenagers',
-                'students',
-                'young_professionals',
-                'middle_aged',
-                'seniors',
-                'international',
-                'locals',
-                'lgbtq',
-                'varying',
-              ]
+            $ref: '#/components/schemas/VenueVisitorTypes'
         dresscode:
-          type: string
-          enum:
-            [
-            'casual',
-            'chique',
-            'alternative'
-            ]
+          $ref: '#/components/schemas/VenueDresscodes'
         paymentMethods:
           type: array
           items:
-            type: string
-            enum:
-              [
-                'debit_card',
-                'credit_card',
-                'cash'
-              ]
+            $ref: '#/components/schemas/VenuePaymentMethods'
         doorPolicy:
           type: object
           properties:
             policy:
-              type: string
-              enum:
-                [
-                  'moderate',
-                  'strict',
-                  'guestlist'
-                ]
+              $ref: '#/components/schemas/VenueDoorPolicies'
             description:
               $ref: '#/components/schemas/TranslatedObject'
         prices:
@@ -818,6 +800,11 @@ components:
             beer:
               type: number
               format: double
+        priceCategory:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 4
         fees:
           type: object
           properties:
@@ -831,29 +818,120 @@ components:
           type: integer
           format: int32
           minimum: 0
+        capacityRange:
+          type: string
         facilities:
           type: array
           items:
-            type: string
-            enum:
-              [
-                'vip_area',
-                'smoking_area',
-                'bouncers',
-                'kitchen',
-                'coat_check',
-                'parking',
-                'cigarettes',
-                'accessible',
-                'terrace',
-                'terrace_heaters',
-              ]
+            $ref: '#/components/schemas/VenueFacilities'
         images:
           type: array
           items:
             oneOf:
               - type: string
               - $ref: '#/components/schemas/VenueImage'
+    VenueFacilities:
+      type: string
+      enum:
+        [
+          'vip_area',
+          'smoking_area',
+          'bouncers',
+          'kitchen',
+          'coat_check',
+          'parking',
+          'cigarettes',
+          'accessible',
+          'terrace',
+          'terrace_heaters',
+        ]
+    VenueDoorPolicies:
+      type: string
+      enum:
+        [
+          'moderate',
+          'strict',
+          'guestlist'
+        ]
+    VenuePaymentMethods:
+      type: string
+      enum:
+        [
+          'debit_card',
+          'credit_card',
+          'cash'
+        ]
+    VenueDresscodes:
+      type: string
+      enum:
+        [
+          'casual',
+          'chique',
+          'alternative'
+        ]
+    VenueVisitorTypes:
+      type: string
+      enum:
+        [
+          'teenagers',
+          'students',
+          'young_professionals',
+          'middle_aged',
+          'seniors',
+          'international',
+          'locals',
+          'lgbtq',
+          'varying',
+        ]
+    VenueMusicTypes:
+      type: string
+      enum:
+        [
+          'techno',
+          'dance',
+          'live',
+          'varying',
+          'jazz',
+          'apres_ski',
+          'country',
+          'miscellaneous',
+          'folk',
+          'house',
+          'lounge',
+          'no_music',
+          'hip_hop',
+          'rock',
+          'classical',
+          '80s_90s',
+          'disco',
+          'latin',
+          'electro',
+        ]
+    VenueCategories:
+      type: string
+      enum:
+        [
+          'club',
+          'bar',
+          'lounge_bar',
+          'craft_beer_bar',
+          'cocktail_bar',
+          'concert_venue',
+          'adult',
+          'blues_bar',
+          'casino',
+          'comedy_bar',
+          'country_bar',
+          'hookah_bar',
+          'irish_pub',
+          'jazz_bar',
+          'karaoke_bar',
+          'lgbtq_bar',
+          'piano_bar',
+          'sports_bar',
+          'wine_bar',
+          'whisky_bar',
+        ]
     VenueImage:
       type: object
       required:

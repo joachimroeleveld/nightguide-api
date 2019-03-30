@@ -118,6 +118,8 @@ const IMAGE_PERSPECTIVES = [
   'atmosphere',
 ];
 
+const VENUE_CAPACITY_RANGES = [1, 50, 200, 500, 1000, 5000, 10000];
+
 module.exports = {
   SPEC_FILE_NAME,
   CLIENT_IDS,
@@ -133,4 +135,5 @@ module.exports = {
   VENUE_DRESSCODES,
   VENUE_FACILITIES,
   IMAGE_PERSPECTIVES,
+  VENUE_CAPACITY_RANGES,
 };

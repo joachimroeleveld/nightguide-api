@@ -1,8 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const _ = require('lodash');
 
-const VenueImage = require('./venueImageModel');
 const {
   VENUE_CATEGORIES,
   COUNTRIES,
@@ -18,6 +16,12 @@ const {
   translatedSchema,
   weekSchema,
 } = require('../../shared/schemas');
+const {
+  serialize,
+  deserialize,
+  getCapacityRange,
+  getPriceCategory,
+} = require('./lib/serialization');
 
 const VenueSchema = new Schema(
   {
@@ -26,6 +30,7 @@ const VenueSchema = new Schema(
       type: String,
       required: true,
     },
+    queryText: String,
     description: translatedSchema,
     categories: [
       {
@@ -51,6 +56,7 @@ const VenueSchema = new Schema(
         type: pointSchema,
         required: true,
       },
+      googlePlaceId: String,
     },
     website: String,
     facebook: {
@@ -120,45 +126,15 @@ const VenueSchema = new Schema(
 VenueSchema.index({ 'location.coordinates': '2dsphere' });
 VenueSchema.index({ name: 'text' });
 
-VenueSchema.static('serialize', data => {
-  if (data.location && data.location.coordinates) {
-    data.location.coordinates = {
-      type: 'Point',
-      coordinates: [
-        data.location.coordinates.longitude,
-        data.location.coordinates.latitude,
-      ],
-    };
-  }
-  return data;
+VenueSchema.virtual('capacityRange').get(function() {
+  return getCapacityRange(this);
+});
+VenueSchema.virtual('priceCategory').get(function() {
+  return getPriceCategory(this);
 });
 
-VenueSchema.static('deserialize', venue => {
-  if (venue.toObject) {
-    venue = venue.toObject();
-  } else {
-    venue = _.cloneDeep(venue);
-  }
-
-  venue.id = venue._id;
-  delete venue._id;
-  delete venue.__v;
-  delete venue.sourceId;
-
-  if (venue.images) {
-    venue.images = venue.images.map(VenueImage.deserialize);
-  }
-  if (venue.location && venue.location.coordinates) {
-    const longitude = venue.location.coordinates.coordinates[0];
-    const latitude = venue.location.coordinates.coordinates[1];
-    venue.location.coordinates = {
-      longitude,
-      latitude,
-    };
-  }
-
-  return venue;
-});
+VenueSchema.static('serialize', serialize);
+VenueSchema.static('deserialize', deserialize);
 
 VenueSchema.method('deserialize', function() {
   return VenueSchema.statics.deserialize(this);

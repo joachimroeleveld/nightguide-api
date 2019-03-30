@@ -18,7 +18,16 @@ const {
 } = require('../../shared/__test__/fixtures');
 const { clearDb } = require('../../shared/__test__/testUtils');
 const venueRepository = require('./venueRepository');
-const { IMAGE_PERSPECTIVES } = require('../../shared/constants');
+const {
+  IMAGE_PERSPECTIVES,
+  VENUE_CATEGORIES,
+  VENUE_MUSIC_TYPES,
+  VENUE_VISITOR_TYPES,
+  VENUE_DOORPOLICIES,
+  VENUE_DRESSCODES,
+  VENUE_FACILITIES,
+  VENUE_PAYMENT_METHODS,
+} = require('../../shared/constants');
 
 const VENUE_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -112,7 +121,7 @@ Object {
     it('should filter results on name based on query parameter', async () => {
       await venueRepository.createVenue({
         ...TEST_VENUE_1,
-        name: 'tobefiltered',
+        queryText: 'tobefiltered',
       });
       await venueRepository.createVenue(TEST_VENUE_2);
 
@@ -124,7 +133,26 @@ Object {
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
-      expect(res.body.results[0].name).toBe('tobefiltered');
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('should handle special characters in search queries', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        queryText: 'cafe',
+      });
+      await venueRepository.createVenue(TEST_VENUE_2);
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          query: 'café',
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -157,6 +185,198 @@ Object {
         });
 
       expect(res.status).toEqual(400);
+    });
+
+    it('category filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        categories: [VENUE_CATEGORIES.CATEGORY_BAR],
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        categories: [VENUE_CATEGORIES.CATEGORY_ADULT],
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            cat: VENUE_CATEGORIES.CATEGORY_BAR,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('musicType filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        musicTypes: [VENUE_MUSIC_TYPES.MUSIC_APRES_SKI],
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        musicTypes: [VENUE_MUSIC_TYPES.MUSIC_80_90],
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            musicType: VENUE_MUSIC_TYPES.MUSIC_APRES_SKI,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('paymentMethod filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        paymentMethods: [VENUE_PAYMENT_METHODS.METHOD_CASH],
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        paymentMethods: [VENUE_PAYMENT_METHODS.METHOD_CREDIT_CARD],
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            paymentMethod: VENUE_PAYMENT_METHODS.METHOD_CASH,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('dresscode filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        dresscode: VENUE_DRESSCODES.DRESSCODE_ALTERNATIVE,
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        dresscode: VENUE_DRESSCODES.DRESSCODE_CASUAL,
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            dresscode: VENUE_DRESSCODES.DRESSCODE_ALTERNATIVE,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('doorPolicy filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        doorPolicy: { policy: VENUE_DOORPOLICIES.POLICY_GUESTLIST },
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        doorPolicy: { policy: VENUE_DOORPOLICIES.POLICY_MODERATE },
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            doorPolicy: VENUE_DOORPOLICIES.POLICY_GUESTLIST,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('cap filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        doorPolicy: { policy: VENUE_DOORPOLICIES.POLICY_GUESTLIST },
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        doorPolicy: { policy: VENUE_DOORPOLICIES.POLICY_MODERATE },
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            doorPolicy: VENUE_DOORPOLICIES.POLICY_GUESTLIST,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('visitorType filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        visitorTypes: [VENUE_VISITOR_TYPES.VISITOR_INTERNATIONAL],
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        visitorTypes: [VENUE_VISITOR_TYPES.VISITOR_LGBTQ],
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            visitorType: VENUE_VISITOR_TYPES.VISITOR_LGBTQ,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('visitorType filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        visitorTypes: [VENUE_VISITOR_TYPES.VISITOR_INTERNATIONAL],
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        visitorTypes: [VENUE_VISITOR_TYPES.VISITOR_LGBTQ],
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            visitorType: VENUE_VISITOR_TYPES.VISITOR_LGBTQ,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
     });
   });
 
