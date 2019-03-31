@@ -19,7 +19,6 @@
     "update-js-cient": "bash scripts/update-js-client.sh"
   },
   "dependencies": {
-    "@google-cloud/debug-agent": "^3.0.0",
     "@google-cloud/storage": "^2.1.0",
     "@google-cloud/trace-agent": "^3.5.0",
     "@sendgrid/mail": "^6.3.1",
