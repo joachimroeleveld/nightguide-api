@@ -62,7 +62,7 @@ spec:
           imagePullPolicy: {{ .Values.containers.api.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8080
               protocol: TCP
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
