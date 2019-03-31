@@ -1,3 +1,7 @@
+if (process.env.TRACER_ENABLED === 'true') {
+  require('@google-cloud/trace-agent').start();
+}
+
 const dotenv = require('dotenv');
 dotenv.load();
 
@@ -5,10 +9,6 @@ const mongoose = require('mongoose');
 
 const config = require('./shared/config');
 const routes = require('./routes');
-
-if (config.getBoolean('TRACER_ENABLED')) {
-  require('@google-cloud/trace-agent').start();
-}
 
 const { createExpressApp } = require('./framework/expressServer');
 
