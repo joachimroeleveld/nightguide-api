@@ -27,11 +27,11 @@ spec:
             - "/bin/bash"
             - "-ec"
             - |
-              gcloud auth activate-service-account --key-file=/var/run/secrets/google-key.json
+              gcloud auth activate-service-account --key-file=/opt/init/google-key.json
               gsutil cp $ENV_FILE_URI /tmp/env.enc
               gcloud kms decrypt \
               --ciphertext-file=/tmp/env.enc \
-              --plaintext-file=/opt/env/.env \
+              --plaintext-file=/opt/init/env/.env \
               --location=global \
               --keyring=$KMS_KEYRING \
               --key=$KMS_KEY
@@ -43,11 +43,12 @@ spec:
             - name: KMS_KEY
               value: "{{ .Values.secrets.env.kmsKey }}"
           volumeMounts:
-            - mountPath: "/opt/env"
+            - mountPath: "/opt/init/env"
               name: env
-            - mountPath: "/var/run/secrets"
+            - mountPath: "/opt/init/google-key.json"
               name: serviceaccount
               readOnly: true
+              subPath: google-key.json
           resources:
             limits:
               cpu: 100m
@@ -65,7 +66,7 @@ spec:
               protocol: TCP
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: "/var/run/secrets/google-key.json"
+              value: "/usr/src/app/google-key.json"
           livenessProbe:
             httpGet:
               path: /health
@@ -77,12 +78,14 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-            - mountPath: "/usr/src/app/"
+            - mountPath: "/usr/src/app/.env"
               name: env
               readOnly: true
-            - mountPath: "/var/run/secrets"
+              subPath: .env
+            - mountPath: "/usr/src/app/google-key.json"
               name: serviceaccount
               readOnly: true
+              subPath: google-key.json
       volumes:
         - name: env
           emptyDir: {}
