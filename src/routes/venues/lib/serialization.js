@@ -52,13 +52,13 @@ function deserialize(venue) {
   }
 
   if (venue.prices) {
-    venue.priceCategory = getPriceCategory(venue);
+    venue.priceClass = getPriceClass(venue);
   }
 
   return venue;
 }
 
-function getPriceCategory(venue) {
+function getPriceClass(venue) {
   if (!venue.prices.cola || !venue.location || !venue.location.city) {
     return null;
   }
@@ -101,6 +101,6 @@ function getCapacityRange(venue) {
 module.exports = {
   serialize,
   deserialize,
-  getPriceCategory,
+  getPriceClass,
   getCapacityRange,
 };

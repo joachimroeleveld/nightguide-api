@@ -30,8 +30,7 @@ service:
 
 ingress:
   enabled: false
-  annotations:
-    kubernetes.io/ingress.allow-http: "false"
+  annotations: {}
   paths: ["/"]
   hosts: []
 

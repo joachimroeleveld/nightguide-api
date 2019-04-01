@@ -628,7 +628,7 @@ components:
         properties:
           cat:
             $ref: '#/components/schemas/VenueCategories'
-          priceCat:
+          priceClass:
             type: string
           musicType:
             $ref: '#/components/schemas/VenueMusicTypes'
@@ -800,7 +800,7 @@ components:
             beer:
               type: number
               format: double
-        priceCategory:
+        priceClass:
           type: integer
           format: int32
           minimum: 1

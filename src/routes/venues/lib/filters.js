@@ -2,7 +2,7 @@ function applyFilterOnQuery(
   query,
   {
     cat,
-    priceCat,
+    priceClass,
     musicType,
     visitorType,
     dresscode,

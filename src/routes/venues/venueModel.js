@@ -20,7 +20,7 @@ const {
   serialize,
   deserialize,
   getCapacityRange,
-  getPriceCategory,
+  getPriceClass,
 } = require('./lib/serialization');
 
 const VenueSchema = new Schema(
@@ -129,8 +129,8 @@ VenueSchema.index({ name: 'text' });
 VenueSchema.virtual('capacityRange').get(function() {
   return getCapacityRange(this);
 });
-VenueSchema.virtual('priceCategory').get(function() {
-  return getPriceCategory(this);
+VenueSchema.virtual('priceClass').get(function() {
+  return getPriceClass(this);
 });
 
 VenueSchema.static('serialize', serialize);
