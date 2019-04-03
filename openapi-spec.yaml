@@ -827,6 +827,8 @@ components:
             entrance:
               type: number
               format: double
+        entranceFeeRange:
+          type: string
         capacity:
           type: integer
           format: int32

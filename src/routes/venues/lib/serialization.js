@@ -4,19 +4,6 @@ const { VENUE_CAPACITY_RANGES } = require('../../../shared/constants');
 const cityConfig = require('../../../shared/cityConfig');
 const VenueImage = require('../venueImageModel');
 
-function serialize(data) {
-  if (data.location && data.location.coordinates) {
-    data.location.coordinates = {
-      type: 'Point',
-      coordinates: [
-        data.location.coordinates.longitude,
-        data.location.coordinates.latitude,
-      ],
-    };
-  }
-  return data;
-}
-
 function deserialize(venue) {
   if (venue.toObject) {
     venue = venue.toObject();
@@ -55,7 +42,24 @@ function deserialize(venue) {
     venue.priceClass = getPriceClass(venue);
   }
 
+  if (venue.fees && venue.fees.entrance) {
+    venue.entranceFeeRange = getEntranceFeeRange(venue).join('-');
+  }
+
   return venue;
+}
+
+function serialize(data) {
+  if (data.location && data.location.coordinates) {
+    data.location.coordinates = {
+      type: 'Point',
+      coordinates: [
+        data.location.coordinates.longitude,
+        data.location.coordinates.latitude,
+      ],
+    };
+  }
+  return data;
 }
 
 function getPriceClass(venue) {
@@ -88,6 +92,32 @@ function getPriceClass(venue) {
   return Math.max(cokeClass, beerClass);
 }
 
+function getEntranceFeeRange(venue) {
+  if (
+    !venue.fees ||
+    !venue.fees.entrance ||
+    !venue.location ||
+    !venue.location.city ||
+    !venue.location.country
+  ) {
+    return null;
+  }
+
+  const city = cityConfig.get(venue.location.country, venue.location.city);
+  return city.entranceFeeRanges.reduce((range, lowerBound, index) => {
+    if (range) {
+      return range;
+    }
+    const upperBound = city.entranceFeeRanges[index + 1];
+    if (!upperBound) {
+      return lowerBound;
+    }
+    if (venue.fees.entrance > lowerBound && venue.fees.entrance <= upperBound) {
+      return [lowerBound, upperBound];
+    }
+  }, null);
+}
+
 function getCapacityRange(venue) {
   if (!venue.capacity) {
     return null;
@@ -112,4 +142,5 @@ module.exports = {
   deserialize,
   getPriceClass,
   getCapacityRange,
+  getEntranceFeeRange,
 };
