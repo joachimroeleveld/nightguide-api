@@ -6,8 +6,8 @@ exports.validator = new OpenApiValidator(openApiSpec);
 
 exports.coerce = (method, path) => {
   return (req, res, next) => {
-    const spec = openApiSpec.paths[path][method];
-    const coercer = new OpenApiRequestCoercer(spec);
+    const parameters = openApiSpec.paths[path][method].parameters;
+    const coercer = new OpenApiRequestCoercer({ parameters });
     coercer.coerce(req);
     next();
   };

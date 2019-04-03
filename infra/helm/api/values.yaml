@@ -31,7 +31,7 @@ service:
 ingress:
   enabled: false
   annotations: {}
-  paths: ["/"]
+  paths: []
   hosts: []
 
 resources:

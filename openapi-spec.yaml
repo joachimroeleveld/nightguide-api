@@ -363,7 +363,13 @@ paths:
       tags:
         - venues
       parameters:
-        - $ref: '#/components/parameters/VenueFilter'
+# TODO: uncomment when object parameter coercion works
+#        - $ref: '#/components/parameters/VenueFilter'
+        - in: query
+          name: filter
+          schema:
+            type: object
+          description: Search filter
         - in: query
           name: query
           schema:
@@ -625,7 +631,14 @@ components:
       name: filter
       schema:
         type: object
+        required:
+          - city
+          - country
         properties:
+          city:
+            type: string
+          country:
+            type: string
           cat:
             $ref: '#/components/schemas/VenueCategories'
           priceClass:
@@ -640,7 +653,7 @@ components:
             $ref: '#/components/schemas/VenuePaymentMethods'
           doorPolicy:
             $ref: '#/components/schemas/VenueDoorPolicies'
-          cap:
+          capRange:
             type: string
           bouncers:
             type: boolean
@@ -794,7 +807,7 @@ components:
         prices:
           type: object
           properties:
-            cola:
+            coke:
               type: number
               format: double
             beer:

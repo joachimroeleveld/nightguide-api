@@ -59,8 +59,8 @@ function getVenues(opts) {
     query.sort({ name: 1 });
   }
   if (fields) {
-    // Location field is required for serialization
-    query.select(['location.city', ...fields]);
+    // Location fields is required for serialization
+    query.select(['location.city', 'location.country', ...fields]);
   }
   if (offset) {
     query.skip(offset);

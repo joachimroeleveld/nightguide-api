@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 const { VENUE_CAPACITY_RANGES } = require('../../../shared/constants');
-const CITIES = require('../../../shared/cityConfig');
+const cityConfig = require('../../../shared/cityConfig');
 const VenueImage = require('../venueImageModel');
 
 function serialize(data) {
@@ -59,24 +59,33 @@ function deserialize(venue) {
 }
 
 function getPriceClass(venue) {
-  if (!venue.prices.cola || !venue.location || !venue.location.city) {
+  if (
+    (!venue.prices.coke && !venue.prices.beer) ||
+    !venue.location ||
+    !venue.location.city ||
+    !venue.location.country
+  ) {
     return null;
   }
 
-  const cityConfig = CITIES[venue.location.city];
-  const ranges = cityConfig.priceRanges.cola;
-  return ranges.reduce((range, lowerBound, index) => {
-    if (range) {
-      return range;
-    }
-    const upperBound = ranges[index + 1];
-    if (
-      !upperBound ||
-      (venue.prices.cola > lowerBound && venue.prices.cola <= upperBound)
-    ) {
-      return index + 1;
-    }
-  }, null);
+  const city = cityConfig.get(venue.location.country, venue.location.city);
+  const getClassForRanges = ranges =>
+    ranges.reduce((range, lowerBound, index) => {
+      if (range) {
+        return range;
+      }
+      const upperBound = ranges[index + 1];
+      if (
+        !upperBound ||
+        (venue.prices.coke > lowerBound && venue.prices.coke <= upperBound)
+      ) {
+        return index + 1;
+      }
+    }, null);
+
+  const cokeClass = getClassForRanges(city.priceClassRanges.coke);
+  const beerClass = getClassForRanges(city.priceClassRanges.beer);
+  return Math.max(cokeClass, beerClass);
 }
 
 function getCapacityRange(venue) {

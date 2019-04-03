@@ -1,5 +1,6 @@
 require('../../shared/__test__/testBootstrap');
 
+const moment = require('moment');
 const fs = require('fs');
 const nodeRequest = require('request-promise-native');
 const request = require('supertest');
@@ -25,8 +26,9 @@ const {
   VENUE_VISITOR_TYPES,
   VENUE_DOORPOLICIES,
   VENUE_DRESSCODES,
-  VENUE_FACILITIES,
   VENUE_PAYMENT_METHODS,
+  VENUE_FACILITIES,
+  COUNTRIES,
 } = require('../../shared/constants');
 
 const VENUE_SNAPSHOT_MATCHER = {
@@ -38,7 +40,7 @@ const VENUE_SNAPSHOT_MATCHER = {
 const sandbox = sinon.createSandbox();
 
 describe('venues e2e', () => {
-  afterEach(async () => {
+  beforeEach(async () => {
     sandbox.restore();
     await clearDb();
   });
@@ -187,6 +189,54 @@ Object {
       expect(res.status).toEqual(400);
     });
 
+    it('city filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        location: { ...TEST_VENUE_1.location },
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        location: { ...TEST_VENUE_2.location, city: 'bar' },
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            city: TEST_VENUE_1.location.city,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('country filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        location: { ...TEST_VENUE_1.location, country: COUNTRIES.COUNTRY_NL },
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        location: { ...TEST_VENUE_2.location, country: COUNTRIES.COUNTRY_BE },
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            country: COUNTRIES.COUNTRY_NL,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('category filter', async () => {
       await venueRepository.createVenue({
         ...TEST_VENUE_1,
@@ -307,22 +357,20 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('cap filter', async () => {
+    it('capRange filter', async () => {
       await venueRepository.createVenue({
         ...TEST_VENUE_1,
-        doorPolicy: { policy: VENUE_DOORPOLICIES.POLICY_GUESTLIST },
+        capacity: 100,
       });
       await venueRepository.createVenue({
         ...TEST_VENUE_2,
-        doorPolicy: { policy: VENUE_DOORPOLICIES.POLICY_MODERATE },
+        capacity: 1000000,
       });
 
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            doorPolicy: VENUE_DOORPOLICIES.POLICY_GUESTLIST,
-          },
+          filter: { capRange: 2 },
         });
 
       expect(res.status).toEqual(200);
@@ -355,21 +403,21 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('visitorType filter', async () => {
+    it('noEntranceFee filter', async () => {
       await venueRepository.createVenue({
         ...TEST_VENUE_1,
-        visitorTypes: [VENUE_VISITOR_TYPES.VISITOR_INTERNATIONAL],
+        fees: { entrance: 1 },
       });
       await venueRepository.createVenue({
         ...TEST_VENUE_2,
-        visitorTypes: [VENUE_VISITOR_TYPES.VISITOR_LGBTQ],
+        fees: { entrance: 0 },
       });
 
       const res = await request(global.app)
         .get('/venues')
         .query({
           filter: {
-            visitorType: VENUE_VISITOR_TYPES.VISITOR_LGBTQ,
+            noEntranceFee: true,
           },
         });
 
@@ -377,6 +425,175 @@ Object {
       expect(res.body.results.length).toBe(1);
       expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
       expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('noCoatCheckFee filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        fees: { coatCheck: 1 },
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        fees: { coatCheck: 0 },
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            noCoatCheckFee: true,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('noBouncers filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        facilities: [],
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        facilities: [VENUE_FACILITIES.FACILITY_BOUNCERS],
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            noBouncers: true,
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    // Range time filters
+    ['open', 'terrace'].forEach(filter => {
+      it(`${filter} filter`, async () => {
+        await venueRepository.createVenue({
+          ...TEST_VENUE_1,
+          timeSchedule: {
+            [filter]: {
+              wed: {
+                from: 14 * 3600, // Wednesday 14:00
+                to: 23 * 3600, // Wednesday 23:00
+              },
+            },
+          },
+        });
+        await venueRepository.createVenue({
+          ...TEST_VENUE_2,
+          timeSchedule: {
+            [filter]: {
+              thu: {
+                from: 14 * 3600, // Thursday 14:00
+                to: 23 * 3600, // Thursday 23:00
+              },
+            },
+          },
+        });
+
+        const res = await request(global.app)
+          .get('/venues')
+          .query({
+            filter: {
+              [`${filter}Time`]: moment()
+                .utc()
+                .day('wed')
+                .hour(21)
+                .toISOString(),
+            },
+          });
+
+        expect(res.status).toEqual(200);
+        expect(res.body.results.length).toBe(1);
+        expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+        expect(validateResponse(res)).toBeUndefined();
+      });
+    });
+
+    // Non-range time filters
+    ['dancing', 'busy'].forEach(filter => {
+      it('dancingTime filter', async () => {
+        await venueRepository.createVenue({
+          ...TEST_VENUE_1,
+          timeSchedule: {
+            [`${filter}From`]: {
+              wed: 20 * 3600, // Wednesday 20:00
+            },
+          },
+        });
+        await venueRepository.createVenue({
+          ...TEST_VENUE_2,
+          timeSchedule: {
+            [`${filter}From`]: {
+              thu: 20 * 3600, // Thursday 20:00
+            },
+          },
+        });
+
+        const res = await request(global.app)
+          .get('/venues')
+          .query({
+            filter: {
+              [`${filter}Time`]: moment()
+                .utc()
+                .day('wed')
+                .hour(21)
+                .toISOString(),
+            },
+          });
+
+        expect(res.status).toEqual(200);
+        expect(res.body.results.length).toBe(1);
+        expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+        expect(validateResponse(res)).toBeUndefined();
+      });
+    });
+
+    [
+      VENUE_FACILITIES.FACILITY_VIP,
+      VENUE_FACILITIES.FACILITY_SMOKING_AREA,
+      VENUE_FACILITIES.FACILITY_TERRACE,
+      VENUE_FACILITIES.FACILITY_TERRACE_HEATERS,
+      VENUE_FACILITIES.FACILITY_BOUNCERS,
+      VENUE_FACILITIES.FACILITY_KITCHEN,
+      VENUE_FACILITIES.FACILITY_COAT_CHECK,
+      VENUE_FACILITIES.FACILITY_PARKING,
+      VENUE_FACILITIES.FACILITY_CIGARETTES,
+      VENUE_FACILITIES.FACILITY_ACCESSIBLE,
+    ].forEach(facility => {
+      it(`${facility} filter`, async () => {
+        await venueRepository.createVenue({
+          ...TEST_VENUE_1,
+          facilities: [facility],
+        });
+        await venueRepository.createVenue({
+          ...TEST_VENUE_2,
+          facilities: [],
+        });
+
+        const res = await request(global.app)
+          .get('/venues')
+          .query({
+            filter: {
+              [_.camelCase(facility)]: true,
+            },
+          });
+
+        expect(res.status).toEqual(200);
+        expect(res.body.results.length).toBe(1);
+        expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+        expect(validateResponse(res)).toBeUndefined();
+      });
     });
   });
 
