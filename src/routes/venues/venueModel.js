@@ -22,6 +22,7 @@ const {
   getCapacityRange,
   getPriceClass,
   getEntranceFeeRange,
+  getCurrency,
 } = require('./lib/serialization');
 
 const VenueSchema = new Schema(
@@ -135,6 +136,9 @@ VenueSchema.virtual('priceClass').get(function() {
 });
 VenueSchema.virtual('entranceFeeRange').get(function() {
   return getEntranceFeeRange(this);
+});
+VenueSchema.virtual('currency').get(function() {
+  return getCurrency(this);
 });
 
 VenueSchema.static('serialize', serialize);

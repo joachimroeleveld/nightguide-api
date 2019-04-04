@@ -29,21 +29,20 @@ function deserialize(venue) {
     };
   }
 
-  if (venue.capacity) {
-    const capacityRange = getCapacityRange(venue);
-    if (capacityRange.length === 2) {
-      venue.capacityRange = `${capacityRange[0]}-${capacityRange[1]}`;
-    } else {
-      venue.capacityRange = `10.000+`;
+  // Set computed fields
+  if (venue.location && venue.location.country && venue.location.city) {
+    if (venue.capacity) {
+      venue.capacityRange = getCapacityRange(venue);
     }
-  }
-
-  if (venue.prices) {
-    venue.priceClass = getPriceClass(venue);
-  }
-
-  if (venue.fees && venue.fees.entrance) {
-    venue.entranceFeeRange = getEntranceFeeRange(venue).join('-');
+    if (venue.prices) {
+      venue.priceClass = getPriceClass(venue);
+    }
+    if (venue.fees) {
+      venue.currency = getCurrency(venue);
+      if (venue.fees.entrance) {
+        venue.entranceFeeRange = getEntranceFeeRange(venue);
+      }
+    }
   }
 
   return venue;
@@ -63,16 +62,11 @@ function serialize(data) {
 }
 
 function getPriceClass(venue) {
-  if (
-    (!venue.prices.coke && !venue.prices.beer) ||
-    !venue.location ||
-    !venue.location.city ||
-    !venue.location.country
-  ) {
+  if (!venue.prices.coke && !venue.prices.beer) {
     return null;
   }
 
-  const city = cityConfig.get(venue.location.country, venue.location.city);
+  const cityConf = cityConfig.get(venue.location.country, venue.location.city);
   const getClassForRanges = ranges =>
     ranges.reduce((range, lowerBound, index) => {
       if (range) {
@@ -87,28 +81,23 @@ function getPriceClass(venue) {
       }
     }, null);
 
-  const cokeClass = getClassForRanges(city.priceClassRanges.coke);
-  const beerClass = getClassForRanges(city.priceClassRanges.beer);
+  const cokeClass = getClassForRanges(cityConf.priceClassRanges.coke);
+  const beerClass = getClassForRanges(cityConf.priceClassRanges.beer);
   return Math.max(cokeClass, beerClass);
 }
 
-function getEntranceFeeRange(venue) {
-  if (
-    !venue.fees ||
-    !venue.fees.entrance ||
-    !venue.location ||
-    !venue.location.city ||
-    !venue.location.country
-  ) {
-    return null;
-  }
+function getCurrency(venue) {
+  const cityConf = cityConfig.get(venue.location.country, venue.location.city);
+  return cityConf.currency;
+}
 
-  const city = cityConfig.get(venue.location.country, venue.location.city);
-  return city.entranceFeeRanges.reduce((range, lowerBound, index) => {
+function getEntranceFeeRange(venue) {
+  const cityConf = cityConfig.get(venue.location.country, venue.location.city);
+  return cityConf.entranceFeeRanges.reduce((range, lowerBound, index) => {
     if (range) {
       return range;
     }
-    const upperBound = city.entranceFeeRanges[index + 1];
+    const upperBound = cityConf.entranceFeeRanges[index + 1];
     if (!upperBound) {
       return lowerBound;
     }
@@ -119,10 +108,6 @@ function getEntranceFeeRange(venue) {
 }
 
 function getCapacityRange(venue) {
-  if (!venue.capacity) {
-    return null;
-  }
-
   return VENUE_CAPACITY_RANGES.reduce((range, lowerBound, index) => {
     if (range) {
       return range;
@@ -141,6 +126,7 @@ module.exports = {
   serialize,
   deserialize,
   getPriceClass,
+  getCurrency,
   getCapacityRange,
   getEntranceFeeRange,
 };

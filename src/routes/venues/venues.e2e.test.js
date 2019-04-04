@@ -13,6 +13,7 @@ const imagesService = require('../../shared/services/images');
 const {
   TEST_VENUE_1,
   TEST_VENUE_2,
+  TEST_VENUE_TIMESCHEDULE,
   COORDINATES_THE_HAGUE,
   COORDINATES_WOERDEN,
   COORDINATES_UTRECHT,
@@ -57,29 +58,17 @@ describe('venues e2e', () => {
       expect(res.body.results[0]).toMatchInlineSnapshot(
         `
 Object {
-  "categories": Array [
-    "bar",
-  ],
-  "description": Object {
-    "en": "Tivoli Vredenburg.",
-  },
-  "facebook": Object {
-    "id": "TivoliVredenburgUtrecht",
-  },
+  "categories": Array [],
   "id": "5c001cac8e84e1067f34695c",
   "location": Object {
-    "address1": "Vechtplantsoen 56",
-    "address2": "1",
     "city": "Utrecht",
     "coordinates": Object {
       "latitude": 52.118273,
       "longitude": 5.085487,
     },
     "country": "NL",
-    "postalCode": "3554TG",
   },
   "name": "Tivoli",
-  "website": "https://www.tivolivredenburg.nl",
 }
 `,
         VENUE_SNAPSHOT_MATCHER
@@ -623,7 +612,123 @@ Object {
 
       const res = await request(global.app)
         .get(`/venues/${venue1._id}`)
-        .send(TEST_VENUE_1)
+        .send()
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(VENUE_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('location fields', async () => {
+      const venue1 = await venueRepository.createVenue({
+        ...setFixtureLocation(
+          {
+            ...TEST_VENUE_1,
+            location: {
+              address1: 'Vechtplantsoen 56',
+              address2: '1',
+              postalCode: '3554TG',
+              city: 'Utrecht',
+              country: 'NL',
+            },
+          },
+          COORDINATES_UTRECHT
+        ),
+      });
+
+      const res = await request(global.app)
+        .get(`/venues/${venue1._id}`)
+        .send()
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(VENUE_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('simple fields', async () => {
+      const venue1 = await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        queryText: TEST_VENUE_1.name,
+        description: {
+          en: 'Simple description',
+        },
+        categories: [VENUE_CATEGORIES.CATEGORY_CLUB],
+        website: 'http://foo.bar',
+        facebook: {
+          id: 'facebookid',
+        },
+        instagram: {
+          id: 'instagramid',
+          explorePage: 'explorepage',
+        },
+        twitterHandle: 'twitterhandle',
+        musicTypes: [VENUE_MUSIC_TYPES.MUSIC_APRES_SKI],
+        visitorTypes: [VENUE_VISITOR_TYPES.VISITOR_LGBTQ],
+        doorPolicy: {
+          policy: VENUE_DOORPOLICIES.POLICY_MODERATE,
+          description: {
+            en: 'Test',
+          },
+        },
+        paymentMethods: [VENUE_PAYMENT_METHODS.METHOD_CASH],
+        dresscode: VENUE_DRESSCODES.DRESSCODE_ALTERNATIVE,
+        facilities: [VENUE_FACILITIES.FACILITY_ACCESSIBLE],
+        timeSchedule: TEST_VENUE_TIMESCHEDULE,
+      });
+
+      const res = await request(global.app)
+        .get(`/venues/${venue1._id}`)
+        .send()
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(VENUE_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('prices field', async () => {
+      const venue1 = await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        prices: {
+          coke: 2,
+        },
+      });
+
+      const res = await request(global.app)
+        .get(`/venues/${venue1._id}`)
+        .send()
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(VENUE_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('capacity field', async () => {
+      const venue1 = await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        capacity: 250,
+      });
+
+      const res = await request(global.app)
+        .get(`/venues/${venue1._id}`)
+        .send()
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(VENUE_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('fees field', async () => {
+      const venue1 = await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        fees: {
+          entrance: 11,
+          coatCheck: 2,
+        },
+      });
+
+      const res = await request(global.app)
+        .get(`/venues/${venue1._id}`)
+        .send()
         .expect(200);
 
       expect(res.body).toMatchSnapshot(VENUE_SNAPSHOT_MATCHER);

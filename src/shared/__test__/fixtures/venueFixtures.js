@@ -1,12 +1,4 @@
-const {
-  VENUE_CATEGORIES,
-  COUNTRIES,
-  VENUE_DOORPOLICIES,
-  VENUE_PRICE_CLASSES,
-  VENUE_PAYMENT_METHODS,
-  VENUE_MUSIC_TYPES,
-  VENUE_VISITOR_TYPES,
-} = require('../../../shared/constants');
+const { VENUE_CATEGORIES, COUNTRIES } = require('../../../shared/constants');
 
 const COORDINATES_UTRECHT = [5.085487, 52.118273];
 const COORDINATES_WOERDEN = [4.873716, 52.083686];
@@ -16,14 +8,7 @@ const TEST_VENUE_1 = Object.freeze({
   _id: '5c001cac8e84e1067f34695c',
   sourceId: 1,
   name: 'Tivoli',
-  categories: [VENUE_CATEGORIES.CATEGORY_BAR],
-  description: {
-    en: 'Tivoli Vredenburg.',
-  },
   location: {
-    address1: 'Vechtplantsoen 56',
-    address2: '1',
-    postalCode: '3554TG',
     city: 'Utrecht',
     country: COUNTRIES.COUNTRY_NL,
     coordinates: {
@@ -31,16 +16,6 @@ const TEST_VENUE_1 = Object.freeze({
       coordinates: COORDINATES_UTRECHT,
     },
   },
-  website: 'https://www.tivolivredenburg.nl',
-  facebook: {
-    id: 'TivoliVredenburgUtrecht',
-  },
-  instagram: {
-    id: 'tivolivredenburg',
-  },
-  twitterHandle: 'TiVredenburg',
-  musicTypes: [VENUE_MUSIC_TYPES.MUSIC_DANCE],
-  visitorTypes: [VENUE_VISITOR_TYPES.VISITOR_STUDENT],
 });
 
 const TEST_VENUE_2 = Object.freeze({
@@ -50,10 +25,86 @@ const TEST_VENUE_2 = Object.freeze({
   sourceId: 2,
 });
 
+const TEST_VENUE_TIMESCHEDULE = {
+  open: {
+    mon: null,
+    tue: {
+      from: 0,
+      to: 3600,
+    },
+    wed: null,
+    thu: null,
+    fri: null,
+    sat: null,
+    sun: null,
+  },
+  kitchen: {
+    mon: null,
+    tue: {
+      from: 0,
+      to: 3600,
+    },
+    wed: null,
+    thu: null,
+    fri: null,
+    sat: null,
+    sun: null,
+  },
+  terrace: {
+    mon: null,
+    tue: {
+      from: 0,
+      to: 3600,
+    },
+    wed: null,
+    thu: null,
+    fri: null,
+    sat: null,
+    sun: null,
+  },
+  bitesUntil: {
+    mon: null,
+    tue: 3600,
+    wed: null,
+    thu: null,
+    fri: null,
+    sat: null,
+    sun: null,
+  },
+  drinksFrom: {
+    mon: null,
+    tue: 3600,
+    wed: null,
+    thu: null,
+    fri: null,
+    sat: null,
+    sun: null,
+  },
+  busyFrom: {
+    mon: null,
+    tue: 3600,
+    wed: null,
+    thu: null,
+    fri: null,
+    sat: null,
+    sun: null,
+  },
+  dancingFrom: {
+    mon: null,
+    tue: 3600,
+    wed: null,
+    thu: null,
+    fri: null,
+    sat: null,
+    sun: null,
+  },
+};
+
 module.exports = {
   TEST_VENUE_1,
   TEST_VENUE_2,
   COORDINATES_UTRECHT,
   COORDINATES_THE_HAGUE,
   COORDINATES_WOERDEN,
+  TEST_VENUE_TIMESCHEDULE,
 };

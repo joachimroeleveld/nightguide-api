@@ -828,13 +828,21 @@ components:
               type: number
               format: double
         entranceFeeRange:
-          type: string
+          type: array
+          items:
+            type: integer
+            format: int32
+            minimum: 0
         capacity:
           type: integer
           format: int32
           minimum: 0
         capacityRange:
-          type: string
+          type: array
+          items:
+            type: integer
+            format: int32
+            minimum: 0
         facilities:
           type: array
           items:
