@@ -69,19 +69,19 @@ function createFilterFromValues({
     filter['location.city'] = city;
   }
   if (cat) {
-    filter.categories = cat;
+    filter.categories = { $in: cat };
   }
   if (musicType) {
-    filter.musicTypes = musicType;
+    filter.musicTypes = { $in: musicType };
   }
   if (visitorType) {
-    filter.visitorTypes = visitorType;
+    filter.visitorTypes = { $in: visitorType };
   }
   if (dresscode) {
-    filter.dresscode = { $in: _.flatten([dresscode]) };
+    filter.dresscode = dresscode;
   }
   if (paymentMethod) {
-    filter.paymentMethods = paymentMethod;
+    filter.paymentMethods = { $in: paymentMethod };
   }
   if (doorPolicy) {
     filter['doorPolicy.policy'] = doorPolicy;
@@ -106,7 +106,7 @@ function createFilterFromValues({
   }
   if (noBouncers !== undefined) {
     filter.$and.push({
-      facilities: { $ne: VENUE_FACILITIES.FACILITY_BOUNCERS },
+      facilities: { $nin: [VENUE_FACILITIES.FACILITY_BOUNCERS] },
     });
   }
 
@@ -151,9 +151,12 @@ function createFilterFromValues({
     [VENUE_FACILITIES.FACILITY_CIGARETTES]: cigarettes,
     [VENUE_FACILITIES.FACILITY_ACCESSIBLE]: accessible,
   };
-  Object.keys(facilityFilterMap)
-    .filter(facility => facilityFilterMap[facility] !== undefined)
-    .forEach(facility => filter.$and.push({ facilities: facility }));
+  const facilities = Object.keys(facilityFilterMap).filter(
+    facility => facilityFilterMap[facility] !== undefined
+  );
+  if (facilities.length) {
+    filter.$and.push({ facilities: { $in: facilities } });
+  }
 
   if (!filter.$and.length) {
     delete filter.$and;
