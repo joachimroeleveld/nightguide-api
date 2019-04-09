@@ -30,7 +30,6 @@ const VENUE_MUSIC_TYPES = {
   MUSIC_JAZZ: 'jazz',
   MUSIC_APRES_SKI: 'apres_ski',
   MUSIC_COUNTRY: 'country',
-  MUSIC_MISCELLANEOUS: 'miscellaneous',
   MUSIC_FOLK: 'folk',
   MUSIC_HOUSE: 'house',
   MUSIC_LOUNGE: 'lounge',

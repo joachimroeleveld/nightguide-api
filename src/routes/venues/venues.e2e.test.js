@@ -128,6 +128,22 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('return a totalCount with each result', async () => {
+      await venueRepository.createVenue(TEST_VENUE_1);
+      await venueRepository.createVenue(TEST_VENUE_2);
+
+      sandbox
+        .stub(venueRepository, 'getVenues')
+        .resolves([await venueRepository.getVenue(TEST_VENUE_1._id)]);
+
+      const res = await request(global.app).get('/venues');
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.totalCount).toBe(2);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('should handle special characters in search queries', async () => {
       await venueRepository.createVenue({
         ...TEST_VENUE_1,
@@ -511,7 +527,7 @@ Object {
 
     // Non-range time filters
     ['dancing', 'busy'].forEach(filter => {
-      it('dancingTime filter', async () => {
+      it(`${filter}Time filter`, async () => {
         await venueRepository.createVenue({
           ...TEST_VENUE_1,
           timeSchedule: {

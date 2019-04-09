@@ -1,4 +1,6 @@
 const moment = require('moment');
+const _ = require('lodash');
+const unidecode = require('unidecode');
 
 const {
   VENUE_CAPACITY_RANGES,
@@ -12,38 +14,42 @@ const cityConfig = require('../../../shared/cityConfig');
 const { validateDateTimeIso8601 } = require('../../../shared/util/validate');
 
 // TODO: do validation in OpenAPI spec (not supported yet)
-function applyFilterOnQuery(
-  query,
-  {
-    city,
-    country,
-    cat,
-    dancingTime,
-    openTime,
-    busyTime,
-    terraceTime,
-    priceClass,
-    musicType,
-    visitorType,
-    dresscode,
-    paymentMethod,
-    doorPolicy,
-    capRange,
-    bouncers,
-    noBouncers,
-    parking,
-    accessible,
-    vipArea,
-    noEntranceFee,
-    kitchen,
-    coatCheck,
-    noCoatCheckFee,
-    smokingArea,
-    cigarettes,
-    terrace,
-    terraceHeaters,
+function createFilterFromValues({
+  query: textFilter,
+  city,
+  country,
+  cat,
+  dancingTime,
+  openTime,
+  busyTime,
+  terraceTime,
+  priceClass,
+  musicType,
+  visitorType,
+  dresscode,
+  paymentMethod,
+  doorPolicy,
+  capRange,
+  bouncers,
+  noBouncers,
+  parking,
+  accessible,
+  vipArea,
+  noEntranceFee,
+  kitchen,
+  coatCheck,
+  noCoatCheckFee,
+  smokingArea,
+  cigarettes,
+  terrace,
+  terraceHeaters,
+}) {
+  const filter = { $and: [] };
+
+  if (textFilter && textFilter.length >= 2) {
+    filter.queryText = new RegExp(`\\b${unidecode(textFilter)}`, 'i');
   }
-) {
+
   let cityConf;
   // Check preconditions
   if (priceClass) {
@@ -57,64 +63,80 @@ function applyFilterOnQuery(
   }
 
   if (country) {
-    query.where('location.country', country);
+    filter['location.country'] = country;
   }
   if (city) {
-    query.where('location.city', city);
+    filter['location.city'] = city;
   }
   if (cat) {
-    query.where('categories', cat);
+    filter.categories = cat;
   }
   if (musicType) {
-    query.where('musicTypes', musicType);
+    filter.musicTypes = musicType;
   }
   if (visitorType) {
-    query.where('visitorTypes', visitorType);
+    filter.visitorTypes = visitorType;
   }
   if (dresscode) {
-    query.where('dresscode', dresscode);
+    filter.dresscode = { $in: _.flatten([dresscode]) };
   }
   if (paymentMethod) {
-    query.where('paymentMethods', paymentMethod);
+    filter.paymentMethods = paymentMethod;
   }
   if (doorPolicy) {
-    query.where('doorPolicy.policy', doorPolicy);
+    filter['doorPolicy.policy'] = doorPolicy;
   }
 
   if (capRange) {
-    applyCapRangeFilter(query, capRange);
+    _.mergeWith(filter, getCapRangeFilter(capRange), queryMerger);
   }
   if (priceClass) {
-    applyPriceClassFilter(query, priceClass, cityConf);
+    _.mergeWith(filter, getPriceClassFilter(priceClass, cityConf), queryMerger);
   }
 
   if (noEntranceFee !== undefined) {
-    query.where({
+    filter.$and.push({
       $or: [{ 'fees.entrance': 0 }, { 'fees.entrance': { $exists: false } }],
     });
   }
   if (noCoatCheckFee !== undefined) {
-    query.where({
+    filter.$and.push({
       $or: [{ 'fees.coatCheck': 0 }, { 'fees.coatCheck': { $exists: false } }],
     });
   }
   if (noBouncers !== undefined) {
-    query.where({
+    filter.$and.push({
       facilities: { $ne: VENUE_FACILITIES.FACILITY_BOUNCERS },
     });
   }
 
   if (openTime) {
-    applyTimeScheduleFilter(query, 'open', openTime, true);
+    _.mergeWith(
+      filter,
+      getTimeScheduleFilter('open', openTime, true),
+      queryMerger
+    );
   }
   if (terraceTime) {
-    applyTimeScheduleFilter(query, 'terrace', terraceTime, true);
+    _.mergeWith(
+      filter,
+      getTimeScheduleFilter('terrace', terraceTime, true),
+      queryMerger
+    );
   }
   if (busyTime) {
-    applyTimeScheduleFilter(query, 'busyFrom', busyTime);
+    _.mergeWith(
+      filter,
+      getTimeScheduleFilter('busyFrom', busyTime),
+      queryMerger
+    );
   }
   if (dancingTime) {
-    applyTimeScheduleFilter(query, 'dancingFrom', dancingTime);
+    _.mergeWith(
+      filter,
+      getTimeScheduleFilter('dancingFrom', dancingTime),
+      queryMerger
+    );
   }
 
   const facilityFilterMap = {
@@ -131,12 +153,16 @@ function applyFilterOnQuery(
   };
   Object.keys(facilityFilterMap)
     .filter(facility => facilityFilterMap[facility] !== undefined)
-    .forEach(facility => query.where({ facilities: facility }));
+    .forEach(facility => filter.$and.push({ facilities: facility }));
 
-  return query;
+  if (!filter.$and.length) {
+    delete filter.$and;
+  }
+
+  return filter;
 }
 
-function applyPriceClassFilter(query, priceClass, cityConfig) {
+function getPriceClassFilter(priceClass, cityConfig) {
   priceClass = parseInt(priceClass);
   if (
     !priceClass ||
@@ -148,23 +174,23 @@ function applyPriceClassFilter(query, priceClass, cityConfig) {
       'Filter priceClass is invalid'
     );
   }
-  const orQuery = [];
+  const orFilter = [];
   const lowerBoundBeer = cityConfig.priceClassRanges.beer[priceClass - 1];
   const upperBoundBeer = cityConfig.priceClassRanges.beer[priceClass];
-  orQuery.push({
+  orFilter.push({
     'prices.beer': { $gt: lowerBoundBeer, $lte: upperBoundBeer },
   });
   const lowerBoundCoke = cityConfig.priceClassRanges.coke[priceClass - 1];
   const upperBoundCoke = cityConfig.priceClassRanges.coke[priceClass];
-  orQuery.push({
+  orFilter.push({
     'prices.coke': { $gt: lowerBoundCoke, $lte: upperBoundCoke },
   });
-  query.where({
-    $or: orQuery,
-  });
+  return {
+    $and: [{ $or: orFilter }],
+  };
 }
 
-function applyCapRangeFilter(query, capRange) {
+function getCapRangeFilter(capRange) {
   capRange = parseInt(capRange);
   if (!capRange || capRange < 1 || capRange > VENUE_CAPACITY_RANGES.length) {
     throw new InvalidArgumentError(
@@ -180,12 +206,12 @@ function applyCapRangeFilter(query, capRange) {
   if (VENUE_CAPACITY_RANGES[capRange]) {
     capWhere.$lt = capUpperBound;
   }
-  query.where({
+  return {
     capacity: capWhere,
-  });
+  };
 }
 
-function applyTimeScheduleFilter(query, schedule, dateString, isRange = false) {
+function getTimeScheduleFilter(schedule, dateString, isRange = false) {
   if (!validateDateTimeIso8601(dateString)) {
     throw new InvalidArgumentError(`invalid_schedule_${schedule}`);
   }
@@ -198,17 +224,23 @@ function applyTimeScheduleFilter(query, schedule, dateString, isRange = false) {
     momentObj.hours() * 3600 + momentObj.minutes() * 60 + momentObj.seconds();
   const key = `timeSchedule.${schedule}.${dayKey}`;
   if (isRange) {
-    query.where({
+    return {
       [`${key}.from`]: { $lte: seconds },
       [`${key}.to`]: { $gt: seconds },
-    });
+    };
   } else {
-    query.where({
+    return {
       [key]: { $lte: seconds },
-    });
+    };
+  }
+}
+
+function queryMerger(objValue, srcValue) {
+  if (_.isArray(objValue)) {
+    return objValue.concat(srcValue);
   }
 }
 
 module.exports = {
-  applyFilterOnQuery,
+  createFilterFromValues,
 };

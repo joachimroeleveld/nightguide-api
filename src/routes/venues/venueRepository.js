@@ -1,13 +1,11 @@
 const request = require('request-promise-native');
 const imgSize = require('image-size');
 const mimeTypes = require('mime-types');
-const unidecode = require('unidecode');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
 const Venue = require('./venueModel');
 const VenueImage = require('./venueImageModel');
-const { applyFilterOnQuery } = require('./lib/filters');
 
 const IMAGE_MIME_TYPES = ['image/png', 'image/jpg', 'image/jpeg'];
 
@@ -25,22 +23,18 @@ function getVenues(opts) {
     fields,
     offset,
     limit,
-    query: textFilter,
     sortBy,
     longitude,
     latitude,
     filter,
   } = opts;
 
-  const conditions = {};
-  if (textFilter && textFilter.length >= 2) {
-    conditions.queryText = new RegExp(`\\b${unidecode(textFilter)}`, 'i');
-  }
+  const findOpts = {};
   if (sortBy && sortBy.distance) {
     if (!longitude || !latitude) {
       throw new InvalidArgumentError('missing_coordinates');
     }
-    conditions['location.coordinates'] = {
+    findOpts['location.coordinates'] = {
       $near: {
         $geometry: {
           type: 'Point',
@@ -50,7 +44,7 @@ function getVenues(opts) {
     };
   }
 
-  const query = Venue.find(conditions);
+  const query = Venue.find(findOpts);
 
   query.populate(populate.join(' '));
 
@@ -69,7 +63,7 @@ function getVenues(opts) {
     query.limit(limit);
   }
   if (filter) {
-    applyFilterOnQuery(query, filter);
+    query.where(filter);
   }
 
   return query.exec();

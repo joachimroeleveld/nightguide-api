@@ -11,10 +11,9 @@ const checkIsApp = () => authenticateAppClient();
 const standardAuth = () =>
   compose([
     authenticateAppClient(),
-    jwtAuth(),
     checkRole([USER_ROLES.ROLE_STANDARD, USER_ROLES.ROLE_ADMIN]),
   ]);
-const adminAuth = () => compose([jwtAuth(), checkRole(USER_ROLES.ROLE_ADMIN)]);
+const adminAuth = () => checkRole(USER_ROLES.ROLE_ADMIN);
 
 module.exports = {
   standardAuth,

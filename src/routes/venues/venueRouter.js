@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const multer = require('multer');
+const _ = require('lodash');
 
 const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
@@ -8,6 +9,7 @@ const Venue = require('./venueModel');
 const { adminAuth, checkIsApp } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const VenueImage = require('../venues/venueImageModel');
+const { createFilterFromValues } = require('./lib/filters');
 const { IMAGE_PERSPECTIVES } = require('../../shared/constants');
 
 const upload = multer();
@@ -31,24 +33,31 @@ router.get(
     ];
     const populate = fields.filter(field => ['images'].includes(field));
 
+    const filterValues = {
+      ...req.query.filter,
+      query: req.query.query,
+    };
+    const filter = createFilterFromValues(filterValues);
+
     const venues = await venueRepository.getVenues({
       offset,
       limit,
       fields,
       populate,
-      filter: req.query.filter,
+      filter,
       sortBy: deserializeSort(req.query.sortBy),
-      query: req.query.query,
       longitude: req.query.longitude,
       latitude: req.query.latitude,
     });
 
+    const totalCount = await Venue.count(filter).exec();
     const results = venues.map(Venue.deserialize);
 
     res.json({
       results,
       offset,
       limit,
+      totalCount,
     });
   })
 );

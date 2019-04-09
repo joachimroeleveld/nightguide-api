@@ -448,6 +448,9 @@ paths:
                   limit:
                     type: integer
                     format: int32
+                  totalCount:
+                    type: integer
+                    format: int32
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
