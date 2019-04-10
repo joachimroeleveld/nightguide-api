@@ -200,19 +200,22 @@ function getPriceClassFilter(priceClass, cityConfig) {
       'Filter priceClass is invalid'
     );
   }
-  const orFilter = [];
   const lowerBoundBeer = cityConfig.priceClassRanges.beer[priceClass - 1];
   const upperBoundBeer = cityConfig.priceClassRanges.beer[priceClass];
-  orFilter.push({
-    'prices.beer': { $gt: lowerBoundBeer, $lte: upperBoundBeer },
-  });
+  const beerFilter = { $gt: lowerBoundBeer };
+  if (upperBoundBeer) {
+    beerFilter.$lte = upperBoundBeer;
+  }
   const lowerBoundCoke = cityConfig.priceClassRanges.coke[priceClass - 1];
   const upperBoundCoke = cityConfig.priceClassRanges.coke[priceClass];
-  orFilter.push({
-    'prices.coke': { $gt: lowerBoundCoke, $lte: upperBoundCoke },
-  });
+  const cokeFilter = { $gt: lowerBoundCoke };
+  if (upperBoundCoke) {
+    cokeFilter.$lte = upperBoundCoke;
+  }
   return {
-    $and: [{ $or: orFilter }],
+    $and: [
+      { $or: [{ 'prices.beer': beerFilter }, { 'prices.coke': cokeFilter }] },
+    ],
   };
 }
 
