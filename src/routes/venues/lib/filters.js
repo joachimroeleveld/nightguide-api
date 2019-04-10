@@ -78,24 +78,43 @@ function createFilterFromValues({
     filter.visitorTypes = { $in: visitorType };
   }
   if (dresscode) {
-    filter.dresscode = dresscode;
+    filter.dresscode = { $in: dresscode };
   }
   if (paymentMethod) {
     filter.paymentMethods = { $all: paymentMethod };
   }
+
   if (doorPolicy) {
-    if (doorPolicy !== 'none') {
-      filter['doorPolicy.policy'] = doorPolicy;
-    } else {
-      filter['doorPolicy.policy'] = { $exists: false };
+    const doorPolicyItems = _.flatten([doorPolicy]);
+    const doorPolicyFilter = {
+      $and: [],
+    };
+    if (_.without(doorPolicyItems, 'none').length) {
+      doorPolicyFilter.$and.push({
+        'doorPolicy.policy': { $in: _.without(doorPolicyItems, 'none') },
+      });
+    }
+    if (doorPolicyItems.includes('none')) {
+      doorPolicyFilter.$and.push({ 'doorPolicy.policy': { $exists: false } });
+    }
+    if (doorPolicyFilter.$and.length) {
+      filter.$and.push(doorPolicyFilter);
     }
   }
 
   if (capRange) {
-    _.mergeWith(filter, getCapRangeFilter(capRange), queryMerger);
+    _.flatten([capRange]).forEach(range => {
+      _.mergeWith(filter, getCapRangeFilter(range), queryMerger);
+    });
   }
   if (priceClass) {
-    _.mergeWith(filter, getPriceClassFilter(priceClass, cityConf), queryMerger);
+    _.flatten([priceClass]).forEach(priceClass => {
+      _.mergeWith(
+        filter,
+        getPriceClassFilter(priceClass, cityConf),
+        queryMerger
+      );
+    });
   }
 
   if (noEntranceFee !== undefined) {
@@ -193,7 +212,7 @@ function getPriceClassFilter(priceClass, cityConfig) {
     'prices.coke': { $gt: lowerBoundCoke, $lte: upperBoundCoke },
   });
   return {
-    $and: [{ $or: orFilter }],
+    $and: orFilter,
   };
 }
 
@@ -214,7 +233,7 @@ function getCapRangeFilter(capRange) {
     capFilter.$lt = capUpperBound;
   }
   return {
-    capacity: capFilter,
+    $and: [{ capacity: capFilter }],
   };
 }
 
