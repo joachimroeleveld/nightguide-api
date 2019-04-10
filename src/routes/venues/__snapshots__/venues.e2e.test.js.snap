@@ -127,7 +127,7 @@ Object {
   "musicTypes": Array [],
   "name": "Tivoli",
   "paymentMethods": Array [],
-  "priceClass": 1,
+  "priceClass": 4,
   "prices": Object {
     "coke": 2,
   },
