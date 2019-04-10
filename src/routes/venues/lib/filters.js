@@ -81,7 +81,7 @@ function createFilterFromValues({
     filter.dresscode = dresscode;
   }
   if (paymentMethod) {
-    filter.paymentMethods = { $in: paymentMethod };
+    filter.paymentMethods = { $all: paymentMethod };
   }
   if (doorPolicy) {
     filter['doorPolicy.policy'] = doorPolicy;
@@ -155,7 +155,7 @@ function createFilterFromValues({
     facility => facilityFilterMap[facility] !== undefined
   );
   if (facilities.length) {
-    filter.$and.push({ facilities: { $in: facilities } });
+    filter.$and.push({ facilities: { $all: facilities } });
   }
 
   if (!filter.$and.length) {
@@ -203,14 +203,14 @@ function getCapRangeFilter(capRange) {
   }
   const capLowerBound = VENUE_CAPACITY_RANGES[capRange - 1];
   const capUpperBound = VENUE_CAPACITY_RANGES[capRange];
-  const capWhere = {
+  const capFilter = {
     $gte: capLowerBound,
   };
   if (VENUE_CAPACITY_RANGES[capRange]) {
-    capWhere.$lt = capUpperBound;
+    capFilter.$lt = capUpperBound;
   }
   return {
-    capacity: capWhere,
+    capacity: capFilter,
   };
 }
 
