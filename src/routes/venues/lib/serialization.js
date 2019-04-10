@@ -67,22 +67,25 @@ function getPriceClass(venue) {
   }
 
   const cityConf = cityConfig.get(venue.location.country, venue.location.city);
-  const getClassForRanges = ranges =>
+  const getClassForRanges = (ranges, price) =>
     ranges.reduce((range, lowerBound, index) => {
       if (range) {
         return range;
       }
       const upperBound = ranges[index + 1];
-      if (
-        !upperBound ||
-        (venue.prices.coke > lowerBound && venue.prices.coke <= upperBound)
-      ) {
+      if (!upperBound || (price > lowerBound && price <= upperBound)) {
         return index + 1;
       }
     }, null);
 
-  const cokeClass = getClassForRanges(cityConf.priceClassRanges.coke);
-  const beerClass = getClassForRanges(cityConf.priceClassRanges.beer);
+  const cokeClass = getClassForRanges(
+    cityConf.priceClassRanges.coke,
+    venue.prices.coke
+  );
+  const beerClass = getClassForRanges(
+    cityConf.priceClassRanges.beer,
+    venue.prices.beer
+  );
   return Math.max(cokeClass, beerClass);
 }
 

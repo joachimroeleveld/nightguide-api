@@ -564,6 +564,44 @@ Object {
       });
     });
 
+    ['bites'].forEach(filter => {
+      it(`${filter}Time filter`, async () => {
+        await venueRepository.createVenue({
+          ...TEST_VENUE_1,
+          timeSchedule: {
+            [`${filter}Until`]: {
+              wed: 20 * 3600, // Wednesday 20:00
+            },
+          },
+        });
+        await venueRepository.createVenue({
+          ...TEST_VENUE_2,
+          timeSchedule: {
+            [`${filter}Until`]: {
+              thu: 20 * 3600, // Thursday 20:00
+            },
+          },
+        });
+
+        const res = await request(global.app)
+          .get('/venues')
+          .query({
+            filter: {
+              [`${filter}Time`]: moment()
+                .utc()
+                .day('wed')
+                .hour(19)
+                .toISOString(),
+            },
+          });
+
+        expect(res.status).toEqual(200);
+        expect(res.body.results.length).toBe(1);
+        expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+        expect(validateResponse(res)).toBeUndefined();
+      });
+    });
+
     [
       VENUE_FACILITIES.FACILITY_VIP,
       VENUE_FACILITIES.FACILITY_SMOKING_AREA,

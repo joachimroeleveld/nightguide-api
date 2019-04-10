@@ -22,6 +22,7 @@ function createFilterFromValues({
   dancingTime,
   openTime,
   busyTime,
+  bitesTime,
   terraceTime,
   priceClass,
   musicType,
@@ -161,6 +162,13 @@ function createFilterFromValues({
       queryMerger
     );
   }
+  if (bitesTime) {
+    _.mergeWith(
+      filter,
+      getTimeScheduleFilter('bitesUntil', bitesTime, false, false),
+      queryMerger
+    );
+  }
 
   const facilityFilterMap = {
     [VENUE_FACILITIES.FACILITY_VIP]: vipArea,
@@ -240,7 +248,12 @@ function getCapRangeFilter(capRange) {
   };
 }
 
-function getTimeScheduleFilter(schedule, dateString, isRange = false) {
+function getTimeScheduleFilter(
+  schedule,
+  dateString,
+  isRange = false,
+  checkFrom = true
+) {
   if (!validateDateTimeIso8601(dateString)) {
     throw new InvalidArgumentError(`invalid_schedule_${schedule}`);
   }
@@ -258,9 +271,11 @@ function getTimeScheduleFilter(schedule, dateString, isRange = false) {
       [`${key}.to`]: { $gt: seconds },
     };
   } else {
-    return {
-      [key]: { $lte: seconds },
-    };
+    if (checkFrom) {
+      return { [key]: { $lte: seconds } };
+    } else {
+      return { [key]: { $gt: seconds } };
+    }
   }
 }
 
