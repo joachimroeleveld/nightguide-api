@@ -84,7 +84,11 @@ function createFilterFromValues({
     filter.paymentMethods = { $all: paymentMethod };
   }
   if (doorPolicy) {
-    filter['doorPolicy.policy'] = doorPolicy;
+    if (doorPolicy !== 'none') {
+      filter['doorPolicy.policy'] = doorPolicy;
+    } else {
+      filter['doorPolicy.policy'] = { $exists: false };
+    }
   }
 
   if (capRange) {
@@ -170,7 +174,7 @@ function getPriceClassFilter(priceClass, cityConfig) {
   if (
     !priceClass ||
     priceClass < 1 ||
-    priceClass < VENUE_CAPACITY_RANGES.length
+    priceClass > cityConfig.priceClassRanges.length
   ) {
     throw new InvalidArgumentError(
       'invalid_price_class',
