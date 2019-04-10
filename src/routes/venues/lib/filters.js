@@ -212,7 +212,7 @@ function getPriceClassFilter(priceClass, cityConfig) {
     'prices.coke': { $gt: lowerBoundCoke, $lte: upperBoundCoke },
   });
   return {
-    $and: orFilter,
+    $and: [{ $or: orFilter }],
   };
 }
 
