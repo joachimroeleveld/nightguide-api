@@ -250,7 +250,7 @@ Object {
       });
       await venueRepository.createVenue({
         ...TEST_VENUE_2,
-        categories: [VENUE_CATEGORIES.CATEGORY_ADULT],
+        categories: [VENUE_CATEGORIES.CATEGORY_STRIP_CLUB],
       });
 
       const res = await request(global.app)

@@ -62,7 +62,7 @@ const VENUE_CATEGORIES = {
   CATEGORY_CRAFT_BEER_BAR: 'craft_beer_bar',
   CATEGORY_COCKTAIL_BAR: 'cocktail_bar',
   CATEGORY_CONCERT_VENUE: 'concert_venue',
-  CATEGORY_ADULT: 'adult',
+  CATEGORY_STRIP_CLUB: 'strip_club',
   CATEGORY_BLUES_BAR: 'blues_bar',
   CATEGORY_CASINO: 'casino',
   CATEGORY_COMEDY_BAR: 'comedy_bar',
