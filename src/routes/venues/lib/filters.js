@@ -114,7 +114,7 @@ function createFilterFromValues({
     if (
       !priceClass ||
       priceClass < 1 ||
-      priceClass > cityConfig.priceClassRanges.length
+      priceClass > cityConf.priceClassRanges.length
     ) {
       throw new InvalidArgumentError(
         'invalid_price_class',
