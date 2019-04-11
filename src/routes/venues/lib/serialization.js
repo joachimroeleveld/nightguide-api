@@ -34,9 +34,6 @@ function deserialize(venue) {
     if (venue.capacity) {
       venue.capacityRange = getCapacityRange(venue);
     }
-    if (venue.prices) {
-      venue.priceClass = getPriceClass(venue);
-    }
     if (venue.fees) {
       venue.currency = getCurrency(venue);
       if (venue.fees.entrance) {
@@ -49,6 +46,15 @@ function deserialize(venue) {
 }
 
 function serialize(data) {
+  if (
+    data.prices &&
+    data.location &&
+    data.location.country &&
+    data.location.city
+  ) {
+    data.priceClass = getPriceClass(data);
+  }
+
   if (data.location && data.location.coordinates) {
     data.location.coordinates = {
       type: 'Point',
@@ -58,6 +64,7 @@ function serialize(data) {
       ],
     };
   }
+
   return data;
 }
 

@@ -21,6 +21,7 @@ function createFilterFromValues({
   cat,
   dancingTime,
   openTime,
+  kitchenTime,
   busyTime,
   bitesTime,
   terraceTime,
@@ -109,13 +110,18 @@ function createFilterFromValues({
     });
   }
   if (priceClass) {
-    _.flatten([priceClass]).forEach(priceClass => {
-      _.mergeWith(
-        filter,
-        getPriceClassFilter(priceClass, cityConf),
-        queryMerger
+    priceClass = parseInt(priceClass);
+    if (
+      !priceClass ||
+      priceClass < 1 ||
+      priceClass > cityConfig.priceClassRanges.length
+    ) {
+      throw new InvalidArgumentError(
+        'invalid_price_class',
+        'Filter priceClass is invalid'
       );
-    });
+    }
+    filter.priceClass = priceClass;
   }
 
   if (noEntranceFee !== undefined) {
@@ -135,38 +141,41 @@ function createFilterFromValues({
   }
 
   if (openTime) {
-    _.mergeWith(
-      filter,
-      getTimeScheduleFilter('open', openTime, true),
-      queryMerger
-    );
+    _.mergeWith(filter, getTimeRangeFilter('open', openTime), queryMerger);
   }
   if (terraceTime) {
     _.mergeWith(
       filter,
-      getTimeScheduleFilter('terrace', terraceTime, true),
+      getTimeRangeFilter('terrace', terraceTime),
+      queryMerger
+    );
+  }
+  if (kitchenTime) {
+    _.mergeWith(
+      filter,
+      getTimeRangeFilter('kitchen', kitchenTime),
       queryMerger
     );
   }
   if (busyTime) {
-    _.mergeWith(
-      filter,
-      getTimeScheduleFilter('busyFrom', busyTime),
-      queryMerger
+    const { dayKey, seconds } = parseDateString(busyTime);
+    filter.$and.push(
+      { [`timeSchedule.busyFrom.${dayKey}`]: { $lte: seconds } },
+      { [`timeSchedule.open.${dayKey}.to`]: { $gt: seconds } }
     );
   }
   if (dancingTime) {
-    _.mergeWith(
-      filter,
-      getTimeScheduleFilter('dancingFrom', dancingTime),
-      queryMerger
+    const { dayKey, seconds } = parseDateString(dancingTime);
+    filter.$and.push(
+      { [`timeSchedule.dancingFrom.${dayKey}`]: { $lte: seconds } },
+      { [`timeSchedule.open.${dayKey}.to`]: { $gt: seconds } }
     );
   }
   if (bitesTime) {
-    _.mergeWith(
-      filter,
-      getTimeScheduleFilter('bitesUntil', bitesTime, false, false),
-      queryMerger
+    const { dayKey, seconds } = parseDateString(bitesTime);
+    filter.$and.push(
+      { [`timeSchedule.open.${dayKey}.from`]: { $lte: seconds } },
+      { [`timeSchedule.bitesUntil.${dayKey}`]: { $gt: seconds } }
     );
   }
 
@@ -196,37 +205,6 @@ function createFilterFromValues({
   return filter;
 }
 
-function getPriceClassFilter(priceClass, cityConfig) {
-  priceClass = parseInt(priceClass);
-  if (
-    !priceClass ||
-    priceClass < 1 ||
-    priceClass > cityConfig.priceClassRanges.length
-  ) {
-    throw new InvalidArgumentError(
-      'invalid_price_class',
-      'Filter priceClass is invalid'
-    );
-  }
-  const lowerBoundBeer = cityConfig.priceClassRanges.beer[priceClass - 1];
-  const upperBoundBeer = cityConfig.priceClassRanges.beer[priceClass];
-  const beerFilter = { $gt: lowerBoundBeer };
-  if (upperBoundBeer) {
-    beerFilter.$lte = upperBoundBeer;
-  }
-  const lowerBoundCoke = cityConfig.priceClassRanges.coke[priceClass - 1];
-  const upperBoundCoke = cityConfig.priceClassRanges.coke[priceClass];
-  const cokeFilter = { $gt: lowerBoundCoke };
-  if (upperBoundCoke) {
-    cokeFilter.$lte = upperBoundCoke;
-  }
-  return {
-    $and: [
-      { $or: [{ 'prices.beer': beerFilter }, { 'prices.coke': cokeFilter }] },
-    ],
-  };
-}
-
 function getCapRangeFilter(capRange) {
   capRange = parseInt(capRange);
   if (!capRange || capRange < 1 || capRange > VENUE_CAPACITY_RANGES.length) {
@@ -248,14 +226,18 @@ function getCapRangeFilter(capRange) {
   };
 }
 
-function getTimeScheduleFilter(
-  schedule,
-  dateString,
-  isRange = false,
-  checkFrom = true
-) {
+function getTimeRangeFilter(schedule, dateString) {
+  const { dayKey, seconds } = parseDateString(dateString);
+  const key = `timeSchedule.${schedule}.${dayKey}`;
+  return {
+    [`${key}.from`]: { $lte: seconds },
+    [`${key}.to`]: { $gt: seconds },
+  };
+}
+
+function parseDateString(dateString) {
   if (!validateDateTimeIso8601(dateString)) {
-    throw new InvalidArgumentError(`invalid_schedule_${schedule}`);
+    throw new InvalidArgumentError(`invalid_date`);
   }
   const momentObj = moment(dateString).utc();
   const dayKey = momentObj
@@ -264,19 +246,7 @@ function getTimeScheduleFilter(
     .toLowerCase();
   const seconds =
     momentObj.hours() * 3600 + momentObj.minutes() * 60 + momentObj.seconds();
-  const key = `timeSchedule.${schedule}.${dayKey}`;
-  if (isRange) {
-    return {
-      [`${key}.from`]: { $lte: seconds },
-      [`${key}.to`]: { $gt: seconds },
-    };
-  } else {
-    if (checkFrom) {
-      return { [key]: { $lte: seconds } };
-    } else {
-      return { [key]: { $gt: seconds } };
-    }
-  }
+  return { dayKey, seconds };
 }
 
 function queryMerger(objValue, srcValue) {

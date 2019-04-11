@@ -89,6 +89,11 @@ const VenueSchema = new Schema(
       description: translatedSchema,
     },
     prices: Object,
+    priceClass: {
+      type: Number,
+      min: 1,
+      max: 4,
+    },
     timeSchedule: {
       open: weekSchema,
       kitchen: weekSchema,
@@ -130,9 +135,6 @@ VenueSchema.index({ name: 'text' });
 
 VenueSchema.virtual('capacityRange').get(function() {
   return getCapacityRange(this);
-});
-VenueSchema.virtual('priceClass').get(function() {
-  return getPriceClass(this);
 });
 VenueSchema.virtual('entranceFeeRange').get(function() {
   return getEntranceFeeRange(this);

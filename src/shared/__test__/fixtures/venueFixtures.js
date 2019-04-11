@@ -25,6 +25,13 @@ const TEST_VENUE_2 = Object.freeze({
   sourceId: 2,
 });
 
+const TEST_VENUE_3 = Object.freeze({
+  ...TEST_VENUE_1,
+  _id: '5c0261a0801b80bed2f047de',
+  categories: [VENUE_CATEGORIES.CATEGORY_CLUB],
+  sourceId: 3,
+});
+
 const TEST_VENUE_TIMESCHEDULE = {
   open: {
     mon: null,
@@ -103,6 +110,7 @@ const TEST_VENUE_TIMESCHEDULE = {
 module.exports = {
   TEST_VENUE_1,
   TEST_VENUE_2,
+  TEST_VENUE_3,
   COORDINATES_UTRECHT,
   COORDINATES_THE_HAGUE,
   COORDINATES_WOERDEN,

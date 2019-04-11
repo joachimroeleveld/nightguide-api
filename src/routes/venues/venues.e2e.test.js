@@ -13,6 +13,7 @@ const imagesService = require('../../shared/services/images');
 const {
   TEST_VENUE_1,
   TEST_VENUE_2,
+  TEST_VENUE_3,
   TEST_VENUE_TIMESCHEDULE,
   COORDINATES_THE_HAGUE,
   COORDINATES_WOERDEN,
@@ -481,7 +482,7 @@ Object {
     });
 
     // Range time filters
-    ['open', 'terrace'].forEach(filter => {
+    ['open', 'terrace', 'kitchen'].forEach(filter => {
       it(`${filter} filter`, async () => {
         await venueRepository.createVenue({
           ...TEST_VENUE_1,
@@ -534,13 +535,23 @@ Object {
             [`${filter}From`]: {
               wed: 20 * 3600, // Wednesday 20:00
             },
+            open: {
+              wed: {
+                to: 23 * 3600,
+              },
+            },
           },
         });
         await venueRepository.createVenue({
-          ...TEST_VENUE_2,
+          ...TEST_VENUE_3,
           timeSchedule: {
             [`${filter}From`]: {
-              thu: 20 * 3600, // Thursday 20:00
+              thu: 22 * 3600, // Thursday 20:00
+            },
+          },
+          open: {
+            wed: {
+              to: 23 * 3600,
             },
           },
         });
@@ -564,42 +575,50 @@ Object {
       });
     });
 
-    ['bites'].forEach(filter => {
-      it(`${filter}Time filter`, async () => {
-        await venueRepository.createVenue({
-          ...TEST_VENUE_1,
-          timeSchedule: {
-            [`${filter}Until`]: {
-              wed: 20 * 3600, // Wednesday 20:00
+    it(`bitesTime filter`, async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        timeSchedule: {
+          open: {
+            wed: {
+              from: 18 * 3600,
             },
           },
-        });
-        await venueRepository.createVenue({
-          ...TEST_VENUE_2,
-          timeSchedule: {
-            [`${filter}Until`]: {
-              thu: 20 * 3600, // Thursday 20:00
-            },
+          bitesUntil: {
+            wed: 20 * 3600, // Wednesday 20:00
           },
-        });
-
-        const res = await request(global.app)
-          .get('/venues')
-          .query({
-            filter: {
-              [`${filter}Time`]: moment()
-                .utc()
-                .day('wed')
-                .hour(19)
-                .toISOString(),
-            },
-          });
-
-        expect(res.status).toEqual(200);
-        expect(res.body.results.length).toBe(1);
-        expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
-        expect(validateResponse(res)).toBeUndefined();
+        },
       });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        timeSchedule: {
+          open: {
+            wed: {
+              from: 18 * 3600,
+            },
+          },
+          bitesUntil: {
+            wed: 18 * 3600,
+          },
+        },
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          filter: {
+            [`bitesTime`]: moment()
+              .utc()
+              .day('wed')
+              .hour(19)
+              .toISOString(),
+          },
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
     });
 
     [
