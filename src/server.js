@@ -5,9 +5,15 @@ if (process.env.TRACER_ENABLED === 'true') {
 const dotenv = require('dotenv');
 dotenv.load();
 
+const Sentry = require('@sentry/node');
 const mongoose = require('mongoose');
 
 const config = require('./shared/config');
+
+if (config.getIsProduction()) {
+  Sentry.init({ dsn: config.get('SENTRY_DSN') });
+}
+
 const routes = require('./routes');
 
 const { createExpressApp } = require('./framework/expressServer');
