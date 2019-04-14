@@ -417,6 +417,7 @@ paths:
               type: string
               enum:
                 [
+                  id,
                   name,
                   categories,
                   tags,

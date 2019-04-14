@@ -28,6 +28,7 @@ function createFilterFromValues({
   priceClass,
   musicType,
   visitorType,
+  hasFb,
   dresscode,
   paymentMethod,
   doorPolicy,
@@ -72,6 +73,9 @@ function createFilterFromValues({
   }
   if (cat) {
     filter.categories = { $in: cat };
+  }
+  if (hasFb) {
+    filter['facebook.id'] = { $exists: true };
   }
   if (musicType) {
     filter.musicTypes = { $in: musicType };
