@@ -810,9 +810,9 @@ Object {
     });
   });
 
-  describe('PUT /venues/:venueId', () => {
+  describe('PATCH /venues/:venueId', () => {
     const validateResponse = validator.validateResponse(
-      'put',
+      'patch',
       '/venues/{venueId}'
     );
 
@@ -820,7 +820,7 @@ Object {
       const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
 
       const res = await request(global.app)
-        .put(`/venues/${venue1._id}`)
+        .patch(`/venues/${venue1._id}`)
         .send({
           ...Venue.deserialize(TEST_VENUE_1),
           name: 'Other name',

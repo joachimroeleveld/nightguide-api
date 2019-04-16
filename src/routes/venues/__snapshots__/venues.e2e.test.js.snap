@@ -165,14 +165,12 @@ Object {
     "id": "instagramid",
   },
   "location": Object {
-    "address1": "Vechtplantsoen 56",
     "city": "Utrecht",
     "coordinates": Object {
       "latitude": 52.118273,
       "longitude": 5.085487,
     },
     "country": "NL",
-    "postalCode": "3554TG",
   },
   "musicTypes": Array [
     "apres_ski",

@@ -87,10 +87,10 @@ router.get(
   })
 );
 
-router.put(
+router.patch(
   '/:venueId',
   adminAuth(),
-  validator.validate('put', '/venues/{venueId}'),
+  validator.validate('patch', '/venues/{venueId}'),
   asyncMiddleware(async (req, res, next) => {
     const doc = Venue.serialize(req.body);
     const venue = await venueRepository.updateVenue(req.params.venueId, doc);
