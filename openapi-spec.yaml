@@ -514,8 +514,8 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
-    patch:
-      summary: Partially update a venue.
+    put:
+      summary: Update a venue.
       operationId: updateVenue
       tags:
         - venues
