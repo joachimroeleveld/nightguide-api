@@ -643,6 +643,8 @@ components:
             type: string
           country:
             type: string
+          phone:
+            type: string
           cat:
             $ref: '#/components/schemas/VenueCategories'
           priceClass:
@@ -778,6 +780,8 @@ components:
           properties:
             id:
               type: string
+            pagesId:
+              type: string
         instagram:
           type: object
           properties:
@@ -892,7 +896,6 @@ components:
       type: string
       enum:
         [
-          'casual',
           'chique',
           'alternative'
         ]

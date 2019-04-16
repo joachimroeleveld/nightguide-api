@@ -83,49 +83,65 @@ function createFilterFromValues({
   if (visitorType) {
     filter.visitorTypes = { $in: visitorType };
   }
-  if (dresscode) {
-    filter.dresscode = { $in: dresscode };
-  }
   if (paymentMethod) {
-    filter.paymentMethods = { $all: paymentMethod };
+    filter.paymentMethods = { $in: paymentMethod };
   }
 
   if (doorPolicy) {
     const doorPolicyItems = _.flatten([doorPolicy]);
-    const doorPolicyFilter = {
-      $and: [],
-    };
     if (_.without(doorPolicyItems, 'none').length) {
-      doorPolicyFilter.$and.push({
+      filter.$and.push({
         'doorPolicy.policy': { $in: _.without(doorPolicyItems, 'none') },
       });
+    } else if (doorPolicyItems.includes('none')) {
+      filter.$and.push({
+        'doorPolicy.policy': { $exists: false },
+      });
     }
-    if (doorPolicyItems.includes('none')) {
-      doorPolicyFilter.$and.push({ 'doorPolicy.policy': { $exists: false } });
-    }
-    if (doorPolicyFilter.$and.length) {
-      filter.$and.push(doorPolicyFilter);
+  }
+
+  if (dresscode) {
+    const dressCodeItems = _.flatten([dresscode]);
+    if (_.without(dressCodeItems, 'none').length) {
+      filter.$and.push({
+        $or: _.without(dressCodeItems, 'none').map(dresscode => ({
+          dresscode,
+        })),
+      });
+    } else if (dressCodeItems.includes('none')) {
+      filter.$and.push({
+        dresscode: { $exists: false },
+      });
     }
   }
 
   if (capRange) {
-    _.flatten([capRange]).forEach(range => {
-      _.mergeWith(filter, getCapRangeFilter(range), queryMerger);
-    });
-  }
-  if (priceClass) {
-    priceClass = parseInt(priceClass);
-    if (
-      !priceClass ||
-      priceClass < 1 ||
-      priceClass > cityConf.priceClassRanges.length
-    ) {
-      throw new InvalidArgumentError(
-        'invalid_price_class',
-        'Filter priceClass is invalid'
-      );
+    const capFilters = _.flatten([capRange]).map(getCapRangeFilter);
+    if (capFilters.length) {
+      filter.$and.push({ $or: capFilters.map(capacity => ({ capacity })) });
     }
-    filter.priceClass = priceClass;
+  }
+
+  if (priceClass) {
+    const priceClasses = _.flatten([priceClass]).map(priceClass => {
+      priceClass = parseInt(priceClass);
+      if (
+        !priceClass ||
+        priceClass < 1 ||
+        priceClass > cityConf.priceClassRanges.length
+      ) {
+        throw new InvalidArgumentError(
+          'invalid_price_class',
+          'Filter priceClass is invalid'
+        );
+      }
+      return priceClass;
+    });
+    if (priceClasses.length) {
+      filter.$and.push({
+        $or: priceClasses.map(priceClass => ({ priceClass })),
+      });
+    }
   }
 
   if (noEntranceFee !== undefined) {
@@ -225,9 +241,7 @@ function getCapRangeFilter(capRange) {
   if (VENUE_CAPACITY_RANGES[capRange]) {
     capFilter.$lt = capUpperBound;
   }
-  return {
-    $and: [{ capacity: capFilter }],
-  };
+  return capFilter;
 }
 
 function getTimeRangeFilter(schedule, dateString) {

@@ -91,7 +91,6 @@ const VENUE_PAYMENT_METHODS = {
 };
 
 const VENUE_DRESSCODES = {
-  DRESSCODE_CASUAL: 'casual',
   DRESSCODE_CHIQUE: 'chique',
   DRESSCODE_ALTERNATIVE: 'alternative',
 };

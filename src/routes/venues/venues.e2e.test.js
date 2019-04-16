@@ -322,7 +322,7 @@ Object {
       });
       await venueRepository.createVenue({
         ...TEST_VENUE_2,
-        dresscode: VENUE_DRESSCODES.DRESSCODE_CASUAL,
+        dresscode: VENUE_DRESSCODES.DRESSCODE_CHIQUE,
       });
 
       const res = await request(global.app)
@@ -721,7 +721,7 @@ Object {
     it('simple fields', async () => {
       const venue1 = await venueRepository.createVenue({
         ...TEST_VENUE_1,
-        queryText: TEST_VENUE_1.name,
+        phoneNumber: '+31623676279',
         description: {
           en: 'Simple description',
         },
@@ -729,6 +729,7 @@ Object {
         website: 'http://foo.bar',
         facebook: {
           id: 'facebookid',
+          pagesId: 'fbpagesid',
         },
         instagram: {
           id: 'instagramid',

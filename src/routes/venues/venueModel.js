@@ -60,9 +60,11 @@ const VenueSchema = new Schema(
       },
       googlePlaceId: String,
     },
+    phoneNumber: String,
     website: String,
     facebook: {
       id: String,
+      pagesId: String,
     },
     instagram: {
       id: String,
