@@ -69,6 +69,12 @@ function createFilterFromValues({
     filter['location.country'] = country;
   }
   if (city) {
+    if (!country) {
+      throw new PreconditionFailedError(
+        'missing_country',
+        'To filter on city, country must be passed'
+      );
+    }
     filter['location.city'] = city;
   }
   if (cat) {
@@ -88,30 +94,21 @@ function createFilterFromValues({
   }
 
   if (doorPolicy) {
-    const doorPolicyItems = _.flatten([doorPolicy]);
-    if (_.without(doorPolicyItems, 'none').length) {
-      filter.$and.push({
-        'doorPolicy.policy': { $in: _.without(doorPolicyItems, 'none') },
-      });
-    } else if (doorPolicyItems.includes('none')) {
-      filter.$and.push({
-        'doorPolicy.policy': { $exists: false },
-      });
+    const doorPolicyFilter = _.flatten([doorPolicy]).map(doorPolicy => ({
+      'doorPolicy.policy':
+        doorPolicy === 'none' ? { $exists: false } : doorPolicy,
+    }));
+    if (doorPolicyFilter.length) {
+      filter.$and.push({ $or: doorPolicyFilter });
     }
   }
 
   if (dresscode) {
-    const dressCodeItems = _.flatten([dresscode]);
-    if (_.without(dressCodeItems, 'none').length) {
-      filter.$and.push({
-        $or: _.without(dressCodeItems, 'none').map(dresscode => ({
-          dresscode,
-        })),
-      });
-    } else if (dressCodeItems.includes('none')) {
-      filter.$and.push({
-        dresscode: { $exists: false },
-      });
+    const dressCodeFilter = _.flatten([dresscode]).map(dresscode => ({
+      dresscode: dresscode === 'none' ? { $exists: false } : dresscode,
+    }));
+    if (dressCodeFilter.length) {
+      filter.$and.push({ $or: dressCodeFilter });
     }
   }
 
