@@ -210,6 +210,7 @@ Object {
         .query({
           filter: {
             city: TEST_VENUE_1.location.city,
+            country: TEST_VENUE_1.location.country,
           },
         });
 
