@@ -600,6 +600,232 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /events:
+    get:
+      operationId: getEvents
+      tags:
+        - events
+      parameters:
+        # TODO: uncomment when object parameter coercion works
+        #        - $ref: '#/components/parameters/EventFilter'
+        - in: query
+          name: filter
+          schema:
+            type: object
+          description: Filter params
+        - in: query
+          name: query
+          schema:
+            type: string
+            minLength: 2
+            maxLength: 255
+          description: Search query
+        - in: query
+          name: sortBy
+          schema:
+            type: array
+            items:
+              type: string
+          description: Sort with optional order
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+          description: Number of items to skip
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 50
+          description: Number of items to return. Defaults to 20.
+        - in: query
+          name: fields
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                [
+                  title,
+                  date,
+                  description,
+                  location,
+                  images
+                ]
+          description: Fields to return. Returns limited set of fields by default.
+      responses:
+        '200':
+          description: Result events.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+                  offset:
+                    type: integer
+                    format: int32
+                  limit:
+                    type: integer
+                    format: int32
+                  totalCount:
+                    type: integer
+                    format: int32
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      summary: Create an event.
+      operationId: createEvent
+      tags:
+        - events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '201':
+          description: Event created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /events/{eventId}:
+    get:
+      summary: Get an event.
+      operationId: getEvent
+      tags:
+        - events
+      parameters:
+        - in: path
+          name: eventId
+          schema:
+            type: string
+          required: true
+          description: Event ID.
+      responses:
+        '200':
+          description: Event data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      summary: Update an event.
+      operationId: updateEvent
+      tags:
+        - events
+      parameters:
+        - in: path
+          name: eventId
+          schema:
+            type: string
+          required: true
+          description: Event ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '200':
+          description: Event updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /events/{eventId}/images:
+    post:
+      summary: Create an event image.
+      operationId: createEventImage
+      tags:
+        - events
+      parameters:
+        - in: path
+          name: eventId
+          schema:
+            type: string
+          required: true
+          description: Event ID.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                urls:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Image uploaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EventImage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /misc/user-feedback:
     post:
       operationId: submitUserFeedback
@@ -730,6 +956,35 @@ components:
             required:
               - success
   schemas:
+    Image:
+      required:
+        - id
+        - filename
+        - filetype
+        - filesize
+        - url
+        - width
+        - height
+      properties:
+        id:
+          type: string
+          description: UUIDv4 image ID (also part of filename).
+        filename:
+          type: string
+        filetype:
+          type: string
+          description: Image's MIME type.
+        filesize:
+          type: number
+        url:
+          type: string
+          description: Serveable image URL.
+        width:
+          type: number
+          description: Image width.
+        height:
+          type: number
+          description: Image height.
     Venue:
       type: object
       properties:
@@ -963,45 +1218,77 @@ components:
           'whisky_bar',
         ]
     VenueImage:
+      allOf:
+        - $ref: '#/components/schemas/Image'
+        - type: object
+          properties:
+            perspective:
+              type: string
+              enum: [
+                'front_bar',
+                'front_venue',
+                'front_stage',
+                'from_bar',
+                'from_stage',
+                'atmosphere',
+              ]
+    Event:
       type: object
-      required:
-        - id
-        - filename
-        - filetype
-        - filesize
-        - url
-        - width
-        - height
       properties:
         id:
           type: string
-          description: UUIDv4 image ID (also part of filename).
-        filename:
+        title:
           type: string
-        filetype:
+        queryText:
           type: string
-          description: Image's MIME type.
-        filesize:
-          type: number
-        url:
-          type: string
-          description: Serveable image URL.
-        width:
-          type: number
-          description: Image width.
-        height:
-          type: number
-          description: Image height.
-        perspective:
-          type: string
-          enum: [
-            'front_bar',
-            'front_venue',
-            'front_stage',
-            'from_bar',
-            'from_stage',
-            'atmosphere',
-          ]
+        date:
+          type: object
+          properties:
+            from:
+              type: string
+              format: date-time
+            to:
+              type: string
+              format: date-time
+        description:
+          $ref: '#/components/schemas/TranslatedObject'
+        location:
+          type: object
+          required:
+            - type
+          properties:
+            type:
+              type: string
+              enum: ['address', 'venue']
+            address1:
+              type: string
+            address2:
+              type: string
+            postalCode:
+              type: string
+            city:
+              type: string
+            country:
+              type: string
+              enum: ['NL']
+            coordinates:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  format: float
+                longitude:
+                  type: number
+                  format: float
+        images:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - $ref: '#/components/schemas/EventImage'
+    EventImage:
+      allOf:
+        - $ref: '#/components/schemas/Image'
     User:
       type: object
       required:

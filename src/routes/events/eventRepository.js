@@ -4,55 +4,42 @@ const mimeTypes = require('mime-types');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
-const Venue = require('./venueModel');
-const VenueImage = require('./venueImageModel');
+const Event = require('./eventModel');
+const EventImage = require('./eventImageModel');
 
-function createVenue(data) {
-  return Venue.create(data);
+function createEvent(data) {
+  return Event.create(data);
 }
 
-function updateVenue(id, data, options) {
-  return Venue.findByIdAndUpdate(id, data, { new: true, ...options }).exec();
+function updateEvent(id, data, options) {
+  return Event.findByIdAndUpdate(id, data, { new: true, ...options }).exec();
 }
 
-function getVenues(opts) {
+function getEvents(opts) {
   const {
     populate = [],
-    fields,
+    fields = [],
     offset,
     limit,
     sortBy,
-    longitude,
-    latitude,
     filter,
+    locationFilter,
   } = opts;
 
-  const findOpts = {};
-  if (sortBy && sortBy.distance) {
-    if (!longitude || !latitude) {
-      throw new InvalidArgumentError('missing_coordinates');
-    }
-    findOpts['location.coordinates'] = {
-      $near: {
-        $geometry: {
-          type: 'Point',
-          coordinates: [longitude, latitude],
-        },
-      },
-    };
-  }
+  const query = Event.find();
 
-  const query = Venue.find(findOpts);
+  if (locationFilter) {
+    fields.push('location');
+  }
 
   query.populate(populate.join(' '));
 
   if (!sortBy) {
-    // Order by name by default
-    query.sort({ name: 1 });
+    // Order by title by default
+    query.sort({ title: 1 });
   }
   if (fields) {
-    // Location fields is required for serialization
-    query.select(['location.city', 'location.country', ...fields]);
+    query.select(fields);
   }
   if (offset) {
     query.skip(offset);
@@ -63,32 +50,34 @@ function getVenues(opts) {
   if (filter) {
     query.where(filter);
   }
+  if (locationFilter) {
+    query.where(locationFilter);
+  }
 
   return query.exec();
 }
 
-function getVenue(venueId, opts = {}) {
+function getEvent(eventId, opts = {}) {
   const { populate = [] } = opts;
 
-  return Venue.findById(venueId)
+  return Event.findById(eventId)
     .populate(populate.join(' '))
     .exec();
 }
 
-async function uploadVenueImage(venueId, { buffer, mime, perspective }) {
+async function uploadEventImage(eventId, { buffer, mime }) {
   if (!imagesService.SUPPORTED_MIME_TYPES.includes(mime)) {
     throw new InvalidArgumentError('invalid_mime');
   }
 
-  const venue = await Venue.findById(venueId).exec();
-  if (!venue) {
-    throw new NotFoundError('venue_not_found');
+  const event = await Event.findById(eventId).exec();
+  if (!event) {
+    throw new NotFoundError('event_not_found');
   }
 
-  const image = new VenueImage({
+  const image = new EventImage({
     filesize: buffer.byteLength,
     filetype: mime,
-    perspective,
   });
 
   image.filename = `${image._id}.${mimeTypes.extension(mime)}`;
@@ -104,9 +93,9 @@ async function uploadVenueImage(venueId, { buffer, mime, perspective }) {
 
     await image.save();
 
-    venue.images.push(image._id);
+    event.images.push(image._id);
 
-    await venue.save();
+    await event.save();
 
     return image;
   } catch (e) {
@@ -115,7 +104,7 @@ async function uploadVenueImage(venueId, { buffer, mime, perspective }) {
   }
 }
 
-async function uploadVenueImageByUrl(venueId, image) {
+async function uploadEventImageByUrl(eventId, image) {
   const { url, perspective } = image;
   const res = await request.get({
     uri: url,
@@ -124,7 +113,7 @@ async function uploadVenueImageByUrl(venueId, image) {
   });
   const mime = res.headers['content-type'];
 
-  return await uploadVenueImage(venueId, {
+  return await uploadEventImage(eventId, {
     buffer: res.body,
     perspective,
     mime,
@@ -132,10 +121,10 @@ async function uploadVenueImageByUrl(venueId, image) {
 }
 
 module.exports = {
-  createVenue,
-  getVenues,
-  getVenue,
-  updateVenue,
-  uploadVenueImage,
-  uploadVenueImageByUrl,
+  createEvent,
+  getEvents,
+  getEvent,
+  updateEvent,
+  uploadEventImage,
+  uploadEventImageByUrl,
 };

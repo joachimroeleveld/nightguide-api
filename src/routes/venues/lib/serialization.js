@@ -1,9 +1,15 @@
 const _ = require('lodash');
+const unidecode = require('unidecode');
 
 const { VENUE_CAPACITY_RANGES } = require('../../../shared/constants');
 const cityConfig = require('../../../shared/cityConfig');
 const VenueImage = require('../venueImageModel');
 
+/**
+ * Prepare venue to be sent to client.
+ * @param venue
+ * @returns {*}
+ */
 function deserialize(venue) {
   if (venue.toObject) {
     venue = venue.toObject();
@@ -15,6 +21,7 @@ function deserialize(venue) {
   delete venue._id;
   delete venue.__v;
   delete venue.sourceId;
+  delete venue.queryText;
 
   if (venue.images) {
     venue.images = venue.images.map(VenueImage.deserialize);
@@ -45,6 +52,11 @@ function deserialize(venue) {
   return venue;
 }
 
+/**
+ * Prepare venue for database insertion.
+ * @param data
+ * @returns {*}
+ */
 function serialize(data) {
   if (
     data.prices &&
@@ -63,6 +75,10 @@ function serialize(data) {
         data.location.coordinates.latitude,
       ],
     };
+  }
+
+  if (!data.queryText) {
+    data.queryText = unidecode(data.name);
   }
 
   return data;

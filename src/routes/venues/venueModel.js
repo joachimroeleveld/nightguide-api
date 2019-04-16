@@ -20,7 +20,6 @@ const {
   serialize,
   deserialize,
   getCapacityRange,
-  getPriceClass,
   getEntranceFeeRange,
   getCurrency,
 } = require('./lib/serialization');
@@ -42,9 +41,15 @@ const VenueSchema = new Schema(
     ],
     images: [{ type: String, ref: 'VenueImage' }],
     location: {
-      address1: String,
+      address1: {
+        type: String,
+        required: true,
+      },
       address2: String,
-      postalCode: String,
+      postalCode: {
+        type: String,
+        required: true,
+      },
       city: {
         type: String,
         required: true,

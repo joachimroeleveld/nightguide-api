@@ -19,10 +19,13 @@ const {
   COORDINATES_WOERDEN,
   COORDINATES_UTRECHT,
 } = require('../../shared/__test__/fixtures');
-const { clearDb } = require('../../shared/__test__/testUtils');
+const {
+  clearDb,
+  setFixtureLocation,
+} = require('../../shared/__test__/testUtils');
 const venueRepository = require('./venueRepository');
 const {
-  IMAGE_PERSPECTIVES,
+  VENUE_IMAGE_PERSPECTIVES,
   VENUE_CATEGORIES,
   VENUE_MUSIC_TYPES,
   VENUE_VISITOR_TYPES,
@@ -62,12 +65,14 @@ Object {
   "categories": Array [],
   "id": "5c001cac8e84e1067f34695c",
   "location": Object {
+    "address1": "Vechtplantsoen 56",
     "city": "Utrecht",
     "coordinates": Object {
       "latitude": 52.118273,
       "longitude": 5.085487,
     },
     "country": "NL",
+    "postalCode": "3554TG",
   },
   "name": "Tivoli",
 }
@@ -851,7 +856,7 @@ Object {
 
       const res = await request(global.app)
         .post(`/venues/${venue.id}/images`)
-        .attach(IMAGE_PERSPECTIVES[0], imagePath);
+        .attach(VENUE_IMAGE_PERSPECTIVES[0], imagePath);
 
       expect(res.status).toEqual(200);
       expect(res.body.results[0].url).toEqual('testurl');
@@ -878,7 +883,10 @@ Object {
         .post(`/venues/${venue.id}/images`)
         .send({
           images: [
-            { url: 'http://testurl.com', perspective: IMAGE_PERSPECTIVES[0] },
+            {
+              url: 'http://testurl.com',
+              perspective: VENUE_IMAGE_PERSPECTIVES[0],
+            },
           ],
         });
 
@@ -892,16 +900,3 @@ Object {
     });
   });
 });
-
-function setFixtureLocation(fixture, coordinates) {
-  return {
-    ...fixture,
-    location: {
-      ...fixture.location,
-      coordinates: {
-        type: 'Point',
-        coordinates: coordinates,
-      },
-    },
-  };
-}

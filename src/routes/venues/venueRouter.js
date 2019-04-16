@@ -1,6 +1,5 @@
 const { Router } = require('express');
 const multer = require('multer');
-const _ = require('lodash');
 
 const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
@@ -10,7 +9,7 @@ const { adminAuth, checkIsApp } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const VenueImage = require('../venues/venueImageModel');
 const { createFilterFromValues } = require('./lib/filters');
-const { IMAGE_PERSPECTIVES } = require('../../shared/constants');
+const { VENUE_IMAGE_PERSPECTIVES } = require('../../shared/constants');
 
 const upload = multer();
 const router = new Router();
@@ -106,7 +105,10 @@ router.post(
   adminAuth(),
   validator.validate('post', '/venues/{venueId}/images'),
   upload.fields(
-    IMAGE_PERSPECTIVES.map(perspective => ({ name: perspective, maxCount: 1 }))
+    VENUE_IMAGE_PERSPECTIVES.map(perspective => ({
+      name: perspective,
+      maxCount: 1,
+    }))
   ),
   asyncMiddleware(async (req, res, next) => {
     let promises;

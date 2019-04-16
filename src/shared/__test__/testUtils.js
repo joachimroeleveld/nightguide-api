@@ -11,6 +11,20 @@ async function clearDb() {
   return Promise.all(removals);
 }
 
+function setFixtureLocation(fixture, coordinates) {
+  return {
+    ...fixture,
+    location: {
+      ...fixture.location,
+      coordinates: {
+        type: 'Point',
+        coordinates: coordinates,
+      },
+    },
+  };
+}
+
 module.exports = {
   clearDb,
+  setFixtureLocation,
 };

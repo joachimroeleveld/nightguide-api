@@ -3,6 +3,7 @@ const { Storage } = require('@google-cloud/storage');
 
 const config = require('../config');
 
+const SUPPORTED_MIME_TYPES = ['image/png', 'image/jpg', 'image/jpeg'];
 const BASE_URL = config.get('IMAGES_SERVICE_URL');
 const TOKEN = config.get('IMAGES_SERVICE_TOKEN');
 
@@ -35,4 +36,5 @@ async function getServeableUrl(fileName) {
 module.exports = {
   upload,
   getServeableUrl,
+  SUPPORTED_MIME_TYPES,
 };

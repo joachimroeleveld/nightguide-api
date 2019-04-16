@@ -1,8 +1,5 @@
+const { COORDINATES_UTRECHT } = require('./locationFixtures');
 const { VENUE_CATEGORIES, COUNTRIES } = require('../../../shared/constants');
-
-const COORDINATES_UTRECHT = [5.085487, 52.118273];
-const COORDINATES_WOERDEN = [4.873716, 52.083686];
-const COORDINATES_THE_HAGUE = [4.282958, 52.072532];
 
 const TEST_VENUE_1 = Object.freeze({
   _id: '5c001cac8e84e1067f34695c',
@@ -11,6 +8,8 @@ const TEST_VENUE_1 = Object.freeze({
   location: {
     city: 'Utrecht',
     country: COUNTRIES.COUNTRY_NL,
+    address1: 'Vechtplantsoen 56',
+    postalCode: '3554TG',
     coordinates: {
       type: 'Point',
       coordinates: COORDINATES_UTRECHT,
@@ -111,8 +110,5 @@ module.exports = {
   TEST_VENUE_1,
   TEST_VENUE_2,
   TEST_VENUE_3,
-  COORDINATES_UTRECHT,
-  COORDINATES_THE_HAGUE,
-  COORDINATES_WOERDEN,
   TEST_VENUE_TIMESCHEDULE,
 };
