@@ -6,19 +6,18 @@ const request = require('supertest');
 const sinon = require('sinon');
 const _ = require('lodash');
 
-const Event = require('./eventModel');
 const { validator } = require('../../shared/openapi');
 const imagesService = require('../../shared/services/images');
 const {
   TEST_EVENT_1,
   TEST_EVENT_2,
+  generateMongoFixture,
+  TEST_FACEBOOK_EVENT_1,
   TEST_VENUE_1,
-  TEST_VENUE_2,
 } = require('../../shared/__test__/fixtures');
 const { clearDb } = require('../../shared/__test__/testUtils');
 const eventRepository = require('./eventRepository');
 const venueRepository = require('../venues/venueRepository');
-const { COUNTRIES } = require('../../shared/constants');
 
 const EVENT_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -46,10 +45,12 @@ describe('events e2e', () => {
       expect(res.body.results[0]).toMatchInlineSnapshot(
         `
 Object {
-  "date": Object {
-    "from": "2020-01-10T23:00:00.000Z",
-    "to": "2019-10-11T22:00:00.000Z",
-  },
+  "dates": Array [
+    Object {
+      "from": "2020-01-10T23:00:00.000Z",
+      "to": "2019-10-11T22:00:00.000Z",
+    },
+  ],
   "id": "5cab012f2830a46462316889",
   "location": Object {
     "address1": "Vechtplantsoen 56",
@@ -158,7 +159,7 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('city filter - address location', async () => {
+    it('city filter', async () => {
       await eventRepository.createEvent({
         ...TEST_EVENT_1,
         location: {
@@ -189,7 +190,7 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('country filter - address location', async () => {
+    it('country filter', async () => {
       await eventRepository.createEvent({
         ...TEST_EVENT_1,
         location: {
@@ -219,102 +220,49 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('city filter - venue location', async () => {
-      const venue1 = await venueRepository.createVenue(
-        _.set({ ...TEST_VENUE_1 }, 'location.city', 'Amsterdam')
-      );
-      const venue2 = await venueRepository.createVenue(
-        _.set({ ...TEST_VENUE_2 }, 'location.city', 'Utrecht')
-      );
+    it('dateFrom filter', async () => {
+      const pastEvent = generateMongoFixture(TEST_EVENT_1, {
+        dates: [
+          {
+            from: new Date(2018, 1, 1),
+            to: new Date(2018, 1, 2),
+          },
+        ],
+      });
+      const futureEvent = generateMongoFixture(TEST_EVENT_1, {
+        dates: [
+          {
+            from: new Date(2050, 1, 1),
+            to: new Date(2050, 1, 2),
+          },
+        ],
+      });
+      const ongoingEvent = generateMongoFixture(TEST_EVENT_1, {
+        dates: [
+          {
+            from: new Date(2017, 1, 1),
+            to: new Date(2050, 1, 2),
+          },
+        ],
+      });
 
-      await eventRepository.createEvent(
-        await Event.serialize({
-          ...TEST_EVENT_1,
-          organiser: {
-            type: 'venue',
-            venue: venue1._id.toString(),
-          },
-          location: {
-            type: 'venue',
-          },
-        })
-      );
-      await eventRepository.createEvent(
-        await Event.serialize({
-          ...TEST_EVENT_2,
-          organiser: {
-            type: 'venue',
-            venue: venue2._id.toString(),
-          },
-          location: {
-            type: 'venue',
-          },
-        })
-      );
+      await eventRepository.createEvent(pastEvent);
+      await eventRepository.createEvent(ongoingEvent);
+      await eventRepository.createEvent(futureEvent);
 
       const res = await request(global.app)
         .get('/events')
         .query({
           filter: {
-            country: venue1.location.country,
-            city: 'Amsterdam',
+            dateFrom: new Date().toISOString(),
           },
         });
 
       expect(res.status).toEqual(200);
-      expect(res.body.results.length).toBe(1);
-      expect(res.body.results[0].name).toBe(TEST_EVENT_1.name);
-      expect(validateResponse(res)).toBeUndefined();
-    });
-
-    it('country filter - venue location', async () => {
-      const venue1 = await venueRepository.createVenue(
-        _.set(
-          { ...TEST_VENUE_1 },
-          'location.country',
-          TEST_EVENT_1.location.country
-        )
+      expect(res.body.results.length).toBe(2);
+      expect(res.body.results.map(event => event.id).sort()).toEqual(
+        [futureEvent._id, ongoingEvent._id].sort()
       );
-      const venue2 = await venueRepository.createVenue(
-        _.set({ ...TEST_VENUE_2 }, 'location.country', COUNTRIES.COUNTRY_BE)
-      );
-
-      await eventRepository.createEvent(
-        await Event.serialize({
-          ...TEST_EVENT_1,
-          organiser: {
-            type: 'venue',
-            venue: venue1._id.toString(),
-          },
-          location: {
-            type: 'venue',
-          },
-        })
-      );
-      await eventRepository.createEvent(
-        await Event.serialize({
-          ...TEST_EVENT_2,
-          organiser: {
-            type: 'venue',
-            venue: venue2._id.toString(),
-          },
-          location: {
-            type: 'venue',
-          },
-        })
-      );
-
-      const res = await request(global.app)
-        .get('/events')
-        .query({
-          filter: {
-            country: TEST_EVENT_1.location.country,
-          },
-        });
-
-      expect(res.status).toEqual(200);
-      expect(res.body.results.length).toBe(1);
-      expect(res.body.results[0].name).toBe(TEST_EVENT_1.name);
       expect(validateResponse(res)).toBeUndefined();
     });
   });
@@ -325,11 +273,29 @@ Object {
     it('happy path', async () => {
       const res = await request(global.app)
         .post('/events')
-        .send(Event.deserialize(TEST_EVENT_1));
+        .send(eventRepository.deserialize(TEST_EVENT_1));
       const body = res.body;
 
       expect(res.status).toEqual(201);
       expect(body.name).toEqual(TEST_EVENT_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('populates venue location data', async () => {
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+      const eventData = _.set(
+        { ...TEST_FACEBOOK_EVENT_1 },
+        'organiser.venue',
+        venue1._id.toString()
+      );
+      const res = await request(global.app)
+        .post('/events')
+        .send(eventRepository.deserialize(eventData));
+      const body = res.body;
+
+      expect(res.status).toEqual(201);
+      expect(body.name).toEqual(TEST_EVENT_1.name);
+      expect(body.location).toMatchSnapshot();
       expect(validateResponse(res)).toBeUndefined();
     });
   });
@@ -355,10 +321,6 @@ Object {
     it('simple fields', async () => {
       const event1 = await eventRepository.createEvent({
         ...TEST_EVENT_1,
-        date: {
-          from: new Date(2019, 12, 11),
-          to: new Date(2019, 9, 12),
-        },
         description: {
           en: 'Simple description',
         },
@@ -371,6 +333,32 @@ Object {
       const res = await request(global.app)
         .get(`/events/${event1._id}`)
         .send()
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(EVENT_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('facebook event fields', async () => {
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+      const event1 = await eventRepository.createEvent({
+        ..._.set(
+          TEST_FACEBOOK_EVENT_1,
+          'organiser.venue',
+          venue1._id.toString()
+        ),
+        facebook: {
+          ...TEST_FACEBOOK_EVENT_1.facebook,
+          title: 'Title',
+          description: 'Description',
+          interestedCount: 1,
+          goingCount: 100,
+        },
+      });
+
+      const res = await request(global.app)
+        .get(`/events/${event1._id}`)
+        .send(event1)
         .expect(200);
 
       expect(res.body).toMatchSnapshot(EVENT_SNAPSHOT_MATCHER);
@@ -390,7 +378,7 @@ Object {
       const res = await request(global.app)
         .put(`/events/${event._id}`)
         .send({
-          ...Event.deserialize(TEST_EVENT_1),
+          ...eventRepository.deserialize(TEST_EVENT_1),
           title: 'Other title',
         });
 

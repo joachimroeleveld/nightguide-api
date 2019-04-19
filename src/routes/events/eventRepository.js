@@ -1,18 +1,32 @@
 const request = require('request-promise-native');
 const imgSize = require('image-size');
 const mimeTypes = require('mime-types');
+const _ = require('lodash');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
 const Event = require('./eventModel');
 const EventImage = require('./eventImageModel');
+const {
+  serialize,
+  deserialize,
+  deserializeImage,
+} = require('./lib/serialization');
 
 function createEvent(data) {
   return Event.create(data);
 }
 
-function updateEvent(id, data, options) {
-  return Event.findByIdAndUpdate(id, data, { new: true, ...options }).exec();
+function updateEvent(conditions, data, options = {}) {
+  let where = conditions;
+  if (_.isString(conditions)) {
+    where = { _id: conditions };
+  }
+  return Event.findOneAndUpdate(where, data, {
+    new: true,
+    runValidators: true,
+    ...options,
+  }).exec();
 }
 
 function getEvents(opts) {
@@ -24,6 +38,7 @@ function getEvents(opts) {
     sortBy,
     filter,
     locationFilter,
+    onlyFb,
   } = opts;
 
   const query = Event.find();
@@ -53,6 +68,9 @@ function getEvents(opts) {
   if (locationFilter) {
     query.where(locationFilter);
   }
+  if (onlyFb) {
+    query.where({ 'facebook.id': { $exists: true } });
+  }
 
   return query.exec();
 }
@@ -63,6 +81,20 @@ function getEvent(eventId, opts = {}) {
   return Event.findById(eventId)
     .populate(populate.join(' '))
     .exec();
+}
+
+function countEvents(filter) {
+  return Event.count(filter).exec();
+}
+
+function getEventsByVenue(venueId, opts = {}) {
+  return getEvents({
+    filter: {
+      'organiser.venue': venueId,
+      ...opts.filter,
+    },
+    ...opts,
+  });
 }
 
 async function uploadEventImage(eventId, { buffer, mime }) {
@@ -120,11 +152,27 @@ async function uploadEventImageByUrl(eventId, image) {
   });
 }
 
+async function deleteEvents(conditions, opts) {
+  let where = conditions;
+  if (Array.isArray(conditions)) {
+    where = {
+      _id: { $in: conditions },
+    };
+  }
+  return Event.deleteMany(where, opts).exec();
+}
+
 module.exports = {
   createEvent,
   getEvents,
   getEvent,
+  getEventsByVenue,
+  countEvents,
   updateEvent,
   uploadEventImage,
   uploadEventImageByUrl,
+  deleteEvents,
+  serialize,
+  deserialize,
+  deserializeImage,
 };

@@ -1,15 +1,16 @@
 const { Router } = require('express');
 const multer = require('multer');
+const _ = require('lodash');
 
 const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
 const venueRepository = require('./venueRepository');
-const Venue = require('./venueModel');
 const { adminAuth, checkIsApp } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
-const VenueImage = require('../venues/venueImageModel');
 const { createFilterFromValues } = require('./lib/filters');
 const { VENUE_IMAGE_PERSPECTIVES } = require('../../shared/constants');
+const eventRepository = require('../events/eventRepository');
+const { NotFoundError, InvalidRequestError } = require('../../shared/errors');
 
 const upload = multer();
 const router = new Router();
@@ -49,8 +50,8 @@ router.get(
       latitude: req.query.latitude,
     });
 
-    const totalCount = await Venue.count(filter).exec();
-    const results = venues.map(Venue.deserialize);
+    const totalCount = await venueRepository.countVenues(filter);
+    const results = venues.map(venueRepository.deserialize);
 
     res.json({
       results,
@@ -66,7 +67,7 @@ router.post(
   adminAuth(),
   validator.validate('post', '/venues'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = Venue.serialize(req.body);
+    const doc = venueRepository.serialize(req.body);
     const venue = await venueRepository.createVenue(doc);
 
     res.status(201).json(venue.deserialize());
@@ -91,7 +92,7 @@ router.put(
   adminAuth(),
   validator.validate('put', '/venues/{venueId}'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = Venue.serialize(req.body);
+    const doc = venueRepository.serialize(req.body);
     const venue = await venueRepository.updateVenue(req.params.venueId, doc, {
       omitUndefined: true,
     });
@@ -128,9 +129,63 @@ router.post(
     }
 
     let images = await Promise.all(promises);
-    const results = images.map(VenueImage.deserialize);
+    const results = images.map(image => image.deserialize());
 
     res.status(200).json({ results });
+  })
+);
+
+router.put(
+  '/:venueId/facebook-events',
+  adminAuth(),
+  validator.validate('put', '/venues/{venueId}/facebook-events'),
+  asyncMiddleware(async (req, res) => {
+    const venue = venueRepository.getVenue(req.params.venueId);
+
+    if (!venue) {
+      throw new NotFoundError('venue_not_found');
+    }
+
+    const prevEventIds = await eventRepository.getEventsByVenue(
+      req.params.venueId,
+      {
+        fields: ['facebook.id'],
+        onlyFb: true,
+      }
+    );
+
+    for (const event of req.body) {
+      const data = await eventRepository.serialize({
+        ...event,
+        location: {
+          type: 'venue',
+        },
+        organiser: {
+          type: 'venue',
+          venue: req.params.venueId,
+        },
+      });
+      if (!_.get(data, 'facebook.id')) {
+        throw new InvalidRequestError('missing_facebook_id');
+      }
+      await eventRepository.updateEvent(
+        { 'facebook.id': data.facebook.id },
+        data,
+        { upsert: true }
+      );
+    }
+
+    if (prevEventIds.length) {
+      const oldEventIds = _.difference(
+        prevEventIds.map(event => event.facebook.id),
+        req.body.map(event => event.facebook.id)
+      );
+      await eventRepository.deleteEvents({
+        'facebook.id': oldEventIds,
+      });
+    }
+
+    res.status(200).end();
   })
 );
 

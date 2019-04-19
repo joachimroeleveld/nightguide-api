@@ -30,10 +30,10 @@ beforeAll(cb => {
   global.app = createExpressApp();
 
   mongoose
-    .connect(
-      config.get('MONGO_URI'),
-      { useNewUrlParser: true, dbName: 'main-test' }
-    )
+    .connect(config.get('MONGO_URI'), {
+      useNewUrlParser: true,
+      dbName: 'main-test',
+    })
     .then(() => cb())
     .catch(err => cb(err));
 });

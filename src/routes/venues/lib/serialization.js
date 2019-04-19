@@ -27,7 +27,7 @@ function deserialize(venue) {
     venue.images = venue.images.map(VenueImage.deserialize);
   }
 
-  if (venue.location && venue.location.coordinates) {
+  if (venue.location.coordinates) {
     const longitude = venue.location.coordinates.coordinates[0];
     const latitude = venue.location.coordinates.coordinates[1];
     venue.location.coordinates = {
@@ -36,16 +36,16 @@ function deserialize(venue) {
     };
   }
 
+  const cityConf = cityConfig.get(venue.location.country, venue.location.city);
+
   // Set computed fields
-  if (venue.location && venue.location.country && venue.location.city) {
-    if (venue.capacity) {
-      venue.capacityRange = getCapacityRange(venue);
-    }
-    if (venue.fees) {
-      venue.currency = getCurrency(venue);
-      if (venue.fees.entrance) {
-        venue.entranceFeeRange = getEntranceFeeRange(venue);
-      }
+  if (venue.capacity) {
+    venue.capacityRange = getCapacityRange(venue, cityConf);
+  }
+  if (venue.fees) {
+    venue.currency = cityConf.currency;
+    if (venue.fees.entrance) {
+      venue.entranceFeeRange = getEntranceFeeRange(venue, cityConf);
     }
   }
 
@@ -58,13 +58,18 @@ function deserialize(venue) {
  * @returns {*}
  */
 function serialize(data) {
-  if (
-    data.prices &&
-    data.location &&
-    data.location.country &&
-    data.location.city
-  ) {
-    data.priceClass = getPriceClass(data);
+  if (data.id) {
+    data._id = data.id;
+    delete data.id;
+  }
+
+  let cityConf;
+  if (data.location && data.location.country && data.location.city) {
+    cityConf = cityConfig.get(data.location.country, data.location.city);
+  }
+
+  if (data.prices && cityConf) {
+    data.priceClass = getPriceClass(data, cityConf);
   }
 
   if (data.location && data.location.coordinates) {
@@ -84,12 +89,11 @@ function serialize(data) {
   return data;
 }
 
-function getPriceClass(venue) {
+function getPriceClass(venue, cityConf) {
   if (!venue.prices.coke && !venue.prices.beer) {
     return null;
   }
 
-  const cityConf = cityConfig.get(venue.location.country, venue.location.city);
   const getClassForRanges = (ranges, price) =>
     ranges.reduce((range, lowerBound, index) => {
       if (range) {
@@ -112,13 +116,7 @@ function getPriceClass(venue) {
   return Math.max(cokeClass, beerClass);
 }
 
-function getCurrency(venue) {
-  const cityConf = cityConfig.get(venue.location.country, venue.location.city);
-  return cityConf.currency;
-}
-
-function getEntranceFeeRange(venue) {
-  const cityConf = cityConfig.get(venue.location.country, venue.location.city);
+function getEntranceFeeRange(venue, cityConf) {
   return cityConf.entranceFeeRanges.reduce((range, lowerBound, index) => {
     if (range) {
       return range;
@@ -151,8 +149,4 @@ function getCapacityRange(venue) {
 module.exports = {
   serialize,
   deserialize,
-  getPriceClass,
-  getCurrency,
-  getCapacityRange,
-  getEntranceFeeRange,
 };

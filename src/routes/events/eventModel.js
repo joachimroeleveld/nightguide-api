@@ -1,16 +1,13 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const { serialize, deserialize } = require('./lib/serialization');
+const { deserialize } = require('./lib/serialization');
 
 const { translatedSchema, pointSchema } = require('../../shared/schemas');
 
 const EventSchema = new Schema(
   {
-    title: {
-      type: String,
-      required: true,
-    },
+    title: String,
     organiser: {
       type: {
         type: String,
@@ -48,18 +45,28 @@ const EventSchema = new Schema(
         required: true,
       },
     },
-    date: {
-      from: {
-        type: Date,
-        required: true,
+    dates: [
+      {
+        _id: false,
+        from: {
+          type: Date,
+          required: true,
+        },
+        to: {
+          type: Date,
+        },
       },
-      to: {
-        type: Date,
-        required: true,
-      },
-    },
+    ],
+    repeat: {}, // TODO
     images: [{ type: String, ref: 'VenueImage' }],
     description: translatedSchema,
+    facebook: {
+      id: String,
+      title: String,
+      description: String,
+      interestedCount: Number,
+      goingCount: Number,
+    },
     queryText: String,
   },
   {
@@ -67,11 +74,18 @@ const EventSchema = new Schema(
   }
 );
 
-EventSchema.static('serialize', serialize);
-EventSchema.static('deserialize', deserialize);
+EventSchema.index({ 'facebook.id': 1 }, { sparse: true, unique: true });
+EventSchema.index('organiser.venue');
+EventSchema.index({
+  'dates.from': 1,
+});
+EventSchema.index({
+  'dates.from': 1,
+  'dates.to': 1,
+});
 
 EventSchema.method('deserialize', function() {
-  return EventSchema.statics.deserialize(this);
+  return deserialize(this);
 });
 
 module.exports = mongoose.model('Event', EventSchema);

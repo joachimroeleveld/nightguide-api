@@ -1,6 +1,7 @@
 const config = {
   NL: {
     Utrecht: {
+      timezone: 'Europe/Amsterdam',
       currency: 'EUR',
       priceClassRanges: {
         coke: [0, 2.3, 2.8, 3.3],

@@ -16,13 +16,8 @@ const {
   translatedSchema,
   weekSchema,
 } = require('../../shared/schemas');
-const {
-  serialize,
-  deserialize,
-  getCapacityRange,
-  getEntranceFeeRange,
-  getCurrency,
-} = require('./lib/serialization');
+const { deserialize } = require('./lib/serialization');
+const cityConfig = require('../../shared/cityConfig');
 
 const VenueSchema = new Schema(
   {
@@ -138,23 +133,16 @@ const VenueSchema = new Schema(
 );
 
 VenueSchema.index({ 'location.coordinates': '2dsphere' });
-VenueSchema.index({ name: 'text' });
 
-VenueSchema.virtual('capacityRange').get(function() {
-  return getCapacityRange(this);
-});
-VenueSchema.virtual('entranceFeeRange').get(function() {
-  return getEntranceFeeRange(this);
-});
 VenueSchema.virtual('currency').get(function() {
-  return getCurrency(this);
+  return this.cityConfig.currency;
 });
-
-VenueSchema.static('serialize', serialize);
-VenueSchema.static('deserialize', deserialize);
+VenueSchema.virtual('cityConfig').get(function() {
+  return cityConfig.get(this.location.country, this.location.city);
+});
 
 VenueSchema.method('deserialize', function() {
-  return VenueSchema.statics.deserialize(this);
+  return deserialize(this);
 });
 
 module.exports = mongoose.model('Venue', VenueSchema);

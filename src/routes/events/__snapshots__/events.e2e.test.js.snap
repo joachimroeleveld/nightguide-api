@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`events e2e GET /events/:eventId facebook event fields 1`] = `
+Object {
+  "createdAt": Any<String>,
+  "dates": Array [
+    Object {
+      "from": "2020-01-10T23:00:00.000Z",
+      "to": "2019-10-11T22:00:00.000Z",
+    },
+  ],
+  "facebook": Object {
+    "description": "Description",
+    "goingCount": 100,
+    "id": "12345678",
+    "interestedCount": 1,
+    "title": "Title",
+  },
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "address2": "1",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+    "type": "venue",
+  },
+  "organiser": Object {
+    "type": "venue",
+    "venue": "5c001cac8e84e1067f34695c",
+  },
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`events e2e GET /events/:eventId happy path 1`] = `
+Object {
+  "createdAt": Any<String>,
+  "dates": Array [
+    Object {
+      "from": "2020-01-10T23:00:00.000Z",
+      "to": "2019-10-11T22:00:00.000Z",
+    },
+  ],
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "address2": "1",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+    "type": "address",
+  },
+  "title": "Bevrijdingsfestival",
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`events e2e GET /events/:eventId simple fields 1`] = `
+Object {
+  "createdAt": Any<String>,
+  "dates": Array [
+    Object {
+      "from": "2020-01-10T23:00:00.000Z",
+      "to": "2019-10-11T22:00:00.000Z",
+    },
+  ],
+  "description": Object {
+    "en": "Simple description",
+  },
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "address2": "1",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+    "type": "address",
+  },
+  "title": "Bevrijdingsfestival",
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`events e2e POST /events populates venue location data 1`] = `
+Object {
+  "address1": "Vechtplantsoen 56",
+  "city": "Utrecht",
+  "coordinates": Object {
+    "latitude": 52.118273,
+    "longitude": 5.085487,
+  },
+  "country": "NL",
+  "postalCode": "3554TG",
+  "type": "venue",
+}
+`;

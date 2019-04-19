@@ -2,12 +2,11 @@ const util = require('util');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const dateFns = require('date-fns');
 const Schema = mongoose.Schema;
-const _ = require('lodash');
 
 const mail = require('../../shared/services/mail');
 const config = require('../../shared/config');
+const { deserialize } = require('./lib/serialization');
 
 const JWT_SECRET = config.get('JWT_SECRET');
 
@@ -111,6 +110,7 @@ UserSchema.method('checkRole', function(roles) {
   return roles.includes(user.role);
 });
 
+// TODO: move to repository
 UserSchema.method('sendPasswordResetEmail', async function() {
   const user = this;
 
@@ -133,6 +133,7 @@ You can reset your password by following <a href="${resetUrl}" target="_blank">t
   );
 });
 
+// TODO: move to repository
 UserSchema.method('sendVerificationEmail', async function() {
   const user = this;
 
@@ -155,32 +156,8 @@ You can verify your account by following <a href="${verifyUrl}" target="_blank">
   );
 });
 
-UserSchema.static('deserialize', user => {
-  if (user.toObject) {
-    user = user.toObject();
-  } else {
-    user = _.cloneDeep(user);
-  }
-
-  if (user.birthday) {
-    user.birthday = dateFns.format(user.birthday, 'YYYY-MM-DD');
-  }
-
-  user.id = user._id;
-  delete user._id;
-  delete user.__v;
-  delete user.password;
-  delete user.salt;
-  delete user.role;
-  delete user.passwordResetToken;
-  delete user.verificationToken;
-  delete user.facebook;
-
-  return user;
-});
-
 UserSchema.method('deserialize', function() {
-  return UserSchema.statics.deserialize(this);
+  return deserialize(this);
 });
 
 UserSchema.static('hashPassword', hashPassword);

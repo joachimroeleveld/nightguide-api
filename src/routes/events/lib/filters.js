@@ -22,13 +22,34 @@ function createLocationFilterFromValues({ city, country }) {
   return _.isEmpty(filter) ? null : filter;
 }
 
-function createFilterFromValues({ query: textFilter }) {
+function createFilterFromValues({
+  query: textFilter,
+  venue,
+  isFbEvent,
+  dateFrom,
+}) {
   const filter = {
     $and: [],
   };
 
   if (textFilter && textFilter.length >= 2) {
     filter.queryText = new RegExp(`\\b${unidecode(textFilter)}`, 'i');
+  }
+
+  if (venue) {
+    filter['organiser.venue'] = venue;
+  }
+  if (isFbEvent) {
+    filter['facebook.id'] = { $exists: true };
+  }
+  if (dateFrom) {
+    const dateFilter = new Date(dateFrom);
+    filter.$and.push({
+      $or: [
+        { 'dates.from': { $gt: dateFilter } },
+        { 'dates.to': { $gt: dateFilter } },
+      ],
+    });
   }
 
   if (!filter.$and.length) {

@@ -3,7 +3,6 @@ const _ = require('lodash');
 
 const { NotFoundError } = require('../../../shared/errors');
 const venueRepository = require('../../venues/venueRepository');
-const EventImage = require('../eventImageModel');
 
 /**
  * Prepare event object to be sent to client.
@@ -22,16 +21,14 @@ function deserialize(event) {
   delete event.queryText;
 
   if (event.images) {
-    event.images = event.images.map(EventImage.deserialize);
+    event.images = event.images.map(deserializeImage);
   }
 
-  if (event.date) {
-    if (event.date.from) {
-      event.date.from = event.date.from.toISOString();
-    }
-    if (event.date.to) {
-      event.date.to = event.date.to.toISOString();
-    }
+  if (event.dates) {
+    event.dates = event.dates.map(date => ({
+      from: date.from.toISOString(),
+      to: date.to.toISOString(),
+    }));
   }
 
   if (event.location && event.location.coordinates) {
@@ -51,8 +48,15 @@ function deserialize(event) {
  * @param event
  */
 async function serialize(event) {
+  if (event.id) {
+    event._id = event.id;
+    delete event.id;
+  }
+
   if (!event.queryText) {
-    event.queryText = unidecode(event.title);
+    event.queryText = unidecode(
+      event.title || _.get(event, 'facebook.title') || ''
+    );
   }
 
   if (event.location && event.location.coordinates) {
@@ -67,6 +71,7 @@ async function serialize(event) {
 
   // Fetch location from venue
   if (
+    event.location &&
     event.location.type === 'venue' &&
     event.organiser &&
     event.organiser.type === 'venue' &&
@@ -87,7 +92,22 @@ async function serialize(event) {
   return event;
 }
 
+function deserializeImage(image) {
+  if (image.toObject) {
+    image = image.toObject();
+  } else {
+    image = _.cloneDeep(image);
+  }
+
+  image.id = image._id;
+  delete image._id;
+  delete image.__v;
+
+  return image;
+}
+
 module.exports = {
   deserialize,
   serialize,
+  deserializeImage,
 };

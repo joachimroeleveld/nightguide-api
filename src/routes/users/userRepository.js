@@ -11,6 +11,7 @@ const {
 } = require('../../shared/errors');
 const FacebookApi = require('../../shared/services/facebook');
 const { CLIENT_IDS } = require('../../shared/constants');
+const { deserialize } = require('./lib/serialization');
 
 exports.createUser = async (data, setVerified = false) => {
   const existingUser = await exports.getUserByEmail(data.email, '+password');
@@ -248,3 +249,5 @@ function verifyJwtExpiration(token) {
     });
   });
 }
+
+exports.deserialize = deserialize;

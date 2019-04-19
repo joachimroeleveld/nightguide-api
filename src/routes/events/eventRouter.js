@@ -4,10 +4,8 @@ const multer = require('multer');
 const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
 const eventRepository = require('./eventRepository');
-const Event = require('./eventModel');
 const { adminAuth, checkIsApp } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
-const EventImage = require('./eventImageModel');
 const {
   createFilterFromValues,
   createLocationFilterFromValues,
@@ -24,7 +22,7 @@ router.get(
   asyncMiddleware(async (req, res, next) => {
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 20;
-    const fields = req.query.fields || ['title', 'date', 'location'];
+    const fields = req.query.fields || ['title', 'dates', 'location'];
     const populate = fields.filter(field => ['images'].includes(field));
 
     const filterValues = {
@@ -44,8 +42,8 @@ router.get(
       sortBy: deserializeSort(req.query.sortBy),
     });
 
-    const totalCount = await Event.count(filter).exec();
-    const results = events.map(Event.deserialize);
+    const totalCount = await eventRepository.countEvents(filter);
+    const results = events.map(event => event.deserialize());
 
     res.json({
       results,
@@ -61,7 +59,7 @@ router.post(
   adminAuth(),
   validator.validate('post', '/events'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = await Event.serialize(req.body);
+    const doc = await eventRepository.serialize(req.body);
     const event = await eventRepository.createEvent(doc);
 
     res.status(201).json(event.deserialize());
@@ -86,7 +84,7 @@ router.put(
   adminAuth(),
   validator.validate('put', '/events/{eventId}'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = await Event.serialize(req.body);
+    const doc = await eventRepository.serialize(req.body);
     const event = await eventRepository.updateEvent(req.params.eventId, doc, {
       omitUndefined: true,
     });
@@ -116,7 +114,7 @@ router.post(
     }
 
     let images = await Promise.all(promises);
-    const results = images.map(EventImage.deserialize);
+    const results = images.map(image => image.deserialize());
 
     res.status(200).json({ results });
   })

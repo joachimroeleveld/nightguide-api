@@ -15,6 +15,8 @@ const {
   TEST_VENUE_2,
   TEST_VENUE_3,
   TEST_VENUE_TIMESCHEDULE,
+  TEST_FACEBOOK_EVENT_1,
+  TEST_FACEBOOK_EVENT_2,
   COORDINATES_THE_HAGUE,
   COORDINATES_WOERDEN,
   COORDINATES_UTRECHT,
@@ -35,6 +37,7 @@ const {
   VENUE_FACILITIES,
   COUNTRIES,
 } = require('../../shared/constants');
+const eventRepository = require('../events/eventRepository');
 
 const VENUE_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -170,24 +173,27 @@ Object {
     });
 
     it('should sort results based on distance if specified', async () => {
-      await venueRepository.createVenue(
-        setFixtureLocation(TEST_VENUE_1, COORDINATES_THE_HAGUE)
-      );
-      await venueRepository.createVenue(
-        setFixtureLocation(TEST_VENUE_2, COORDINATES_WOERDEN)
-      );
+      // Wait for index to be built
+      Venue.on('index', async () => {
+        await venueRepository.createVenue(
+          setFixtureLocation(TEST_VENUE_1, COORDINATES_THE_HAGUE)
+        );
+        await venueRepository.createVenue(
+          setFixtureLocation(TEST_VENUE_2, COORDINATES_WOERDEN)
+        );
 
-      const res = await request(global.app)
-        .get('/venues')
-        .query({
-          sortBy: 'distance',
-          latitude: COORDINATES_UTRECHT[0],
-          longitude: COORDINATES_UTRECHT[1],
-        });
+        const res = await request(global.app)
+          .get('/venues')
+          .query({
+            sortBy: 'distance',
+            latitude: COORDINATES_UTRECHT[0],
+            longitude: COORDINATES_UTRECHT[1],
+          });
 
-      expect(res.status).toEqual(200);
-      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
-      expect(validateResponse(res)).toBeUndefined();
+        expect(res.status).toEqual(200);
+        expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+        expect(validateResponse(res)).toBeUndefined();
+      });
     });
 
     it('should throw if sorted by distance and no coordinates supplied', async () => {
@@ -671,7 +677,7 @@ Object {
     it('happy path', async () => {
       const res = await request(global.app)
         .post('/venues')
-        .send(Venue.deserialize(TEST_VENUE_1));
+        .send(venueRepository.deserialize(TEST_VENUE_1));
       const body = res.body;
 
       expect(res.status).toEqual(201);
@@ -828,7 +834,7 @@ Object {
       const res = await request(global.app)
         .put(`/venues/${venue1._id}`)
         .send({
-          ...Venue.deserialize(TEST_VENUE_1),
+          ...venueRepository.deserialize(TEST_VENUE_1),
           name: 'Other name',
         });
 
@@ -896,6 +902,80 @@ Object {
       expect(res.body.results[0].filetype).toEqual('image/jpeg');
       expect(res.body.results[0].width).toEqual(400);
       expect(res.body.results[0].height).toEqual(400);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('PUT /venues/:venueId/facebook-events', () => {
+    const validateResponse = validator.validateResponse(
+      'put',
+      '/venues/{venueId}/facebook-events'
+    );
+    let venue1;
+    let event1;
+
+    beforeEach(async () => {
+      venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+      event1 = _.set(
+        TEST_FACEBOOK_EVENT_1,
+        'organiser.venue',
+        venue1._id.toString()
+      );
+    });
+
+    it('adds new events', async () => {
+      const res = await request(global.app)
+        .put(`/venues/${venue1._id}/facebook-events`)
+        .send([eventRepository.deserialize(event1)]);
+
+      const venueEvents = await eventRepository.getEventsByVenue(venue1._id);
+
+      expect(res.status).toEqual(200);
+      expect(venueEvents.length).toEqual(1);
+      expect(venueEvents[0].facebook.id).toEqual(
+        TEST_FACEBOOK_EVENT_1.facebook.id
+      );
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('deletes old events', async () => {
+      const event2Data = eventRepository.deserialize(
+        _({ ...TEST_FACEBOOK_EVENT_2 })
+          .set('organiser.venue', venue1._id.toString())
+          .set('facebook.id', 'bar')
+          .value()
+      );
+      const res = await request(global.app)
+        .put(`/venues/${venue1._id}/facebook-events`)
+        .send([event2Data]);
+
+      const venueEvents = await eventRepository.getEventsByVenue(venue1._id);
+
+      expect(res.status).toEqual(200);
+      expect(venueEvents.length).toEqual(1);
+      expect(venueEvents[0].facebook.id).toEqual('bar');
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('updates existing events with a facebook id', async () => {
+      const res = await request(global.app)
+        .put(`/venues/${venue1._id}/facebook-events`)
+        .send([
+          {
+            ...eventRepository.deserialize(event1),
+            facebook: {
+              id: event1.facebook.id,
+              title: 'newtitle',
+            },
+          },
+        ]);
+
+      const venueEvents = await eventRepository.getEventsByVenue(venue1._id);
+
+      expect(res.status).toEqual(200);
+      expect(venueEvents.length).toEqual(1);
+      expect(venueEvents[0].facebook.id).toEqual(event1.facebook.id);
+      expect(venueEvents[0].facebook.title).toEqual('newtitle');
       expect(validateResponse(res)).toBeUndefined();
     });
   });
