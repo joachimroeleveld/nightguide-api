@@ -74,7 +74,6 @@ async function serialize(event) {
     event.location &&
     event.location.type === 'venue' &&
     event.organiser &&
-    event.organiser.type === 'venue' &&
     event.organiser.venue
   ) {
     const venue = await venueRepository.getVenue(event.organiser.venue, {

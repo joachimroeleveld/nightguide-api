@@ -1274,15 +1274,17 @@ components:
           type: string
         queryText:
           type: string
-        date:
-          type: object
-          properties:
-            from:
-              type: string
-              format: date-time
-            to:
-              type: string
-              format: date-time
+        dates:
+          type: array
+          items:
+            type: object
+            properties:
+              from:
+                type: string
+                format: date-time
+              to:
+                type: string
+                format: date-time
         description:
           $ref: '#/components/schemas/TranslatedObject'
         location:

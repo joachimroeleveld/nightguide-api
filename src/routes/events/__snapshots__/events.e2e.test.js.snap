@@ -31,7 +31,6 @@ Object {
     "type": "venue",
   },
   "organiser": Object {
-    "type": "venue",
     "venue": "5c001cac8e84e1067f34695c",
   },
   "updatedAt": Any<String>,

@@ -161,7 +161,6 @@ router.put(
           type: 'venue',
         },
         organiser: {
-          type: 'venue',
           venue: req.params.venueId,
         },
       });

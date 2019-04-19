@@ -9,10 +9,6 @@ const EventSchema = new Schema(
   {
     title: String,
     organiser: {
-      type: {
-        type: String,
-        enum: ['venue'],
-      },
       venue: {
         type: String,
         ref: 'Venue',
