@@ -134,13 +134,6 @@ const VenueSchema = new Schema(
 
 VenueSchema.index({ 'location.coordinates': '2dsphere' });
 
-VenueSchema.virtual('currency').get(function() {
-  return this.cityConfig.currency;
-});
-VenueSchema.virtual('cityConfig').get(function() {
-  return cityConfig.get(this.location.country, this.location.city);
-});
-
 VenueSchema.method('deserialize', function() {
   return deserialize(this);
 });

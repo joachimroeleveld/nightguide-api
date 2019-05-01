@@ -21,7 +21,7 @@ spec:
     spec:
       initContainers:
         - name: getenv
-          image: "{{ .Values.containers.getenv.repository }}:{{ .Values.containers.getenv.tag }}"
+          image: "google/cloud-sdk:{{ .Values.containers.getenv.tag }}"
           imagePullPolicy: {{ .Values.containers.api.pullPolicy }}
           command:
             - "/bin/bash"

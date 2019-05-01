@@ -38,7 +38,6 @@ function getEvents(opts) {
     sortBy,
     filter,
     locationFilter,
-    onlyFb,
   } = opts;
 
   const query = Event.find();
@@ -67,9 +66,6 @@ function getEvents(opts) {
   }
   if (locationFilter) {
     query.where(locationFilter);
-  }
-  if (onlyFb) {
-    query.where({ 'facebook.id': { $exists: true } });
   }
 
   return query.exec();

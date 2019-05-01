@@ -26,7 +26,8 @@ function createFilterFromValues({
   query: textFilter,
   venue,
   isFbEvent,
-  dateFrom,
+  afterDate,
+  onlyFb,
 }) {
   const filter = {
     $and: [],
@@ -42,14 +43,17 @@ function createFilterFromValues({
   if (isFbEvent) {
     filter['facebook.id'] = { $exists: true };
   }
-  if (dateFrom) {
-    const dateFilter = new Date(dateFrom);
+  if (afterDate) {
+    const afterFilter = new Date(afterDate);
     filter.$and.push({
       $or: [
-        { 'dates.from': { $gt: dateFilter } },
-        { 'dates.to': { $gt: dateFilter } },
+        { 'dates.from': { $gt: afterFilter } },
+        { 'dates.to': { $gt: afterFilter } },
       ],
     });
+  }
+  if (onlyFb !== undefined) {
+    query.where({ 'facebook.id': { $exists: true } });
   }
 
   if (!filter.$and.length) {

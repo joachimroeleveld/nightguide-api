@@ -7,6 +7,7 @@ const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
 const Venue = require('./venueModel');
 const VenueImage = require('./venueImageModel');
 const { serialize, deserialize } = require('./lib/serialization');
+const cityConfig = require('../../shared/cityConfig');
 
 function createVenue(data) {
   return Venue.create(data);
@@ -136,6 +137,10 @@ async function uploadVenueImageByUrl(venueId, image) {
   });
 }
 
+function getCityConfigForVenue(venue) {
+  return cityConfig.get(venue.location.country, venue.location.city);
+}
+
 module.exports = {
   createVenue,
   getVenues,
@@ -146,4 +151,5 @@ module.exports = {
   uploadVenueImageByUrl,
   serialize,
   deserialize,
+  getCityConfigForVenue,
 };

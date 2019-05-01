@@ -938,7 +938,7 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('deletes old events', async () => {
+    it('deletes old future events', async () => {
       const event2Data = eventRepository.deserialize(
         _({ ...TEST_FACEBOOK_EVENT_2 })
           .set('organiser.venue', venue1._id.toString())
@@ -954,6 +954,31 @@ Object {
       expect(res.status).toEqual(200);
       expect(venueEvents.length).toEqual(1);
       expect(venueEvents[0].facebook.id).toEqual('bar');
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('does not delete past events', async () => {
+      eventRepository.createEvent(
+        _({ ...TEST_FACEBOOK_EVENT_1 })
+          .set('organiser.venue', venue1._id.toString())
+          .set('dates', [
+            {
+              from: new Date(2018, 1, 1),
+              to: new Date(2018, 1, 2),
+            },
+          ])
+          .value()
+      );
+
+      const res = await request(global.app)
+        .put(`/venues/${venue1._id}/facebook-events`)
+        .send([]);
+
+      const venueEvents = await eventRepository.getEventsByVenue(venue1._id);
+
+      expect(res.status).toEqual(200);
+      expect(venueEvents.length).toEqual(1);
+      expect(venueEvents[0].id).toEqual(TEST_FACEBOOK_EVENT_1._id);
       expect(validateResponse(res)).toBeUndefined();
     });
 

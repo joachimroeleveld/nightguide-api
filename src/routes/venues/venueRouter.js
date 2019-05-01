@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const multer = require('multer');
 const _ = require('lodash');
+const moment = require('moment-timezone');
 
 const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
@@ -135,22 +136,29 @@ router.post(
   })
 );
 
+/**
+ * Replace all current and future Facebook events for a venue.
+ */
 router.put(
   '/:venueId/facebook-events',
   adminAuth(),
   validator.validate('put', '/venues/{venueId}/facebook-events'),
   asyncMiddleware(async (req, res) => {
-    const venue = venueRepository.getVenue(req.params.venueId);
+    const venue = await venueRepository.getVenue(req.params.venueId);
 
     if (!venue) {
       throw new NotFoundError('venue_not_found');
     }
 
-    const prevEventIds = await eventRepository.getEventsByVenue(
+    const cityConf = venueRepository.getCityConfigForVenue(venue);
+    const currentEventIds = await eventRepository.getEventsByVenue(
       req.params.venueId,
       {
         fields: ['facebook.id'],
-        onlyFb: true,
+        filter: {
+          onlyFb: true,
+          afterDate: moment().tz(cityConf.timezone),
+        },
       }
     );
 
@@ -174,9 +182,9 @@ router.put(
       );
     }
 
-    if (prevEventIds.length) {
+    if (currentEventIds.length) {
       const oldEventIds = _.difference(
-        prevEventIds.map(event => event.facebook.id),
+        currentEventIds.map(event => event.facebook.id),
         req.body.map(event => event.facebook.id)
       );
       await eventRepository.deleteEvents({

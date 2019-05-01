@@ -5,7 +5,6 @@
 replicaCount: 1
 containers:
   getenv:
-    repository: google/cloud-sdk
     tag: 236.0.0-alpine
     pullPolicy: IfNotPresent
   api:
