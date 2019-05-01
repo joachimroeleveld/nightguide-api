@@ -30,7 +30,7 @@ router.get(
       query: req.query.query,
     };
     const locationFilter = createLocationFilterFromValues(filterValues);
-    const filter = createFilterFromValues(filterValues);
+    const filter = createFilterFromValues(filterValues, req.query.tz);
 
     const events = await eventRepository.getEvents({
       offset,
