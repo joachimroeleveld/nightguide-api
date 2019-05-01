@@ -415,21 +415,6 @@ paths:
             type: array
             items:
               type: string
-              enum:
-                [
-                  id,
-                  name,
-                  categories,
-                  tags,
-                  images,
-                  description,
-                  location,
-                  website,
-                  facebook,
-                  timeSchedule,
-                  capacity,
-                  prices
-                ]
           description: Fields to return. Returns limited set of fields by default.
       responses:
         '200':
@@ -681,14 +666,6 @@ paths:
             type: array
             items:
               type: string
-              enum:
-                [
-                  title,
-                  date,
-                  description,
-                  location,
-                  images
-                ]
           description: Fields to return. Returns limited set of fields by default.
       responses:
         '200':
