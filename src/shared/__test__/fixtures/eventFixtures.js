@@ -5,8 +5,8 @@ const TEST_EVENT_1 = Object.freeze({
   title: 'Bevrijdingsfestival',
   dates: [
     {
-      from: new Date(2019, 12, 11),
-      to: new Date(2019, 9, 12),
+      from: new Date('2019-12-11T11:16:14.157Z'),
+      to: new Date('2019-09-12T11:16:14.157Z'),
     },
   ],
   location: {
@@ -33,8 +33,8 @@ const TEST_FACEBOOK_EVENT_1 = Object.freeze({
   _id: '5cab012f2830a46462316880',
   dates: [
     {
-      from: new Date(2019, 12, 11),
-      to: new Date(2019, 9, 12),
+      from: new Date('2019-12-11T11:16:14.157Z'),
+      to: new Date('2019-09-12T11:16:14.157Z'),
     },
   ],
   location: {
