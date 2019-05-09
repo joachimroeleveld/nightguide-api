@@ -18,6 +18,7 @@ const {
 const { clearDb } = require('../../shared/__test__/testUtils');
 const eventRepository = require('./eventRepository');
 const venueRepository = require('../venues/venueRepository');
+const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 
 const EVENT_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -396,7 +397,7 @@ Object {
       'post',
       '/events/{eventId}/images'
     );
-    const imagePath = 'src/shared/__test__/fixtures/images/square.jpg';
+    const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 
     it('happy path - multipart', async () => {
       const event = await eventRepository.createEvent(TEST_EVENT_1);
@@ -406,7 +407,7 @@ Object {
 
       const res = await request(global.app)
         .post(`/events/${event.id}/images`)
-        .attach('images', imagePath);
+        .attach('images', IMAGE_FIXTURE_PATH);
 
       expect(res.status).toEqual(200);
       expect(res.body.results[0].url).toEqual('testurl');
@@ -423,7 +424,7 @@ Object {
       sandbox.stub(imagesService, 'upload').resolves();
       sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
       sandbox.stub(nodeRequest, 'get').resolves({
-        body: fs.readFileSync(imagePath),
+        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
         headers: {
           'content-type': 'image/jpeg',
         },
@@ -445,6 +446,106 @@ Object {
       expect(res.body.results[0].filetype).toEqual('image/jpeg');
       expect(res.body.results[0].width).toEqual(400);
       expect(res.body.results[0].height).toEqual(400);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('PUT /events/facebook-events/:fbEventId/image', () => {
+    const validateResponse = validator.validateResponse(
+      'put',
+      '/events/facebook-events/{fbEventId}/image'
+    );
+
+    it('happy path', async () => {
+      const event = await eventRepository.createEvent(TEST_FACEBOOK_EVENT_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
+      sandbox.stub(nodeRequest, 'get').resolves({
+        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        headers: {
+          'content-type': 'image/jpeg',
+        },
+      });
+
+      const res = await request(global.app)
+        .post(`/events/facebook-events/${event.facebook.id}/image`)
+        .send({
+          image: { url: 'http://testurl.com' },
+        });
+
+      const newEvent = await eventRepository.getEvent(event._id);
+
+      expect(res.status).toEqual(200);
+      expect(newEvent.images.length).toEqual(1);
+      expect(newEvent.images[0]).toEqual(res.body.result.id);
+      expect(res.body.result.url).toEqual('testurl');
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('replaces old images', async () => {
+      const event = await eventRepository.createEvent(TEST_FACEBOOK_EVENT_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
+      sandbox.stub(imagesService, 'deleteServeableUrl').resolves();
+      sandbox.stub(nodeRequest, 'get').resolves({
+        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        headers: {
+          'content-type': 'image/jpeg',
+        },
+      });
+
+      await eventRepository.uploadEventImageByUrl(event._id, {
+        url: 'http://existing.com',
+        fbUrl: 'http://existing.com',
+      });
+
+      const res = await request(global.app)
+        .post(`/events/facebook-events/${event.facebook.id}/image`)
+        .send({
+          image: { url: 'http://testurl.com' },
+        });
+
+      const newEvent = await eventRepository.getEvent(event._id);
+
+      expect(res.status).toEqual(200);
+      expect(imagesService.deleteServeableUrl.called).toEqual(true);
+      expect(res.body.updated).toEqual(true);
+      expect(newEvent.images.length).toEqual(1);
+      expect(newEvent.images[0]).toEqual(res.body.result.id);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('skips if url hasnt changed', async () => {
+      const event = await eventRepository.createEvent(TEST_FACEBOOK_EVENT_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
+      sandbox.stub(imagesService, 'deleteServeableUrl').resolves();
+      sandbox.stub(nodeRequest, 'get').resolves({
+        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        headers: {
+          'content-type': 'image/jpeg',
+        },
+      });
+
+      await eventRepository.uploadEventImageByUrl(event._id, {
+        url: 'foo',
+        fbUrl: 'http://existing.com',
+      });
+
+      const res = await request(global.app)
+        .post(`/events/facebook-events/${event.facebook.id}/image`)
+        .send({
+          image: { url: 'http://existing.com' },
+        });
+
+      const newEvent = await eventRepository.getEvent(event._id);
+
+      expect(res.status).toEqual(200);
+      expect(res.body.skipped).toEqual(true);
+      expect(newEvent.images.length).toEqual(1);
       expect(validateResponse(res)).toBeUndefined();
     });
   });

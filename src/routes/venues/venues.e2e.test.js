@@ -38,6 +38,7 @@ const {
   COUNTRIES,
 } = require('../../shared/constants');
 const eventRepository = require('../events/eventRepository');
+const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 
 const VENUE_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -852,7 +853,6 @@ Object {
       'post',
       '/venues/{venueId}/images'
     );
-    const imagePath = 'src/shared/__test__/fixtures/images/square.jpg';
 
     it('happy path - multipart', async () => {
       const venue = await venueRepository.createVenue(TEST_VENUE_1);
@@ -862,7 +862,7 @@ Object {
 
       const res = await request(global.app)
         .post(`/venues/${venue.id}/images`)
-        .attach(VENUE_IMAGE_PERSPECTIVES[0], imagePath);
+        .attach(VENUE_IMAGE_PERSPECTIVES[0], IMAGE_FIXTURE_PATH);
 
       expect(res.status).toEqual(200);
       expect(res.body.results[0].url).toEqual('testurl');
@@ -879,7 +879,7 @@ Object {
       sandbox.stub(imagesService, 'upload').resolves();
       sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
       sandbox.stub(nodeRequest, 'get').resolves({
-        body: fs.readFileSync(imagePath),
+        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
         headers: {
           'content-type': 'image/jpeg',
         },

@@ -71,12 +71,20 @@ function getEvents(opts) {
   return query.exec();
 }
 
-function getEvent(eventId, opts = {}) {
+function getEvent(conditions, opts = {}) {
+  let where = conditions;
+  if (_.isString(conditions)) {
+    where = { _id: conditions };
+  }
   const { populate = [] } = opts;
 
-  return Event.findById(eventId)
+  return Event.findOne(where)
     .populate(populate.join(' '))
     .exec();
+}
+
+function getEventByFbId(fbId, opts = {}) {
+  return getEvent({ 'facebook.id': fbId }, opts);
 }
 
 function countEvents(filter) {
@@ -93,7 +101,7 @@ function getEventsByVenue(venueId, opts = {}) {
   });
 }
 
-async function uploadEventImage(eventId, { buffer, mime }) {
+async function uploadEventImage(eventId, { buffer, mime, ...otherImageProps }) {
   if (!imagesService.SUPPORTED_MIME_TYPES.includes(mime)) {
     throw new InvalidArgumentError('invalid_mime');
   }
@@ -106,6 +114,7 @@ async function uploadEventImage(eventId, { buffer, mime }) {
   const image = new EventImage({
     filesize: buffer.byteLength,
     filetype: mime,
+    ...otherImageProps,
   });
 
   image.filename = `${image._id}.${mimeTypes.extension(mime)}`;
@@ -133,7 +142,7 @@ async function uploadEventImage(eventId, { buffer, mime }) {
 }
 
 async function uploadEventImageByUrl(eventId, image) {
-  const { url, perspective } = image;
+  const { url, ...otherImageProps } = image;
   const res = await request.get({
     uri: url,
     resolveWithFullResponse: true,
@@ -143,9 +152,19 @@ async function uploadEventImageByUrl(eventId, image) {
 
   return await uploadEventImage(eventId, {
     buffer: res.body,
-    perspective,
     mime,
+    ...otherImageProps,
   });
+}
+
+async function deleteEventImageById(eventId, imageId) {
+  await imagesService.deleteServeableUrl(imageId);
+
+  await EventImage.findByIdAndDelete(imageId).exec();
+
+  await Event.findByIdAndUpdate(eventId, {
+    $pull: { images: imageId },
+  }).exec();
 }
 
 async function deleteEvents(conditions, opts) {
@@ -162,12 +181,14 @@ module.exports = {
   createEvent,
   getEvents,
   getEvent,
+  getEventByFbId,
   getEventsByVenue,
   countEvents,
   updateEvent,
   uploadEventImage,
   uploadEventImageByUrl,
   deleteEvents,
+  deleteEventImageById,
   serialize,
   deserialize,
   deserializeImage,

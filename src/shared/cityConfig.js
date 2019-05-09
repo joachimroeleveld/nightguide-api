@@ -13,6 +13,7 @@ const config = {
 };
 
 module.exports = {
+  config,
   get: (country, city) =>
     config[country] && config[country][city] ? config[country][city] : null,
 };

@@ -17,7 +17,6 @@ const {
   weekSchema,
 } = require('../../shared/schemas');
 const { deserialize } = require('./lib/serialization');
-const cityConfig = require('../../shared/cityConfig');
 
 const VenueSchema = new Schema(
   {

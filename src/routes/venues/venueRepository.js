@@ -6,7 +6,11 @@ const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
 const Venue = require('./venueModel');
 const VenueImage = require('./venueImageModel');
-const { serialize, deserialize } = require('./lib/serialization');
+const {
+  serialize,
+  deserialize,
+  deserializeImage,
+} = require('./lib/serialization');
 const cityConfig = require('../../shared/cityConfig');
 
 function createVenue(data) {
@@ -151,5 +155,6 @@ module.exports = {
   uploadVenueImageByUrl,
   serialize,
   deserialize,
+  deserializeImage,
   getCityConfigForVenue,
 };

@@ -13,7 +13,6 @@ function deserialize(user) {
 
   user.id = user._id;
   delete user._id;
-  delete user.__v;
   delete user.password;
   delete user.salt;
   delete user.role;

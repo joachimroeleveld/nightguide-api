@@ -58,6 +58,8 @@ const VENUE_VISITOR_TYPES = {
 const VENUE_CATEGORIES = {
   CATEGORY_CLUB: 'club',
   CATEGORY_BAR: 'bar',
+  CATEGORY_DANCING_BAR: 'dancing_bar',
+  CATEGORY_BEACH_CLUB: 'beach_club',
   CATEGORY_LOUNGE: 'lounge_bar',
   CATEGORY_CRAFT_BEER_BAR: 'craft_beer_bar',
   CATEGORY_COCKTAIL_BAR: 'cocktail_bar',

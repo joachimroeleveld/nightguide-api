@@ -17,7 +17,6 @@ function deserialize(event) {
 
   event.id = event._id;
   delete event._id;
-  delete event.__v;
   delete event.queryText;
 
   if (event.images) {
@@ -100,7 +99,6 @@ function deserializeImage(image) {
 
   image.id = image._id;
   delete image._id;
-  delete image.__v;
 
   return image;
 }

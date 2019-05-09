@@ -54,7 +54,7 @@ const EventSchema = new Schema(
       },
     ],
     repeat: {}, // TODO
-    images: [{ type: String, ref: 'VenueImage' }],
+    images: [{ type: String, ref: 'EventImage' }],
     description: translatedSchema,
     facebook: {
       id: String,

@@ -3,7 +3,6 @@ const unidecode = require('unidecode');
 
 const { VENUE_CAPACITY_RANGES } = require('../../../shared/constants');
 const cityConfig = require('../../../shared/cityConfig');
-const VenueImage = require('../venueImageModel');
 
 /**
  * Prepare venue to be sent to client.
@@ -19,12 +18,11 @@ function deserialize(venue) {
 
   venue.id = venue._id;
   delete venue._id;
-  delete venue.__v;
   delete venue.sourceId;
   delete venue.queryText;
 
   if (venue.images) {
-    venue.images = venue.images.map(VenueImage.deserialize);
+    venue.images = venue.images.map(deserializeImage);
   }
 
   if (venue.location.coordinates) {
@@ -50,6 +48,19 @@ function deserialize(venue) {
   }
 
   return venue;
+}
+
+function deserializeImage(venueImage) {
+  if (venueImage.toObject) {
+    venueImage = venueImage.toObject();
+  } else {
+    venueImage = _.cloneDeep(venueImage);
+  }
+
+  venueImage.id = venueImage._id;
+  delete venueImage._id;
+
+  return venueImage;
 }
 
 /**
@@ -149,4 +160,5 @@ function getCapacityRange(venue) {
 module.exports = {
   serialize,
   deserialize,
+  deserializeImage,
 };

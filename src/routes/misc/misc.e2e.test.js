@@ -35,4 +35,13 @@ describe('users e2e', () => {
       expect(validateResponse(res)).toBeUndefined();
     });
   });
+
+  describe('GET /misc/city-config', () => {
+    it('happy path', async () => {
+      const res = await request(global.app).get('/misc/city-config');
+
+      expect(res.status).toEqual(200);
+      expect(res.body).toMatchSnapshot();
+    });
+  });
 });

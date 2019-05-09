@@ -23,7 +23,20 @@ async function upload(name, type, buffer) {
 async function getServeableUrl(fileName) {
   const result = await request({
     baseUrl: BASE_URL,
-    uri: `/images/get-url/${fileName}`,
+    uri: `/serving-url/${fileName}`,
+    qs: {
+      key: TOKEN,
+    },
+    json: true,
+  });
+
+  return result.url;
+}
+
+async function deleteServeableUrl(fileName) {
+  const result = await request.delete({
+    baseUrl: BASE_URL,
+    uri: `/serving-url/${fileName}`,
     qs: {
       key: TOKEN,
     },
@@ -36,5 +49,6 @@ async function getServeableUrl(fileName) {
 module.exports = {
   upload,
   getServeableUrl,
+  deleteServeableUrl,
   SUPPORTED_MIME_TYPES,
 };

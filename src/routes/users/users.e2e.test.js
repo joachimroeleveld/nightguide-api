@@ -112,6 +112,7 @@ describe('users e2e', () => {
 
         `
 Object {
+  "__v": 0,
   "birthday": "1995-10-04",
   "createdAt": Any<String>,
   "email": "alice@rogers.nl",

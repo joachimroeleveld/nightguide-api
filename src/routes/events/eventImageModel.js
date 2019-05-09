@@ -17,6 +17,7 @@ const EventImageSchema = new Schema({
   filesize: Number,
   width: Number,
   height: Number,
+  fbUrl: String,
   url: {
     type: String,
     required: true,

@@ -1,8 +1,10 @@
 const { Router } = require('express');
 const multer = require('multer');
+const _ = require('lodash');
 
 const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
+const { NotFoundError } = require('../../shared/errors');
 const eventRepository = require('./eventRepository');
 const { adminAuth, checkIsApp } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
@@ -30,7 +32,7 @@ router.get(
       query: req.query.query,
     };
     const locationFilter = createLocationFilterFromValues(filterValues);
-    const filter = createFilterFromValues(filterValues, req.query.tz);
+    const filter = createFilterFromValues(filterValues);
 
     const events = await eventRepository.getEvents({
       offset,
@@ -75,6 +77,10 @@ router.get(
       populate: ['images'],
     });
 
+    if (!event) {
+      throw new NotFoundError('event_not_found');
+    }
+
     res.json(event.deserialize());
   })
 );
@@ -89,6 +95,10 @@ router.put(
       omitUndefined: true,
     });
 
+    if (!event) {
+      throw new NotFoundError('event_not_found');
+    }
+
     res.json(event.deserialize());
   })
 );
@@ -99,6 +109,11 @@ router.post(
   validator.validate('post', '/events/{eventId}/images'),
   upload.array('images', 10),
   asyncMiddleware(async (req, res, next) => {
+    const event = await eventRepository.getEvent(req.params.eventId);
+    if (!event) {
+      throw new NotFoundError('event_not_found');
+    }
+
     let promises;
     if (req.files) {
       promises = req.files.map(file => {
@@ -117,6 +132,42 @@ router.post(
     const results = images.map(image => image.deserialize());
 
     res.status(200).json({ results });
+  })
+);
+
+router.put(
+  '/facebook-events/:fbEventId/image',
+  adminAuth(),
+  validator.validate('put', '/events/facebook-events/{fbEventId}/image'),
+  upload.single('image'),
+  asyncMiddleware(async (req, res, next) => {
+    const event = await eventRepository.getEventByFbId(req.params.fbEventId, {
+      populate: ['images'],
+    });
+    if (!event) {
+      throw new NotFoundError('event_not_found');
+    }
+
+    const newUrl = req.body.image.url;
+    const oldFbImage = _.find(event.images, image => !!image.fbUrl);
+
+    if (oldFbImage && oldFbImage.fbUrl === newUrl) {
+      return res.json({ skipped: true });
+    }
+
+    const image = await eventRepository.uploadEventImageByUrl(event._id, {
+      url: newUrl,
+      fbUrl: newUrl,
+    });
+
+    if (oldFbImage) {
+      await eventRepository.deleteEventImageById(event._id, oldFbImage._id);
+    }
+
+    res.json({
+      updated: !!oldFbImage,
+      result: image.deserialize(),
+    });
   })
 );
 
