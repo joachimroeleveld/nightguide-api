@@ -469,7 +469,7 @@ Object {
       });
 
       const res = await request(global.app)
-        .post(`/events/facebook-events/${event.facebook.id}/image`)
+        .put(`/events/facebook-events/${event.facebook.id}/image`)
         .send({
           image: { url: 'http://testurl.com' },
         });
@@ -502,7 +502,7 @@ Object {
       });
 
       const res = await request(global.app)
-        .post(`/events/facebook-events/${event.facebook.id}/image`)
+        .put(`/events/facebook-events/${event.facebook.id}/image`)
         .send({
           image: { url: 'http://testurl.com' },
         });
@@ -536,7 +536,7 @@ Object {
       });
 
       const res = await request(global.app)
-        .post(`/events/facebook-events/${event.facebook.id}/image`)
+        .put(`/events/facebook-events/${event.facebook.id}/image`)
         .send({
           image: { url: 'http://existing.com' },
         });
