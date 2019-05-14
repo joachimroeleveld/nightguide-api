@@ -151,13 +151,13 @@ router.put(
     }
 
     const cityConf = venueRepository.getCityConfigForVenue(venue);
-    const currentEventIds = await eventRepository.getEventsByVenue(
+    const currentEvents = await eventRepository.getEventsByVenue(
       req.params.venueId,
       {
         fields: ['facebook.id'],
         filter: {
-          onlyFb: true,
-          afterDate: moment().tz(cityConf.timezone),
+          isFbEvent: true,
+          dateFrom: moment().tz(cityConf.timezone),
         },
       }
     );
@@ -182,9 +182,9 @@ router.put(
       );
     }
 
-    if (currentEventIds.length) {
+    if (currentEvents.length) {
       const oldEventIds = _.difference(
-        currentEventIds.map(event => event.facebook.id),
+        currentEvents.map(event => event.facebook.id),
         req.body.map(event => event.facebook.id)
       );
       await eventRepository.deleteEvents({

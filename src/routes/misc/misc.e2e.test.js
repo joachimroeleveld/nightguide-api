@@ -3,7 +3,7 @@ require('../../shared/__test__/testBootstrap');
 const request = require('supertest');
 const sinon = require('sinon');
 
-const { clearDb } = require('../../shared/__test__/testUtils');
+const { resetDb } = require('../../shared/__test__/testUtils');
 const { validator } = require('../../shared/openapi');
 const mailService = require('../../shared/services/mail');
 
@@ -12,7 +12,7 @@ const sandbox = sinon.createSandbox();
 describe('users e2e', () => {
   afterEach(async () => {
     sandbox.restore();
-    await clearDb();
+    await resetDb();
   });
 
   describe('POST /misc/user-feedback', () => {

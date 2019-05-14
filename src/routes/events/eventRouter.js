@@ -45,7 +45,7 @@ router.get(
     });
 
     const totalCount = await eventRepository.countEvents(filter);
-    const results = events.map(event => event.deserialize());
+    const results = events.map(eventRepository.deserialize);
 
     res.json({
       results,

@@ -29,7 +29,7 @@ function updateEvent(conditions, data, options = {}) {
   }).exec();
 }
 
-function getEvents(opts) {
+async function getEvents(opts) {
   const {
     populate = [],
     fields = [],
@@ -40,35 +40,43 @@ function getEvents(opts) {
     locationFilter,
   } = opts;
 
-  const query = Event.find();
+  const agg = Event.aggregate();
 
   if (locationFilter) {
     fields.push('location');
   }
 
-  query.populate(populate.join(' '));
-
-  if (!sortBy) {
-    // Order by title by default
-    query.sort({ title: 1 });
-  }
-  if (fields) {
-    query.select(fields);
-  }
-  if (offset) {
-    query.skip(offset);
-  }
-  if (limit) {
-    query.limit(limit);
-  }
   if (filter) {
-    query.where(filter);
+    agg.match(filter);
   }
   if (locationFilter) {
-    query.where(locationFilter);
+    agg.match(locationFilter);
+  }
+  if (fields.length) {
+    agg.project(fields.join(' '));
+  }
+  if (!sortBy) {
+    // Order by title by default
+    agg.sort({ title: 1 });
+  }
+  if (offset) {
+    agg.append({
+      $skip: offset,
+    });
+  }
+  if (limit) {
+    agg.limit(limit);
   }
 
-  return query.exec();
+  const result = await agg.exec();
+
+  if (populate.length) {
+    for (const path in populate) {
+      await Event.populate(result, { path: populate }).exec();
+    }
+  } else {
+    return result;
+  }
 }
 
 function getEvent(conditions, opts = {}) {
@@ -93,11 +101,11 @@ function countEvents(filter) {
 
 function getEventsByVenue(venueId, opts = {}) {
   return getEvents({
+    ...opts,
     filter: {
-      'organiser.venue': venueId,
+      'organiser.venue': venueId.toString(),
       ...opts.filter,
     },
-    ...opts,
   });
 }
 
@@ -158,9 +166,11 @@ async function uploadEventImageByUrl(eventId, image) {
 }
 
 async function deleteEventImageById(eventId, imageId) {
-  await imagesService.deleteServeableUrl(imageId);
+  const image = await EventImage.findById(imageId).exec();
 
-  await EventImage.findByIdAndDelete(imageId).exec();
+  await imagesService.deleteFile(image.filename);
+
+  await EventImage.findByIdAndRemove(imageId).exec();
 
   await Event.findByIdAndUpdate(eventId, {
     $pull: { images: imageId },

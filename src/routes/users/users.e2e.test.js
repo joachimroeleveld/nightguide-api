@@ -13,7 +13,7 @@ const {
   TEST_USER_2,
   TEST_USER_FACEBOOK_1,
 } = require('../../shared/__test__/fixtures');
-const { clearDb } = require('../../shared/__test__/testUtils');
+const { resetDb } = require('../../shared/__test__/testUtils');
 const mailService = require('../../shared/services/mail');
 const {
   mockUserAuth,
@@ -30,7 +30,7 @@ const USER_SNAPSHOT_MATCHER = {
 describe('users e2e', () => {
   afterEach(async () => {
     sandbox.restore();
-    await clearDb();
+    await resetDb();
   });
 
   describe('POST /users', () => {

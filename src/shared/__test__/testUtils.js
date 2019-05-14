@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
 
-async function clearDb() {
+async function resetDb() {
   const removals = Object.keys(mongoose.connection.collections).map(
     collection =>
       new Promise(resolve =>
@@ -15,7 +15,7 @@ async function clearDb() {
       )
   );
 
-  return Promise.all(_.flatten([removals, dropIndices]));
+  await Promise.all(_.flatten([removals, dropIndices]));
 }
 
 function setFixtureLocation(fixture, coordinates) {
@@ -32,6 +32,6 @@ function setFixtureLocation(fixture, coordinates) {
 }
 
 module.exports = {
-  clearDb,
+  resetDb,
   setFixtureLocation,
 };

@@ -6,6 +6,7 @@ const request = require('supertest');
 const sinon = require('sinon');
 const _ = require('lodash');
 
+const Event = require('./eventModel');
 const { validator } = require('../../shared/openapi');
 const imagesService = require('../../shared/services/images');
 const {
@@ -15,7 +16,7 @@ const {
   TEST_FACEBOOK_EVENT_1,
   TEST_VENUE_1,
 } = require('../../shared/__test__/fixtures');
-const { clearDb } = require('../../shared/__test__/testUtils');
+const { resetDb } = require('../../shared/__test__/testUtils');
 const eventRepository = require('./eventRepository');
 const venueRepository = require('../venues/venueRepository');
 const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
@@ -31,7 +32,8 @@ const sandbox = sinon.createSandbox();
 describe('events e2e', () => {
   beforeEach(async () => {
     sandbox.restore();
-    await clearDb();
+    await resetDb();
+    await Event.syncIndexes();
   });
 
   describe('GET /events', () => {
@@ -488,7 +490,7 @@ Object {
 
       sandbox.stub(imagesService, 'upload').resolves();
       sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
-      sandbox.stub(imagesService, 'deleteServeableUrl').resolves();
+      sandbox.stub(imagesService, 'deleteFile').resolves();
       sandbox.stub(nodeRequest, 'get').resolves({
         body: fs.readFileSync(IMAGE_FIXTURE_PATH),
         headers: {
@@ -510,7 +512,7 @@ Object {
       const newEvent = await eventRepository.getEvent(event._id);
 
       expect(res.status).toEqual(200);
-      expect(imagesService.deleteServeableUrl.called).toEqual(true);
+      expect(imagesService.deleteFile.called).toEqual(true);
       expect(res.body.updated).toEqual(true);
       expect(newEvent.images.length).toEqual(1);
       expect(newEvent.images[0]).toEqual(res.body.result.id);
@@ -522,7 +524,7 @@ Object {
 
       sandbox.stub(imagesService, 'upload').resolves();
       sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
-      sandbox.stub(imagesService, 'deleteServeableUrl').resolves();
+      sandbox.stub(imagesService, 'deleteFile').resolves();
       sandbox.stub(nodeRequest, 'get').resolves({
         body: fs.readFileSync(IMAGE_FIXTURE_PATH),
         headers: {

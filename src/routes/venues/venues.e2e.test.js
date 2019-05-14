@@ -7,6 +7,7 @@ const request = require('supertest');
 const sinon = require('sinon');
 const _ = require('lodash');
 
+const Event = require('../events/eventModel');
 const Venue = require('./venueModel');
 const { validator } = require('../../shared/openapi');
 const imagesService = require('../../shared/services/images');
@@ -22,7 +23,7 @@ const {
   COORDINATES_UTRECHT,
 } = require('../../shared/__test__/fixtures');
 const {
-  clearDb,
+  resetDb,
   setFixtureLocation,
 } = require('../../shared/__test__/testUtils');
 const venueRepository = require('./venueRepository');
@@ -51,7 +52,7 @@ const sandbox = sinon.createSandbox();
 describe('venues e2e', () => {
   beforeEach(async () => {
     sandbox.restore();
-    await clearDb();
+    await resetDb();
   });
 
   describe('GET /venues', () => {
@@ -978,7 +979,7 @@ Object {
 
       expect(res.status).toEqual(200);
       expect(venueEvents.length).toEqual(1);
-      expect(venueEvents[0].id).toEqual(TEST_FACEBOOK_EVENT_1._id);
+      expect(venueEvents[0]._id.toString()).toEqual(TEST_FACEBOOK_EVENT_1._id);
       expect(validateResponse(res)).toBeUndefined();
     });
 

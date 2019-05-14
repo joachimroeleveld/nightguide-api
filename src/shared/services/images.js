@@ -20,6 +20,10 @@ async function upload(name, type, buffer) {
   });
 }
 
+async function deleteFile(name) {
+  await bucket.file(name).delete();
+}
+
 async function getServeableUrl(fileName) {
   const result = await request({
     baseUrl: BASE_URL,
@@ -33,22 +37,9 @@ async function getServeableUrl(fileName) {
   return result.url;
 }
 
-async function deleteServeableUrl(fileName) {
-  const result = await request.delete({
-    baseUrl: BASE_URL,
-    uri: `/serving-url/${fileName}`,
-    qs: {
-      key: TOKEN,
-    },
-    json: true,
-  });
-
-  return result.url;
-}
-
 module.exports = {
   upload,
+  deleteFile,
   getServeableUrl,
-  deleteServeableUrl,
   SUPPORTED_MIME_TYPES,
 };

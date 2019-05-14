@@ -27,14 +27,13 @@ function createFilterFromValues({
   venue,
   isFbEvent,
   dateFrom,
-  onlyFb,
 }) {
   const filter = {
     $and: [],
   };
 
   if (textFilter && textFilter.length >= 2) {
-    filter.queryText = new RegExp(`\\b${unidecode(textFilter)}`, 'i');
+    filter.$text = { $search: unidecode(textFilter) };
   }
 
   if (dateFrom) {
@@ -52,9 +51,6 @@ function createFilterFromValues({
   }
   if (isFbEvent) {
     filter['facebook.id'] = { $exists: true };
-  }
-  if (onlyFb !== undefined) {
-    query.where({ 'facebook.id': { $exists: true } });
   }
 
   if (!filter.$and.length) {
