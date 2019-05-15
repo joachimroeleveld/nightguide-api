@@ -7,7 +7,6 @@ const request = require('supertest');
 const sinon = require('sinon');
 const _ = require('lodash');
 
-const Event = require('../events/eventModel');
 const Venue = require('./venueModel');
 const { validator } = require('../../shared/openapi');
 const imagesService = require('../../shared/services/images');
@@ -918,7 +917,7 @@ Object {
     beforeEach(async () => {
       venue1 = await venueRepository.createVenue(TEST_VENUE_1);
       event1 = _.set(
-        TEST_FACEBOOK_EVENT_1,
+        { ...TEST_FACEBOOK_EVENT_1 },
         'organiser.venue',
         venue1._id.toString()
       );
@@ -929,7 +928,9 @@ Object {
         .put(`/venues/${venue1._id}/facebook-events`)
         .send([eventRepository.deserialize(event1)]);
 
-      const venueEvents = await eventRepository.getEventsByVenue(venue1._id);
+      const venueEvents = await eventRepository.getEvents({
+        venueId: venue1._id,
+      });
 
       expect(res.status).toEqual(200);
       expect(venueEvents.length).toEqual(1);
@@ -950,7 +951,9 @@ Object {
         .put(`/venues/${venue1._id}/facebook-events`)
         .send([event2Data]);
 
-      const venueEvents = await eventRepository.getEventsByVenue(venue1._id);
+      const venueEvents = await eventRepository.getEvents({
+        venueId: venue1._id,
+      });
 
       expect(res.status).toEqual(200);
       expect(venueEvents.length).toEqual(1);
@@ -959,23 +962,23 @@ Object {
     });
 
     it('does not delete past events', async () => {
-      eventRepository.createEvent(
-        _({ ...TEST_FACEBOOK_EVENT_1 })
-          .set('organiser.venue', venue1._id.toString())
-          .set('dates', [
-            {
-              from: new Date(2018, 1, 1),
-              to: new Date(2018, 1, 2),
-            },
-          ])
-          .value()
-      );
+      await eventRepository.createEvent({
+        ...event1,
+        dates: [
+          {
+            from: new Date(2018, 1, 1),
+            to: new Date(2018, 1, 2),
+          },
+        ],
+      });
 
       const res = await request(global.app)
         .put(`/venues/${venue1._id}/facebook-events`)
         .send([]);
 
-      const venueEvents = await eventRepository.getEventsByVenue(venue1._id);
+      const venueEvents = await eventRepository.getEvents({
+        venueId: venue1._id,
+      });
 
       expect(res.status).toEqual(200);
       expect(venueEvents.length).toEqual(1);
@@ -996,7 +999,9 @@ Object {
           },
         ]);
 
-      const venueEvents = await eventRepository.getEventsByVenue(venue1._id);
+      const venueEvents = await eventRepository.getEvents({
+        venueId: venue1._id,
+      });
 
       expect(res.status).toEqual(200);
       expect(venueEvents.length).toEqual(1);

@@ -131,11 +131,9 @@ Object {
       await eventRepository.createEvent(TEST_EVENT_1);
       await eventRepository.createEvent(TEST_EVENT_2);
 
-      sandbox
-        .stub(eventRepository, 'getEvents')
-        .resolves([await eventRepository.getEvent(TEST_EVENT_1._id)]);
-
-      const res = await request(global.app).get('/events');
+      const res = await request(global.app)
+        .get('/events')
+        .query({ limit: 1 });
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
@@ -181,10 +179,8 @@ Object {
       const res = await request(global.app)
         .get('/events')
         .query({
-          filter: {
-            country: 'NL',
-            city: 'Amsterdam',
-          },
+          country: 'NL',
+          city: 'Amsterdam',
         });
 
       expect(res.status).toEqual(200);
@@ -212,9 +208,7 @@ Object {
       const res = await request(global.app)
         .get('/events')
         .query({
-          filter: {
-            country: 'NL',
-          },
+          country: 'NL',
         });
 
       expect(res.status).toEqual(200);
@@ -256,9 +250,7 @@ Object {
       const res = await request(global.app)
         .get('/events')
         .query({
-          filter: {
-            dateFrom: new Date().toISOString(),
-          },
+          dateFrom: new Date().toISOString(),
         });
 
       expect(res.status).toEqual(200);

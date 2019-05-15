@@ -151,16 +151,12 @@ router.put(
     }
 
     const cityConf = venueRepository.getCityConfigForVenue(venue);
-    const currentEvents = await eventRepository.getEventsByVenue(
-      req.params.venueId,
-      {
-        fields: ['facebook.id'],
-        filter: {
-          isFbEvent: true,
-          dateFrom: moment().tz(cityConf.timezone),
-        },
-      }
-    );
+    const currentEvents = await eventRepository.getEvents({
+      venueId: req.params.venueId,
+      fields: ['facebook.id'],
+      isFbEvent: true,
+      dateFrom: moment().tz(cityConf.timezone),
+    });
 
     for (const event of req.body) {
       const data = await eventRepository.serialize({

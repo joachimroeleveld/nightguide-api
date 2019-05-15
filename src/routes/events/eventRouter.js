@@ -8,10 +8,6 @@ const { NotFoundError } = require('../../shared/errors');
 const eventRepository = require('./eventRepository');
 const { adminAuth, checkIsApp } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
-const {
-  createFilterFromValues,
-  createLocationFilterFromValues,
-} = require('./lib/filters');
 
 const upload = multer();
 const router = new Router();
@@ -27,28 +23,25 @@ router.get(
     const fields = req.query.fields || ['title', 'dates', 'location'];
     const populate = fields.filter(field => ['images'].includes(field));
 
-    const filterValues = {
-      ...req.query.filter,
-      query: req.query.query,
-    };
-    const locationFilter = createLocationFilterFromValues(filterValues);
-    const filter = createFilterFromValues(filterValues);
-
-    const events = await eventRepository.getEvents({
-      offset,
-      limit,
-      fields,
-      populate,
-      filter,
-      locationFilter,
-      sortBy: deserializeSort(req.query.sortBy),
-    });
-
-    const totalCount = await eventRepository.countEvents(filter);
-    const results = events.map(eventRepository.deserialize);
+    let { results, totalCount } = await eventRepository.getEvents(
+      {
+        offset,
+        limit,
+        fields,
+        populate,
+        sortBy: deserializeSort(req.query.sortBy),
+        venueId: req.query.venue || null,
+        isFbEvent: !!req.query.isFbEvent,
+        dateFrom: req.query.dateFrom ? new Date(req.query.dateFrom) : null,
+        textFilter: req.query.query || null,
+        city: req.query.city || null,
+        country: req.query.country || null,
+      },
+      true
+    );
 
     res.json({
-      results,
+      results: results.map(eventRepository.deserialize),
       offset,
       limit,
       totalCount,

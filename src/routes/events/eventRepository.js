@@ -2,6 +2,7 @@ const request = require('request-promise-native');
 const imgSize = require('image-size');
 const mimeTypes = require('mime-types');
 const _ = require('lodash');
+const unidecode = require('unidecode');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
@@ -12,6 +13,7 @@ const {
   deserialize,
   deserializeImage,
 } = require('./lib/serialization');
+const { getNextDateFieldExpr } = require('./lib/aggregation');
 
 function createEvent(data) {
   return Event.create(data);
@@ -29,29 +31,63 @@ function updateEvent(conditions, data, options = {}) {
   }).exec();
 }
 
-async function getEvents(opts) {
+async function getEvents(opts, withCount = false) {
   const {
     populate = [],
     fields = [],
     offset,
     limit,
     sortBy,
-    filter,
-    locationFilter,
+    textFilter,
+    isFbEvent,
+    dateFrom,
+    venueId,
+    country,
+    city,
   } = opts;
+  const match = agg => {
+    const match = {};
+    if (textFilter && textFilter.length >= 2) {
+      match.$text = { $search: unidecode(textFilter) };
+    }
+    if (city) {
+      match['location.city'] = city;
+    }
+    if (country) {
+      match['location.country'] = country;
+    }
+    if (venueId) {
+      match['organiser.venue'] = venueId.toString();
+    }
+    if (isFbEvent) {
+      match['facebook.id'] = { $exists: true };
+    }
+    agg.match(match);
 
-  const agg = Event.aggregate();
+    if (dateFrom) {
+      agg.addFields({
+        nextDate: getNextDateFieldExpr(new Date(dateFrom)),
+      });
+      agg.match({
+        nextDate: { $ne: null },
+      });
+      agg.project('-nextDate');
+    }
 
-  if (locationFilter) {
-    fields.push('location');
+    return agg;
+  };
+
+  const agg = match(Event.aggregate());
+
+  let countAgg;
+  if (withCount) {
+    countAgg = match(Event.aggregate());
+    countAgg.group({
+      _id: null,
+      totalCount: { $sum: 1 },
+    });
   }
 
-  if (filter) {
-    agg.match(filter);
-  }
-  if (locationFilter) {
-    agg.match(locationFilter);
-  }
   if (fields.length) {
     agg.project(fields.join(' '));
   }
@@ -68,14 +104,19 @@ async function getEvents(opts) {
     agg.limit(limit);
   }
 
-  const result = await agg.exec();
+  const results = await agg.exec();
 
   if (populate.length) {
     for (const path in populate) {
-      await Event.populate(result, { path: populate }).exec();
+      await Event.populate(results, { path: populate }).exec();
     }
+  }
+
+  if (withCount) {
+    const countResult = await countAgg.exec();
+    return { totalCount: countResult[0].totalCount, results };
   } else {
-    return result;
+    return results;
   }
 }
 
@@ -97,16 +138,6 @@ function getEventByFbId(fbId, opts = {}) {
 
 function countEvents(filter) {
   return Event.count(filter).exec();
-}
-
-function getEventsByVenue(venueId, opts = {}) {
-  return getEvents({
-    ...opts,
-    filter: {
-      'organiser.venue': venueId.toString(),
-      ...opts.filter,
-    },
-  });
 }
 
 async function uploadEventImage(eventId, { buffer, mime, ...otherImageProps }) {
@@ -192,8 +223,6 @@ module.exports = {
   getEvents,
   getEvent,
   getEventByFbId,
-  getEventsByVenue,
-  countEvents,
   updateEvent,
   uploadEventImage,
   uploadEventImageByUrl,
