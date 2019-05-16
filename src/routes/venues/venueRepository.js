@@ -31,6 +31,7 @@ function getVenues(opts) {
     longitude,
     latitude,
     filter,
+    ids,
   } = opts;
 
   const findOpts = {};
@@ -55,6 +56,9 @@ function getVenues(opts) {
   if (!sortBy) {
     // Order by name by default
     query.sort({ name: 1 });
+  }
+  if (ids) {
+    query.in('_id', ids);
   }
   if (fields) {
     // Location fields is required for serialization

@@ -108,7 +108,7 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('should filter results on name based on query parameter', async () => {
+    it('should filter results on name based on text parameter', async () => {
       await eventRepository.createEvent({
         ...TEST_EVENT_1,
         queryText: 'tobefiltered',
@@ -118,7 +118,7 @@ Object {
       const res = await request(global.app)
         .get('/events')
         .query({
-          query: 'tobefiltered',
+          text: 'tobefiltered',
         });
 
       expect(res.status).toEqual(200);
@@ -151,7 +151,7 @@ Object {
       const res = await request(global.app)
         .get('/events')
         .query({
-          query: 'café',
+          text: 'café',
         });
 
       expect(res.status).toEqual(200);
@@ -214,6 +214,25 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
       expect(res.body.results[0].name).toBe(TEST_EVENT_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('ids filter', async () => {
+      const event1 = await eventRepository.createEvent(TEST_EVENT_1);
+      const event2 = await eventRepository.createEvent(TEST_EVENT_2);
+      await eventRepository.createEvent(generateMongoFixture(TEST_EVENT_1));
+
+      const ids = [event1._id.toString(), event2._id.toString()];
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          ids,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(2);
+      expect(res.body.results.map(item => item.id)).toEqual(ids);
       expect(validateResponse(res)).toBeUndefined();
     });
 

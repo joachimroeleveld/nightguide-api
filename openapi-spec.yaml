@@ -385,6 +385,12 @@ paths:
               type: string
           description: Sort with optional order
         - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
           name: longitude
           schema:
             type: number
@@ -630,17 +636,39 @@ paths:
         # TODO: uncomment when object parameter coercion works
         #        - $ref: '#/components/parameters/EventFilter'
         - in: query
-          name: filter
-          schema:
-            type: object
-          description: Filter params
-        - in: query
-          name: query
+          name: text
           schema:
             type: string
             minLength: 2
             maxLength: 255
           description: Search query
+        - in: query
+          name: venueId
+          schema:
+            type: string
+        - in: query
+          name: isFbEvent
+          schema:
+            type: boolean
+        - in: query
+          name: dateFrom
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: city
+          schema:
+            type: string
+        - in: query
+          name: country
+          schema:
+            type: string
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: string
         - in: query
           name: sortBy
           schema:

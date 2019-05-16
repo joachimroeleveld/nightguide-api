@@ -46,6 +46,7 @@ router.get(
       fields,
       populate,
       filter,
+      ids: req.query.ids,
       sortBy: deserializeSort(req.query.sortBy),
       longitude: req.query.longitude,
       latitude: req.query.latitude,

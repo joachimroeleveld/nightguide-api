@@ -3,6 +3,7 @@ const imgSize = require('image-size');
 const mimeTypes = require('mime-types');
 const _ = require('lodash');
 const unidecode = require('unidecode');
+const mongoose = require('mongoose');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
@@ -44,11 +45,17 @@ async function getEvents(opts, withCount = false) {
     venueId,
     country,
     city,
+    ids,
   } = opts;
   const match = agg => {
     const match = {};
+    // Text filter must be first in aggregration pipeline
     if (textFilter && textFilter.length >= 2) {
       match.$text = { $search: unidecode(textFilter) };
+    }
+    if (ids) {
+      const objectIds = ids.map(id => mongoose.Types.ObjectId(id));
+      match['_id'] = { $in: objectIds };
     }
     if (city) {
       match['location.city'] = city;
@@ -114,7 +121,8 @@ async function getEvents(opts, withCount = false) {
 
   if (withCount) {
     const countResult = await countAgg.exec();
-    return { totalCount: countResult[0].totalCount, results };
+    const count = (countResult.length && countResult[0].totalCount) || 0;
+    return { totalCount: count, results };
   } else {
     return results;
   }

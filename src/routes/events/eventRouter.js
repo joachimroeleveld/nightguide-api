@@ -30,12 +30,13 @@ router.get(
         fields,
         populate,
         sortBy: deserializeSort(req.query.sortBy),
-        venueId: req.query.venue || null,
+        venueId: req.query.venue,
         isFbEvent: !!req.query.isFbEvent,
-        dateFrom: req.query.dateFrom ? new Date(req.query.dateFrom) : null,
-        textFilter: req.query.query || null,
-        city: req.query.city || null,
-        country: req.query.country || null,
+        dateFrom: req.query.dateFrom,
+        textFilter: req.query.text,
+        city: req.query.city,
+        country: req.query.country,
+        ids: req.query.ids,
       },
       true
     );

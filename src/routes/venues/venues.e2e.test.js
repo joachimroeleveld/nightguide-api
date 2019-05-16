@@ -207,6 +207,25 @@ Object {
       expect(res.status).toEqual(400);
     });
 
+    it('ids filter', async () => {
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+      const venue2 = await venueRepository.createVenue(TEST_VENUE_2);
+      await venueRepository.createVenue(TEST_VENUE_3);
+
+      const ids = [venue1._id.toString(), venue2._id.toString()];
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          ids,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(2);
+      expect(res.body.results.map(item => item.id)).toEqual(ids);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('city filter', async () => {
       await venueRepository.createVenue({
         ...TEST_VENUE_1,
