@@ -185,7 +185,7 @@ router.put(
         req.body.map(event => event.facebook.id)
       );
       await eventRepository.deleteEvents({
-        'facebook.id': oldEventIds,
+        'facebook.id': { $in: oldEventIds },
       });
     }
 
