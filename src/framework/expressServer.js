@@ -21,7 +21,7 @@ function createExpressApp() {
     app.set('view engine', '.hbs');
     app.set('views', './src/shared/templates');
 
-    app.use(express.json());
+    app.use(express.json({ limit: '10mb' }));
     app.use(bearerToken());
     app.use(middleware.setClientId());
     // Attach user object if bearer is provided
