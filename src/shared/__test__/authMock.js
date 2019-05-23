@@ -12,17 +12,7 @@ function restoreUserAuth() {
   auth.getUserFromToken.restore();
 }
 
-function mockAppClientAuth(sandbox = global.sandbox) {
-  sandbox.stub(auth, 'checkAppTokenHeader').returns(true);
-}
-
-function restoreAppClientAuth() {
-  auth.checkAppTokenHeader.restore();
-}
-
 module.exports = {
   mockUserAuth,
   restoreUserAuth,
-  mockAppClientAuth,
-  restoreAppClientAuth,
 };

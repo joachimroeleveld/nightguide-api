@@ -1,6 +1,6 @@
 const { Router } = require('express');
 
-const { checkIsApp, adminAuth } = require('../../shared/auth');
+const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const mail = require('../../shared/services/mail');
 const { validator } = require('../../shared/openapi');
@@ -11,7 +11,6 @@ const router = new Router();
 
 router.post(
   '/user-feedback',
-  checkIsApp(),
   validator.validate('post', '/misc/user-feedback'),
   asyncMiddleware(async (req, res, next) => {
     const user = req.user ? req.user.email : 'Anonymous';

@@ -2,7 +2,7 @@ const errorHandler = require('./errorHandler');
 const auth = require('./auth');
 
 const { UnauthorizedError } = require('../shared/errors');
-const { USER_ROLES, CLIENT_IDS } = require('../shared/constants');
+const { getClientId } = require('../framework/auth');
 
 /**
  * Authenticate request with JWT and user role.
@@ -30,7 +30,7 @@ function jwtAuth(required = true) {
  * @returns {Function}
  */
 function checkRole(roles) {
-  return async (req, res, next) => {
+  return (req, res, next) => {
     if (!req.user || !req.user.checkRole || !req.user.checkRole(roles)) {
       return next(new UnauthorizedError());
     }
@@ -45,29 +45,7 @@ function checkRole(roles) {
  */
 function setClientId() {
   return (req, res, next) => {
-    if (auth.checkAppTokenHeader(req)) {
-      req.clientId = CLIENT_IDS.CLIENT_APP;
-    }
-    next();
-  };
-}
-
-/**
- * Check if app token header is provided.
- * @returns {Function}
- */
-function authenticateAppClient() {
-  return (req, res, next) => {
-    const isAdmin =
-      req.user &&
-      req.user.checkRole &&
-      req.user.checkRole(USER_ROLES.ROLE_ADMIN);
-    if (isAdmin) {
-      return next();
-    }
-    if (req.clientId !== CLIENT_IDS.CLIENT_APP) {
-      return next(new UnauthorizedError());
-    }
+    req.clientId = getClientId(req);
     next();
   };
 }
@@ -87,5 +65,4 @@ module.exports = {
   jwtAuth,
   checkRole,
   setClientId,
-  authenticateAppClient,
 };

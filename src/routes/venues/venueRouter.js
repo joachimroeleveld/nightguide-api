@@ -6,7 +6,7 @@ const moment = require('moment-timezone');
 const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
 const venueRepository = require('./venueRepository');
-const { adminAuth, checkIsApp } = require('../../shared/auth');
+const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const { createFilterFromValues } = require('./lib/filters');
 const { VENUE_IMAGE_PERSPECTIVES } = require('../../shared/constants');
@@ -18,7 +18,6 @@ const router = new Router();
 
 router.get(
   '/',
-  checkIsApp(),
   coerce('get', '/venues'),
   validator.validate('get', '/venues'),
   asyncMiddleware(async (req, res, next) => {
@@ -78,7 +77,6 @@ router.post(
 
 router.get(
   '/:venueId',
-  checkIsApp(),
   validator.validate('get', '/venues/{venueId}'),
   asyncMiddleware(async (req, res, next) => {
     const venue = await venueRepository.getVenue(req.params.venueId, {

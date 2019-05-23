@@ -14,7 +14,8 @@ const USER_GENDER_TYPES = {
 };
 
 const CLIENT_IDS = {
-  CLIENT_APP: 'oaj46HciSDZ3qqi',
+  CLIENT_APP: 'app',
+  CLIENT_WEBSITE: 'website',
 };
 
 const COUNTRIES = {

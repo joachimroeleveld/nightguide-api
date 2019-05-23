@@ -6,7 +6,7 @@ const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
 const { NotFoundError } = require('../../shared/errors');
 const eventRepository = require('./eventRepository');
-const { adminAuth, checkIsApp } = require('../../shared/auth');
+const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 
 const upload = multer();
@@ -14,7 +14,6 @@ const router = new Router();
 
 router.get(
   '/',
-  checkIsApp(),
   coerce('get', '/events'),
   validator.validate('get', '/events'),
   asyncMiddleware(async (req, res, next) => {
@@ -64,7 +63,6 @@ router.post(
 
 router.get(
   '/:eventId',
-  checkIsApp(),
   validator.validate('get', '/events/{eventId}'),
   asyncMiddleware(async (req, res, next) => {
     const event = await eventRepository.getEvent(req.params.eventId, {

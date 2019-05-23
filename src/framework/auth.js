@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 
+const { CLIENT_IDS } = require('../shared/constants');
 const config = require('../shared/config');
 const { getUserById } = require('../routes/users/userRepository');
 const { UnauthorizedError } = require('../shared/errors');
@@ -28,11 +29,14 @@ function getUserFromToken(token) {
   });
 }
 
-function checkAppTokenHeader(req) {
-  return req.headers['app-token'] === config.get('MOBILE_APP_TOKEN');
+function getClientId(req) {
+  if (req.headers['x-api-key'] === 'nyfuUiZg9D@G^CFX^LtB') {
+    return CLIENT_IDS.CLIENT_WEBSITE;
+  }
+  return null;
 }
 
 module.exports = {
   getUserFromToken,
-  checkAppTokenHeader,
+  getClientId,
 };

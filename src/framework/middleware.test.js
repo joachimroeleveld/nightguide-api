@@ -2,18 +2,11 @@ require('../shared/__test__/testBootstrap');
 
 const sinon = require('sinon');
 
-const authMock = require('../shared/__test__/authMock');
-const configMock = require('../shared/__test__/configMock');
-const {
-  jwtAuth,
-  authenticateAppClient,
-  setClientId,
-  checkRole,
-} = require('./middleware');
+const { jwtAuth, setClientId, checkRole } = require('./middleware');
 const User = require('../routes/users/userModel');
 const { TEST_USER_1 } = require('../shared/__test__/fixtures');
 const { UnauthorizedError } = require('../shared/errors');
-const { CLIENT_IDS, USER_ROLES } = require('../shared/constants');
+const { USER_ROLES } = require('../shared/constants');
 
 const sandbox = sinon.sandbox.create();
 
@@ -82,7 +75,9 @@ describe('middleware', () => {
     it('happy path', async () => {
       const user = new User(TEST_USER_1);
 
-      const req = {};
+      const req = {
+        user,
+      };
       const res = {};
       const next = err => {
         expect(err).toBeUndefined();
@@ -105,13 +100,10 @@ describe('middleware', () => {
   });
 
   describe('setClientId', () => {
-    it('sets the CLIENT_APP id if the App-Token header is present', () => {
-      authMock.restoreAppClientAuth();
-      configMock.mockKey('MOBILE_APP_TOKEN', 'testToken');
-
+    it('sets the website client id if the correct API key is present', () => {
       const req = {
         headers: {
-          'app-token': 'testToken',
+          'x-api-key': 'nyfuUiZg9D@G^CFX^LtB',
         },
       };
       const res = {};
@@ -121,49 +113,7 @@ describe('middleware', () => {
 
       setClientId()(req, res, next);
 
-      expect(req.clientId).toBe(CLIENT_IDS.CLIENT_APP);
-
-      configMock.restoreKey('MOBILE_APP_TOKEN');
-      authMock.mockAppClientAuth();
-    });
-  });
-
-  describe('authenticateAppClient', () => {
-    it('happy path', async () => {
-      const req = {
-        clientId: CLIENT_IDS.CLIENT_APP,
-      };
-      const res = {};
-      const next = err => {
-        expect(err).toBeUndefined();
-      };
-
-      authenticateAppClient()(req, res, next);
-    });
-
-    it('returns UnauthorizedError if client is not app', () => {
-      const req = {
-        clientId: null,
-      };
-      const res = {};
-      const next = err => {
-        expect(err).toBeInstanceOf(UnauthorizedError);
-      };
-
-      authenticateAppClient()(req, res, next);
-    });
-
-    it('skips checks for admin users', () => {
-      const user = new User(TEST_USER_1);
-      user.checkRole = sandbox.stub().returns(true);
-
-      const req = { user };
-      const res = {};
-      const next = err => {
-        expect(err).toBeUndefined();
-      };
-
-      authenticateAppClient()(req, res, next);
+      expect(req.clientId).toBe('website');
     });
   });
 });
