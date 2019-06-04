@@ -81,14 +81,13 @@ async function getEvents(opts, withCount = false) {
     }
     agg.match(match);
 
+    agg.addFields({
+      nextDate: getNextDateFieldExpr(new Date(dateFrom)),
+    });
     if (dateFrom) {
-      agg.addFields({
-        nextDate: getNextDateFieldExpr(new Date(dateFrom)),
-      });
       agg.match({
         nextDate: { $ne: null },
       });
-      agg.project('-nextDate');
     }
 
     return agg;
@@ -105,13 +104,17 @@ async function getEvents(opts, withCount = false) {
     });
   }
 
-  if (fields.length) {
-    agg.project(fields.join(' '));
-  }
   if (!sortBy) {
     // Order by title by default
-    agg.sort({ title: 1 });
+    agg.sort({ nextDate: 1 });
   }
+
+  if (fields.length) {
+    agg.project(fields.join(' '));
+  } else {
+    agg.project('-nextDate');
+  }
+
   if (offset) {
     agg.append({
       $skip: offset,
