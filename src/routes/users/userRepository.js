@@ -54,13 +54,7 @@ exports.getUser = async (where, select) => {
     query.select(select);
   }
 
-  const user = await query.exec();
-
-  if (!user) {
-    throw new NotFoundError('user_not_found');
-  }
-
-  return user;
+  return await query.exec();
 };
 
 exports.getUserByEmail = async (email, opts) => {

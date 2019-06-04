@@ -56,6 +56,10 @@ router.get(
 
     const user = await getUser(req.params.userId);
 
+    if (!user) {
+      throw new NotFoundError('user_not_found');
+    }
+
     res.json(user.deserialize());
   })
 );
