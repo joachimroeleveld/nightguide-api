@@ -1,6 +1,6 @@
 require('../../shared/__test__/testBootstrap');
 
-const addSeconds = require('date-fns/add_seconds');
+const moment = require('moment');
 const request = require('supertest');
 const sinon = require('sinon');
 
@@ -223,7 +223,7 @@ Object {
     );
 
     const email = 'nonexistent@user.com';
-    const tokenExpires = addSeconds(new Date(), '3600');
+    const tokenExpires = moment().add(3600, 'seconds');
     const permissions = ['public_profile'];
     const dummyAccessToken = 'dummyAccessToken';
     const dummyExchangeToken = 'dummyAccessToken';
