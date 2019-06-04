@@ -1,5 +1,5 @@
 const request = require('request-promise-native');
-const addSeconds = require('date-fns/add_seconds');
+const moment = require('moment');
 
 const config = require('../config');
 const UnauthorizedError = require('../errors/UnauthorizedError');
@@ -28,7 +28,9 @@ class FacebookApi {
 
       return {
         accessToken,
-        expiresIn: addSeconds(new Date(), expiresIn),
+        expiresIn: moment()
+          .add(expiresIn, seconds)
+          .toDate(),
       };
     } catch (e) {
       console.error('FB error', e.message);
