@@ -19,9 +19,10 @@ function getNextDateFieldExpr(dateFrom) {
                     },
                     in: {
                       $or: [
-                        // {
-                        //   "$gte": ["$$date.from", new Date("2019-05-21T01:00:00.000Z")]
-                        // },
+                        // Check on both fields because `date.to` may not exist
+                        {
+                          $gte: ['$$date.from', dateFrom],
+                        },
                         {
                           $gte: ['$$date.to', dateFrom],
                         },

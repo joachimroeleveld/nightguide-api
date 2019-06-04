@@ -24,10 +24,13 @@ function deserialize(event) {
   }
 
   if (event.dates) {
-    event.dates = event.dates.map(date => ({
-      from: date.from.toISOString(),
-      to: date.to.toISOString(),
-    }));
+    event.dates = event.dates.map(date => {
+      const dates = { from: date.from.toISOString() };
+      if (date.to) {
+        dates.to = date.to.toISOString();
+      }
+      return dates;
+    });
   }
 
   if (event.location && event.location.coordinates) {
