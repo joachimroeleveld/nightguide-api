@@ -223,7 +223,9 @@ Object {
     );
 
     const email = 'nonexistent@user.com';
-    const tokenExpires = moment().add(3600, 'seconds');
+    const tokenExpires = moment()
+      .add(3600, 'seconds')
+      .toDate();
     const permissions = ['public_profile'];
     const dummyAccessToken = 'dummyAccessToken';
     const dummyExchangeToken = 'dummyAccessToken';
@@ -290,9 +292,7 @@ Object {
 
       expect(user.email).toEqual(email);
       expect(user.password).toBeUndefined();
-      expect(user.facebook.tokenExpires.getTime()).toEqual(
-        tokenExpires.getTime()
-      );
+      expect(user.facebook.tokenExpires).toEqual(tokenExpires);
       expect(user.facebook).toMatchObject({
         token: dummyAccessToken,
         permissions: permissions,

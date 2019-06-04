@@ -19,14 +19,14 @@ const TEST_VENUE_1 = Object.freeze({
 
 const TEST_VENUE_2 = Object.freeze({
   ...TEST_VENUE_1,
-  _id: '5c0261a0801b80bed2f047dd',
+  _id: '5c7e74f0599cce0012cdff30',
   categories: [VENUE_CATEGORIES.CATEGORY_CLUB],
   sourceId: 2,
 });
 
 const TEST_VENUE_3 = Object.freeze({
   ...TEST_VENUE_1,
-  _id: '5c0261a0801b80bed2f047de',
+  _id: '5c85873e7f727400126ff450',
   categories: [VENUE_CATEGORIES.CATEGORY_CLUB],
   sourceId: 3,
 });
