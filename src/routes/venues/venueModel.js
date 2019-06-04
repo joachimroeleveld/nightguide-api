@@ -125,6 +125,7 @@ const VenueSchema = new Schema(
         enum: Object.values(VENUE_FACILITIES),
       },
     ],
+    tags: [{ type: String, ref: 'Tag' }],
   },
   {
     timestamps: true,
@@ -132,6 +133,7 @@ const VenueSchema = new Schema(
 );
 
 VenueSchema.index({ 'location.coordinates': '2dsphere' });
+VenueSchema.index({ tags: 1 });
 
 VenueSchema.method('deserialize', function() {
   return deserialize(this);

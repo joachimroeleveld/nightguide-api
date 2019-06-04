@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 
 const config = require('../../shared/config');
 const User = require('./userModel');
@@ -14,7 +15,11 @@ const { CLIENT_IDS } = require('../../shared/constants');
 const { deserialize } = require('./lib/serialization');
 
 exports.createUser = async (data, setVerified = false) => {
-  const existingUser = await exports.getUserByEmail(data.email, '+password');
+  let existingUser;
+  try {
+    existingUser = await exports.getUserByEmail(data.email, '+password');
+  } catch (NotFoundError) {}
+
   if (existingUser && !!existingUser.password) {
     throw new ConflictError('email_exists');
   }
@@ -39,24 +44,27 @@ exports.createUser = async (data, setVerified = false) => {
   return user;
 };
 
-exports.getUserById = async (id, select) => {
-  const query = User.findById(id);
+exports.getUser = async (where, select) => {
+  if (_.isString(where)) {
+    where = { _id: where };
+  }
+  const query = User.findOne(where);
 
   if (select) {
     query.select(select);
   }
 
-  return await query.exec();
+  const user = await query.exec();
+
+  if (!user) {
+    throw new NotFoundError('user_not_found');
+  }
+
+  return user;
 };
 
-exports.getUserByEmail = async (email, select) => {
-  const query = User.findOne({ email });
-
-  if (select) {
-    query.select(select);
-  }
-
-  return await query.exec();
+exports.getUserByEmail = async (email, opts) => {
+  return await exports.getUser({ email }, opts);
 };
 
 exports.updateUser = async (query, update, options = {}) => {
@@ -70,7 +78,7 @@ exports.updateUser = async (query, update, options = {}) => {
 };
 
 exports.verifyAccount = async (userId, token) => {
-  const user = await exports.getUserById(userId, '+verificationToken');
+  const user = await exports.getUser(userId, '+verificationToken');
 
   if (!user) {
     throw new NotFoundError();
@@ -168,7 +176,7 @@ exports.loginFb = async ({
 };
 
 exports.resendVerificationToken = async userId => {
-  const user = await exports.getUserById(userId, '+verificationToken');
+  const user = await exports.getUser(userId, '+verificationToken');
 
   if (!user) {
     throw new NotFoundError();
@@ -206,7 +214,7 @@ exports.sendPasswordReset = async email => {
 };
 
 exports.resetPassword = async (userId, token, password) => {
-  const user = await exports.getUserById(userId, '+passwordResetToken');
+  const user = await exports.getUser(userId, '+passwordResetToken');
 
   if (!user) {
     throw new NotFoundError();
@@ -234,8 +242,8 @@ function signLoginToken(user, clientId = null) {
   }
 
   let expiry = '1h';
-  if (clientId === CLIENT_IDS.CLIENT_APP) {
-    // Never expire app for app clients
+  if ([CLIENT_IDS.CLIENT_APP, CLIENT_IDS.CLIENT_ADMIN].includes(clientId)) {
+    // Never expire token for these clients
     expiry = null;
   }
 

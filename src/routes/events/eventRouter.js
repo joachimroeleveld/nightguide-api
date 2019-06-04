@@ -20,22 +20,21 @@ router.get(
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 20;
     const fields = req.query.fields || ['title', 'dates', 'location'];
-    const populate = fields.filter(field => ['images'].includes(field));
 
     let { results, totalCount } = await eventRepository.getEvents(
       {
         offset,
         limit,
         fields,
-        populate,
         sortBy: deserializeSort(req.query.sortBy),
         venueId: req.query.venue,
-        isFbEvent: !!req.query.isFbEvent,
+        isFbEvent: req.query.isFbEvent,
         dateFrom: req.query.dateFrom,
         textFilter: req.query.text,
         city: req.query.city,
         country: req.query.country,
         ids: req.query.ids,
+        tags: req.query.tags,
       },
       true
     );
@@ -127,6 +126,29 @@ router.post(
   })
 );
 
+router.delete(
+  '/:eventId/images/:imageId',
+  adminAuth(),
+  validator.validate('delete', '/events/{eventId}/images/{imageId}'),
+  asyncMiddleware(async (req, res, next) => {
+    const event = await eventRepository.getEvent(req.params.eventId);
+
+    if (!event) {
+      throw new NotFoundError('event_not_found');
+    }
+    if (!event.images.includes(req.params.imageId)) {
+      throw new NotFoundError('image_not_found');
+    }
+
+    await eventRepository.deleteEventImageById(
+      req.params.eventId,
+      req.params.imageId
+    );
+
+    res.json({ success: true });
+  })
+);
+
 router.put(
   '/facebook-events/:fbEventId/image',
   adminAuth(),
@@ -160,6 +182,26 @@ router.put(
       updated: !!oldFbImage,
       result: image.deserialize(),
     });
+  })
+);
+
+router.delete(
+  '/:eventId',
+  adminAuth(),
+  validator.validate('delete', '/events/{eventId}'),
+  asyncMiddleware(async (req, res, next) => {
+    const event = await eventRepository.getEvent(req.params.eventId);
+    if (!event) {
+      throw new NotFoundError('event_not_found');
+    }
+
+    for (const imageId of event.images) {
+      await eventRepository.deleteEventImageById(req.params.eventId, imageId);
+    }
+
+    await eventRepository.deleteEvent(req.params.eventId);
+
+    res.json({ success: true });
   })
 );
 

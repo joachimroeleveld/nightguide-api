@@ -64,6 +64,7 @@ const EventSchema = new Schema(
       goingCount: Number,
     },
     queryText: String,
+    tags: [{ type: String, ref: 'Tag' }],
   },
   {
     timestamps: true,
@@ -72,6 +73,7 @@ const EventSchema = new Schema(
 
 EventSchema.index({ 'facebook.id': 1 }, { sparse: true, unique: true });
 EventSchema.index({ 'organiser.venue': 1 });
+EventSchema.index({ tags: 1 });
 EventSchema.index({ queryText: 'text' });
 
 EventSchema.method('deserialize', function() {

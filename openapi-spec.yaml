@@ -538,6 +538,29 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a venue.
+      operationId: deleteVenue
+      tags:
+        - venues
+      parameters:
+        - in: path
+          name: venueId
+          schema:
+            type: string
+          required: true
+          description: Venue ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /venues/{venueId}/images:
     post:
       summary: Create a venue image.
@@ -663,6 +686,12 @@ paths:
           name: country
           schema:
             type: string
+        - in: query
+          name: tags
+          schema:
+            type: array
+            items:
+              type: string
         - in: query
           name: ids
           schema:
@@ -814,6 +843,29 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete an event.
+      operationId: deleteEvent
+      tags:
+        - events
+      parameters:
+        - in: path
+          name: eventId
+          schema:
+            type: string
+          required: true
+          description: Event ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /events/{eventId}/images:
     post:
       summary: Create an event image.
@@ -862,6 +914,36 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/EventImage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /events/{eventId}/images/{imageId}:
+    delete:
+      summary: Delete an event image.
+      operationId: deleteEventImage
+      tags:
+        - events
+      parameters:
+        - in: path
+          name: eventId
+          schema:
+            type: string
+          required: true
+          description: Event ID.
+        - in: path
+          name: imageId
+          schema:
+            type: string
+          required: true
+          description: Image ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -933,6 +1015,137 @@ paths:
               properties:
                 message:
                   type: string
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /tags:
+    get:
+      operationId: getTags
+      tags: [tags]
+      responses:
+        '200':
+          description: Result tags.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Tag'
+                  totalCount:
+                    type: integer
+                    format: int32
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      summary: Create a tag.
+      operationId: createTag
+      tags:
+        - tags
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '201':
+          description: Tag created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /tags/{tagId}:
+    get:
+      summary: Get a tag.
+      operationId: getTag
+      tags:
+        - tags
+      parameters:
+        - in: path
+          name: tagId
+          schema:
+            type: string
+          required: true
+          description: Tag ID.
+      responses:
+        '200':
+          description: Tag data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      summary: Update a tag.
+      operationId: updateTag
+      tags:
+        - tags
+      parameters:
+        - in: path
+          name: tagId
+          schema:
+            type: string
+          required: true
+          description: Tag ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+      responses:
+        '200':
+          description: Tag updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a tag.
+      operationId: deleteTag
+      tags:
+        - tags
+      parameters:
+        - in: path
+          name: tagId
+          schema:
+            type: string
+          required: true
+          description: Tag ID.
       responses:
         '200':
           $ref: '#/components/responses/Success'
@@ -1047,6 +1260,12 @@ components:
             required:
               - success
   schemas:
+    Tag:
+      properties:
+        id:
+          type: string
+        imageUrl:
+          type: string
     Image:
       required:
         - id

@@ -16,6 +16,7 @@ const USER_GENDER_TYPES = {
 const CLIENT_IDS = {
   CLIENT_APP: 'app',
   CLIENT_WEBSITE: 'website',
+  CLIENT_ADMIN: 'admin',
 };
 
 const COUNTRIES = {

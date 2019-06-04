@@ -38,7 +38,9 @@ const {
   COUNTRIES,
 } = require('../../shared/constants');
 const eventRepository = require('../events/eventRepository');
+const tagRepository = require('../tags/tagRepository');
 const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
+const { NotFoundError } = require('../../shared/errors');
 
 const VENUE_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -607,6 +609,24 @@ Object {
       });
     });
 
+    it('tags filter', async () => {
+      await tagRepository.createTag({ _id: 'foo' });
+      const venue1 = await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        tags: ['foo'],
+      });
+      await venueRepository.createVenue(TEST_VENUE_2);
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({ filter: { tag: 'foo' } });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toBe(venue1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it(`bitesTime filter`, async () => {
       await venueRepository.createVenue({
         ...TEST_VENUE_1,
@@ -780,6 +800,22 @@ Object {
         dresscode: VENUE_DRESSCODES.DRESSCODE_ALTERNATIVE,
         facilities: [VENUE_FACILITIES.FACILITY_ACCESSIBLE],
         timeSchedule: TEST_VENUE_TIMESCHEDULE,
+      });
+
+      const res = await request(global.app)
+        .get(`/venues/${venue1._id}`)
+        .send()
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(VENUE_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('tags field', async () => {
+      await tagRepository.createTag({ _id: 'foo' });
+      const venue1 = await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        tags: ['foo'],
       });
 
       const res = await request(global.app)
@@ -1026,6 +1062,25 @@ Object {
       expect(venueEvents.length).toEqual(1);
       expect(venueEvents[0].facebook.id).toEqual(event1.facebook.id);
       expect(venueEvents[0].facebook.title).toEqual('newtitle');
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('DELETE /venues/:venueId', () => {
+    const validateResponse = validator.validateResponse(
+      'delete',
+      '/venues/{venueId}'
+    );
+
+    it('happy path', async () => {
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+
+      const res = await request(global.app).delete(`/venues/${venue1._id}`);
+
+      const venue = await venueRepository.getVenue(venue1._id);
+
+      expect(venue).toBe(null);
+      expect(res.status).toEqual(200);
       expect(validateResponse(res)).toBeUndefined();
     });
   });

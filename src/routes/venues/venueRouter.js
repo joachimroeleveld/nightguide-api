@@ -83,6 +83,10 @@ router.get(
       populate: ['images'],
     });
 
+    if (!venue) {
+      throw new NotFoundError('venue_not_found');
+    }
+
     res.json(venue.deserialize());
   })
 );
@@ -101,6 +105,23 @@ router.put(
   })
 );
 
+router.delete(
+  '/:venueId',
+  adminAuth(),
+  validator.validate('delete', '/venues/{venueId}'),
+  asyncMiddleware(async (req, res, next) => {
+    let venue = await venueRepository.getVenue(req.params.venueId);
+
+    if (!venue) {
+      throw new NotFoundError('venue_not_found');
+    }
+
+    await venueRepository.deleteVenue(req.params.venueId);
+
+    res.json({ success: true });
+  })
+);
+
 router.post(
   '/:venueId/images',
   adminAuth(),
@@ -112,6 +133,12 @@ router.post(
     }))
   ),
   asyncMiddleware(async (req, res, next) => {
+    let venue = await venueRepository.getVenue(req.params.venueId);
+
+    if (!venue) {
+      throw new NotFoundError('venue_not_found');
+    }
+
     let promises;
     if (req.files) {
       promises = Object.keys(req.files).map(perspective => {

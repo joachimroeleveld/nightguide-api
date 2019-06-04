@@ -7,7 +7,7 @@ const {
   createUser,
   login,
   loginFb,
-  getUserById,
+  getUser,
   verifyAccount,
   sendPasswordReset,
   resendVerificationToken,
@@ -54,7 +54,7 @@ router.get(
       throw new UnauthorizedError();
     }
 
-    const user = await getUserById(req.params.userId);
+    const user = await getUser(req.params.userId);
 
     res.json(user.deserialize());
   })
@@ -151,7 +151,7 @@ router.get(
   '/:userId/reset-password',
   validator.validate('get', '/users/{userId}/reset-password'),
   asyncMiddleware(async (req, res) => {
-    const user = await getUserById(req.params.userId, '+passwordResetToken');
+    const user = await getUser(req.params.userId, '+passwordResetToken');
 
     if (!user) {
       throw new NotFoundError();

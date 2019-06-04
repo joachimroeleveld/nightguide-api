@@ -109,7 +109,6 @@ describe('users e2e', () => {
       expect(res.status).toEqual(200);
       expect(res.body).toMatchInlineSnapshot(
         USER_SNAPSHOT_MATCHER,
-
         `
 Object {
   "__v": 0,
@@ -269,7 +268,7 @@ Object {
       expect(res.status).toEqual(200);
       expect(validateResponse(res)).toBeUndefined();
 
-      const userWithFacebook = await userRepository.getUserById(user._id);
+      const userWithFacebook = await userRepository.getUser(user._id);
       expect(userWithFacebook.facebook.token).toEqual(dummyExchangeToken);
     });
 
@@ -278,9 +277,7 @@ Object {
         accessToken: dummyAccessToken,
         expiresIn: tokenExpires,
       });
-      sandbox.stub(FacebookApi.prototype, 'getMe').resolves({
-        email: 'nonexistent@user.com',
-      });
+      sandbox.stub(FacebookApi.prototype, 'getMe').resolves({ email });
 
       const res = await request(global.app)
         .post('/users/login-fb')
@@ -332,7 +329,7 @@ Object {
         `/users/${user._id}/verify-account?token=${user.verificationToken}`
       );
 
-      const updatedUser = (await userRepository.getUserById(
+      const updatedUser = (await userRepository.getUser(
         user._id,
         '+verificationToken'
       )).toObject();
@@ -382,7 +379,7 @@ Object {
       const user = await userRepository.createUser(TEST_USER_1);
 
       sandbox.stub(user, 'signJwt').returns('testtoken');
-      sandbox.stub(userRepository, 'getUserById').resolves(user);
+      sandbox.stub(userRepository, 'getUser').resolves(user);
 
       sandbox.stub(mailService, 'sendBasicEmail').resolves();
 
@@ -472,7 +469,7 @@ Object {
       expect(res.status).toBe(200);
       expect(validateResponse(res)).toBeUndefined();
 
-      const updatedUser = await userRepository.getUserById(user._id);
+      const updatedUser = await userRepository.getUser(user._id);
       expect(await updatedUser.verifyPassword(NEW_PASSWORD)).toBe(true);
     });
 

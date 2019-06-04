@@ -1,6 +1,7 @@
 const request = require('request-promise-native');
 const imgSize = require('image-size');
 const mimeTypes = require('mime-types');
+const _ = require('lodash');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
@@ -17,8 +18,18 @@ function createVenue(data) {
   return Venue.create(data);
 }
 
-function updateVenue(id, data, options) {
-  return Venue.findByIdAndUpdate(id, data, { new: true, ...options }).exec();
+async function updateVenue(id, data, options) {
+  const doc = _.omit(data, ['images']);
+  const venue = await Venue.findByIdAndUpdate(id, doc, {
+    new: true,
+    ...options,
+  }).exec();
+
+  if (!venue) {
+    throw new NotFoundError('venue_not_found');
+  }
+
+  return venue;
 }
 
 function getVenues(opts) {
@@ -81,12 +92,16 @@ function countVenues(filter) {
   return Venue.count(filter).exec();
 }
 
-function getVenue(venueId, opts = {}) {
+async function getVenue(venueId, opts = {}) {
   const { populate = [] } = opts;
 
-  return Venue.findById(venueId)
+  return await Venue.findById(venueId)
     .populate(populate.join(' '))
     .exec();
+}
+
+async function deleteVenue(id, opts) {
+  return Venue.findByIdAndRemove(id, opts).exec();
 }
 
 async function uploadVenueImage(venueId, { buffer, mime, perspective }) {
@@ -155,6 +170,7 @@ module.exports = {
   getVenue,
   countVenues,
   updateVenue,
+  deleteVenue,
   uploadVenueImage,
   uploadVenueImageByUrl,
   serialize,

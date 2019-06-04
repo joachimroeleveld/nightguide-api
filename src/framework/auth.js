@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 const { CLIENT_IDS } = require('../shared/constants');
 const config = require('../shared/config');
-const { getUserById } = require('../routes/users/userRepository');
+const { getUser } = require('../routes/users/userRepository');
 const { UnauthorizedError } = require('../shared/errors');
 
 function getUserFromToken(token) {
@@ -18,7 +18,7 @@ function getUserFromToken(token) {
         return reject(new UnauthorizedError('invalid_token'));
       }
 
-      const user = await getUserById(decoded.sub);
+      const user = await getUser(decoded.sub);
 
       if (!user) {
         return reject(new UnauthorizedError('invalid_token'));
@@ -30,8 +30,12 @@ function getUserFromToken(token) {
 }
 
 function getClientId(req) {
-  if (req.headers['x-api-key'] === 'nyfuUiZg9D@G^CFX^LtB') {
+  const apiKey = req.headers['x-api-key'];
+  if (apiKey === 'nyfuUiZg9D@G^CFX^LtB') {
     return CLIENT_IDS.CLIENT_WEBSITE;
+  }
+  if (apiKey === 'A%VFhkJe!MMIqEf*5Cq7') {
+    return CLIENT_IDS.CLIENT_ADMIN;
   }
   return null;
 }

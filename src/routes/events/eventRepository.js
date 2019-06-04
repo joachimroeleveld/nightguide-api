@@ -20,21 +20,27 @@ function createEvent(data) {
   return Event.create(data);
 }
 
-function updateEvent(conditions, data, options = {}) {
+async function updateEvent(conditions, data, options = {}) {
   let where = conditions;
   if (_.isString(conditions)) {
     where = { _id: conditions };
   }
-  return Event.findOneAndUpdate(where, data, {
+  const doc = _.omit(data, ['images']);
+  const event = await Event.findOneAndUpdate(where, doc, {
     new: true,
     runValidators: true,
     ...options,
   }).exec();
+
+  if (!event) {
+    throw new NotFoundError('event_not_found');
+  }
+
+  return event;
 }
 
 async function getEvents(opts, withCount = false) {
   const {
-    populate = [],
     fields = [],
     offset,
     limit,
@@ -46,6 +52,7 @@ async function getEvents(opts, withCount = false) {
     country,
     city,
     ids,
+    tags,
   } = opts;
   const match = agg => {
     const match = {};
@@ -56,6 +63,9 @@ async function getEvents(opts, withCount = false) {
     if (ids) {
       const objectIds = ids.map(id => mongoose.Types.ObjectId(id));
       match['_id'] = { $in: objectIds };
+    }
+    if (tags) {
+      match['tags'] = { $in: tags };
     }
     if (city) {
       match['location.city'] = city;
@@ -111,13 +121,16 @@ async function getEvents(opts, withCount = false) {
     agg.limit(limit);
   }
 
-  const results = await agg.exec();
-
-  if (populate.length) {
-    for (const path in populate) {
-      await Event.populate(results, { path: populate }).exec();
-    }
+  if (fields.includes('images')) {
+    agg.lookup({
+      from: 'eventimages',
+      foreignField: '_id',
+      localField: 'images',
+      as: 'images',
+    });
   }
+
+  const results = await agg.exec();
 
   if (withCount) {
     const countResult = await countAgg.exec();
@@ -128,14 +141,14 @@ async function getEvents(opts, withCount = false) {
   }
 }
 
-function getEvent(conditions, opts = {}) {
+async function getEvent(conditions, opts = {}) {
   let where = conditions;
   if (_.isString(conditions)) {
     where = { _id: conditions };
   }
   const { populate = [] } = opts;
 
-  return Event.findOne(where)
+  return await Event.findOne(where)
     .populate(populate.join(' '))
     .exec();
 }
@@ -207,6 +220,10 @@ async function uploadEventImageByUrl(eventId, image) {
 async function deleteEventImageById(eventId, imageId) {
   const image = await EventImage.findById(imageId).exec();
 
+  if (!image) {
+    return false;
+  }
+
   await imagesService.deleteFile(image.filename);
 
   await EventImage.findByIdAndRemove(imageId).exec();
@@ -214,6 +231,10 @@ async function deleteEventImageById(eventId, imageId) {
   await Event.findByIdAndUpdate(eventId, {
     $pull: { images: imageId },
   }).exec();
+}
+
+async function deleteEvent(id, opts) {
+  return Event.findByIdAndRemove(id, opts).exec();
 }
 
 async function deleteEvents(conditions, opts) {
@@ -234,6 +255,7 @@ module.exports = {
   updateEvent,
   uploadEventImage,
   uploadEventImageByUrl,
+  deleteEvent,
   deleteEvents,
   deleteEventImageById,
   serialize,

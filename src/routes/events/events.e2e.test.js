@@ -19,7 +19,9 @@ const {
 const { resetDb } = require('../../shared/__test__/testUtils');
 const eventRepository = require('./eventRepository');
 const venueRepository = require('../venues/venueRepository');
+const tagRepository = require('../tags/tagRepository');
 const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
+const EventImage = require('../events/eventImageModel');
 
 const EVENT_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -189,6 +191,24 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('tags filter', async () => {
+      await tagRepository.createTag({ _id: 'foo' });
+      const event1 = await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        tags: ['foo'],
+      });
+      await eventRepository.createEvent(TEST_EVENT_2);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({ tags: ['foo'] });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toBe(event1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('country filter', async () => {
       await eventRepository.createEvent({
         ...TEST_EVENT_1,
@@ -353,6 +373,22 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('tags fields', async () => {
+      await tagRepository.createTag({ _id: 'foo' });
+      const event1 = await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        tags: ['foo'],
+      });
+
+      const res = await request(global.app)
+        .get(`/events/${event1._id}`)
+        .send()
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(EVENT_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('facebook event fields', async () => {
       const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
       const event1 = await eventRepository.createEvent({
@@ -401,6 +437,44 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.title).toEqual('Other title');
       expect(updatedEvent.title).toEqual('Other title');
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('DELETE /events/:eventId', () => {
+    const validateResponse = validator.validateResponse(
+      'delete',
+      '/events/{eventId}'
+    );
+
+    it('happy path', async () => {
+      const event1 = await eventRepository.createEvent(TEST_EVENT_1);
+
+      const res = await request(global.app).delete(`/events/${event1._id}`);
+
+      let event = await eventRepository.getEvent(event1._id);
+
+      expect(event).toBe(null);
+      expect(res.status).toEqual(200);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('deletes event images', async () => {
+      const event = await eventRepository.createEvent(TEST_EVENT_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('foo');
+      sandbox.stub(imagesService, 'deleteFile').resolves();
+      const image = await eventRepository.uploadEventImage(event._id, {
+        buffer: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        mime: 'image/jpeg',
+      });
+
+      const res = await request(global.app).delete(`/events/${event._id}`);
+      const deletedImage = await EventImage.findById(image._id).exec();
+
+      expect(deletedImage).toBe(null);
+      expect(res.status).toEqual(200);
       expect(validateResponse(res)).toBeUndefined();
     });
   });
@@ -459,6 +533,36 @@ Object {
       expect(res.body.results[0].filetype).toEqual('image/jpeg');
       expect(res.body.results[0].width).toEqual(400);
       expect(res.body.results[0].height).toEqual(400);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('DELETE /events/:eventId/images/:imageId', () => {
+    const validateResponse = validator.validateResponse(
+      'delete',
+      '/events/{eventId}/images/{imageId}'
+    );
+
+    it('happy path', async () => {
+      const event = await eventRepository.createEvent(TEST_FACEBOOK_EVENT_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('foo');
+      sandbox.stub(imagesService, 'deleteFile').resolves();
+      const image = await eventRepository.uploadEventImage(event._id, {
+        buffer: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        mime: 'image/jpeg',
+      });
+
+      const res = await request(global.app).delete(
+        `/events/${event._id.toString()}/images/${image._id}`
+      );
+
+      const newEvent = await eventRepository.getEvent(event._id);
+
+      expect(res.status).toEqual(200);
+      expect(imagesService.deleteFile.calledWith(image.filename)).toBe(true);
+      expect(newEvent.images.length).toEqual(0);
       expect(validateResponse(res)).toBeUndefined();
     });
   });

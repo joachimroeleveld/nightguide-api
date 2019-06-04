@@ -46,6 +46,7 @@ function createFilterFromValues({
   cigarettes,
   terrace,
   terraceHeaters,
+  tag,
 }) {
   const filter = { $and: [] };
 
@@ -79,6 +80,9 @@ function createFilterFromValues({
   }
   if (cat) {
     filter.categories = { $in: cat };
+  }
+  if (tag) {
+    filter.tags = { $in: tag };
   }
   if (hasFb) {
     filter['facebook.id'] = { $exists: true };

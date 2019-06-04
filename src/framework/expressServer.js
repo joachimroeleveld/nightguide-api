@@ -1,6 +1,7 @@
 const express = require('express');
 const bearerToken = require('express-bearer-token');
 const morgan = require('morgan');
+const cors = require('cors');
 
 const middleware = require('./middleware');
 const config = require('../shared/config');
@@ -21,6 +22,7 @@ function createExpressApp() {
     app.set('view engine', '.hbs');
     app.set('views', './src/shared/templates');
 
+    app.use(cors());
     app.use(express.json({ limit: '10mb' }));
     app.use(bearerToken());
     app.use(middleware.setClientId());
