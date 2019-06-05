@@ -1,4 +1,5 @@
 const Tag = require('./tagModel');
+const _ = require('lodash');
 const { NotFoundError } = require('../../shared/errors');
 const { serialize, deserialize } = require('./lib/serialization');
 
