@@ -40,6 +40,20 @@ router.get(
   })
 );
 
+router.get(
+  '/slug/:tagSlug',
+  validator.validate('get', '/tags/slug/{tagSlug}'),
+  asyncMiddleware(async (req, res, next) => {
+    const tag = await tagRepository.getTagBySlug(req.params.tagSlug);
+
+    if (!tag) {
+      throw new NotFoundError('tag_not_found');
+    }
+
+    res.json(tag.deserialize());
+  })
+);
+
 router.post(
   '/',
   adminAuth(),

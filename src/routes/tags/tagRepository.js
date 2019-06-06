@@ -26,6 +26,10 @@ async function getTag(tagId, opts = {}) {
   return await Tag.findById(tagId).exec();
 }
 
+async function getTagBySlug(slug, opts = {}) {
+  return await Tag.findOne({ slug }).exec();
+}
+
 async function createTag(data) {
   return Tag.create(data);
 }
@@ -56,6 +60,7 @@ module.exports = {
   getTags,
   createTag,
   getTag,
+  getTagBySlug,
   updateTag,
   deleteTag,
   serialize,

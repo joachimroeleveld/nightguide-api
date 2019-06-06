@@ -1170,6 +1170,34 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /tags/slug/{tagSlug}:
+    get:
+      summary: Get a tag by slug.
+      operationId: getTagBySlug
+      tags:
+        - tags
+      parameters:
+        - in: path
+          name: tagSlug
+          schema:
+            type: string
+          required: true
+          description: Tag slug.
+      responses:
+        '200':
+          description: Tag data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
 components:
   parameters:

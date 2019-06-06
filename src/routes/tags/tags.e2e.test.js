@@ -104,6 +104,7 @@ Object {
         .send()
         .expect(200);
 
+      expect(res.body.id).toEqual(tag1._id.toString());
       expect(res.body).toMatchSnapshot(TAG_SNAPSHOT_MATCHER);
       expect(validateResponse(res)).toBeUndefined();
     });
@@ -122,6 +123,26 @@ Object {
         .send()
         .expect(200);
 
+      expect(res.body).toMatchSnapshot(TAG_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('GET /tags/slug/:tagSlug', () => {
+    const validateResponse = validator.validateResponse(
+      'get',
+      '/tags/slug/{tagSlug}'
+    );
+
+    it('happy path', async () => {
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
+
+      const res = await request(global.app)
+        .get(`/tags/slug/${tag1.slug}`)
+        .send()
+        .expect(200);
+
+      expect(res.body.slug).toEqual(tag1.slug);
       expect(res.body).toMatchSnapshot(TAG_SNAPSHOT_MATCHER);
       expect(validateResponse(res)).toBeUndefined();
     });
