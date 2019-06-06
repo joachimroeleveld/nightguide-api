@@ -12,6 +12,7 @@ const imagesService = require('../../shared/services/images');
 const {
   TEST_EVENT_1,
   TEST_EVENT_2,
+  TEST_TAG_1,
   generateMongoFixture,
   TEST_FACEBOOK_EVENT_1,
   TEST_VENUE_1,
@@ -192,16 +193,16 @@ Object {
     });
 
     it('tags filter', async () => {
-      await tagRepository.createTag({ _id: 'foo' });
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
       const event1 = await eventRepository.createEvent({
         ...TEST_EVENT_1,
-        tags: ['foo'],
+        tags: [tag1._id.toString()],
       });
       await eventRepository.createEvent(TEST_EVENT_2);
 
       const res = await request(global.app)
         .get('/events')
-        .query({ tags: ['foo'] });
+        .query({ tags: [tag1._id.toString()] });
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
@@ -374,10 +375,10 @@ Object {
     });
 
     it('tags fields', async () => {
-      await tagRepository.createTag({ _id: 'foo' });
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
       const event1 = await eventRepository.createEvent({
         ...TEST_EVENT_1,
-        tags: ['foo'],
+        tags: [tag1._id.toString()],
       });
 
       const res = await request(global.app)

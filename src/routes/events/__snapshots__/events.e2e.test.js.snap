@@ -127,7 +127,7 @@ Object {
     "type": "address",
   },
   "tags": Array [
-    "foo",
+    "5c7e74f6599cce0012cdff31",
   ],
   "title": "Bevrijdingsfestival",
   "updatedAt": Any<String>,

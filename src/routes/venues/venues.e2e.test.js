@@ -11,6 +11,7 @@ const Venue = require('./venueModel');
 const { validator } = require('../../shared/openapi');
 const imagesService = require('../../shared/services/images');
 const {
+  TEST_TAG_1,
   TEST_VENUE_1,
   TEST_VENUE_2,
   TEST_VENUE_3,
@@ -610,16 +611,16 @@ Object {
     });
 
     it('tags filter', async () => {
-      await tagRepository.createTag({ _id: 'foo' });
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
       const venue1 = await venueRepository.createVenue({
         ...TEST_VENUE_1,
-        tags: ['foo'],
+        tags: [tag1._id.toString()],
       });
       await venueRepository.createVenue(TEST_VENUE_2);
 
       const res = await request(global.app)
         .get('/venues')
-        .query({ filter: { tag: 'foo' } });
+        .query({ filter: { tag: tag1._id.toString() } });
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
@@ -812,10 +813,10 @@ Object {
     });
 
     it('tags field', async () => {
-      await tagRepository.createTag({ _id: 'foo' });
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
       const venue1 = await venueRepository.createVenue({
         ...TEST_VENUE_1,
-        tags: ['foo'],
+        tags: [tag1._id.toString()],
       });
 
       const res = await request(global.app)

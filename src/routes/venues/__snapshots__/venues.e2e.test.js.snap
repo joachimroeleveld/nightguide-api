@@ -307,7 +307,7 @@ Object {
   "name": "Tivoli",
   "paymentMethods": Array [],
   "tags": Array [
-    "foo",
+    "5c7e74f6599cce0012cdff31",
   ],
   "updatedAt": Any<String>,
   "visitorTypes": Array [],
