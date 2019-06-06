@@ -4,10 +4,13 @@ const request = require('supertest');
 const sinon = require('sinon');
 
 const { validator } = require('../../shared/openapi');
-const { TEST_TAG_1 } = require('../../shared/__test__/fixtures');
+const {
+  TEST_TAG_1,
+  TEST_TAG_2,
+  TEST_TAG_3,
+} = require('../../shared/__test__/fixtures');
 const { resetDb } = require('../../shared/__test__/testUtils');
 const tagRepository = require('./tagRepository');
-const { NotFoundError } = require('../../shared/errors');
 
 const TAG_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -40,10 +43,52 @@ Object {
   "__v": 0,
   "createdAt": Any<String>,
   "id": Any<String>,
+  "name": Object {
+    "en": "LGBGTQ",
+  },
+  "slug": "lgbtq",
   "updatedAt": Any<String>,
 }
 `
       );
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('ids filter', async () => {
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
+      const tag2 = await tagRepository.createTag(TEST_TAG_2);
+      await tagRepository.createTag(TEST_TAG_3);
+
+      const ids = [tag1._id.toString(), tag2._id.toString()];
+
+      const res = await request(global.app)
+        .get('/tags')
+        .query({
+          ids,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(2);
+      expect(res.body.results.map(item => item.id)).toEqual(ids);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('slugs filter', async () => {
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
+      const tag2 = await tagRepository.createTag(TEST_TAG_2);
+      await tagRepository.createTag(TEST_TAG_3);
+
+      const slugs = [tag1.slug, tag2.slug];
+
+      const res = await request(global.app)
+        .get('/tags')
+        .query({
+          slugs,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(2);
+      expect(res.body.results.map(item => item.slug)).toEqual(slugs);
       expect(validateResponse(res)).toBeUndefined();
     });
   });
@@ -66,6 +111,7 @@ Object {
     it('simple fields', async () => {
       const tag1 = await tagRepository.createTag({
         ...TEST_TAG_1,
+        slug: 'techno',
         name: {
           en: 'Techno',
         },

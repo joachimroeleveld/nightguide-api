@@ -9,9 +9,13 @@ const router = new Router();
 
 router.get(
   '/',
+  coerce('get', '/tags'),
   validator.validate('get', '/tags'),
   asyncMiddleware(async (req, res, next) => {
-    let tags = await tagRepository.getTags();
+    let tags = await tagRepository.getTags({
+      ids: req.query.ids,
+      slugs: req.query.slugs,
+    });
 
     const json = {
       results: tags.map(tag => tag.deserialize()),

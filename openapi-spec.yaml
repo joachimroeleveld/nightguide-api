@@ -1030,6 +1030,19 @@ paths:
     get:
       operationId: getTags
       tags: [tags]
+      parameters:
+        - in: query
+          name: slugs
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Result tags.

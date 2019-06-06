@@ -6,13 +6,21 @@ const { deserialize } = require('./lib/serialization');
 
 const TagSchema = new Schema(
   {
-    _id: String,
-    name: translatedSchema,
+    slug: {
+      required: true,
+      type: String,
+    },
+    name: {
+      required: true,
+      type: translatedSchema,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+TagSchema.index({ slug: 1 });
 
 TagSchema.method('deserialize', function() {
   return deserialize(this);

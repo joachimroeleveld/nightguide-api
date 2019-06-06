@@ -3,8 +3,23 @@ const _ = require('lodash');
 const { NotFoundError } = require('../../shared/errors');
 const { serialize, deserialize } = require('./lib/serialization');
 
-async function getTags() {
-  return await Tag.find({}).exec();
+async function getTags(opts = {}) {
+  const { ids, slugs } = opts;
+
+  const query = Tag.find();
+
+  const where = {};
+
+  if (ids) {
+    where._id = { $in: ids };
+  }
+  if (slugs) {
+    where.slug = { $in: slugs };
+  }
+
+  query.where(where);
+
+  return await query.exec();
 }
 
 async function getTag(tagId, opts = {}) {
