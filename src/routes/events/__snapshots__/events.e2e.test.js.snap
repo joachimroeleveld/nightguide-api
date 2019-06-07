@@ -127,7 +127,16 @@ Object {
     "type": "address",
   },
   "tags": Array [
-    "5c7e74f6599cce0012cdff31",
+    Object {
+      "__v": 0,
+      "_id": "5c7e74f6599cce0012cdff31",
+      "createdAt": "2019-06-07T12:32:03.720Z",
+      "name": Object {
+        "en": "LGBGTQ",
+      },
+      "slug": "lgbtq",
+      "updatedAt": "2019-06-07T12:32:03.720Z",
+    },
   ],
   "title": "Bevrijdingsfestival",
   "updatedAt": Any<String>,

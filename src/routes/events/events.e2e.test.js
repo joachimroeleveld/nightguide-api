@@ -386,7 +386,7 @@ Object {
         .send()
         .expect(200);
 
-      expect(res.body).toMatchSnapshot(EVENT_SNAPSHOT_MATCHER);
+      expect(res.body.tags[0]._id).toEqual(tag1._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 

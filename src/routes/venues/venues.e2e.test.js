@@ -41,7 +41,6 @@ const {
 const eventRepository = require('../events/eventRepository');
 const tagRepository = require('../tags/tagRepository');
 const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
-const { NotFoundError } = require('../../shared/errors');
 
 const VENUE_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -824,7 +823,7 @@ Object {
         .send()
         .expect(200);
 
-      expect(res.body).toMatchSnapshot(VENUE_SNAPSHOT_MATCHER);
+      expect(res.body.tags[0]._id).toEqual(tag1._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 

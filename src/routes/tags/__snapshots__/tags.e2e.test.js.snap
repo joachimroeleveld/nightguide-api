@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`tags e2e GET /tags/:tagId happy path 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": Object {
+    "en": "LGBGTQ",
+  },
+  "slug": "lgbtq",
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`tags e2e GET /tags/:tagId simple fields 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": Object {
+    "en": "Techno",
+  },
+  "slug": "techno",
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`tags e2e GET /tags/slug/:tagSlug happy path 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": Object {
+    "en": "LGBGTQ",
+  },
+  "slug": "lgbtq",
+  "updatedAt": Any<String>,
+}
+`;
