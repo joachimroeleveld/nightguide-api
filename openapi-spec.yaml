@@ -422,6 +422,12 @@ paths:
             items:
               type: string
           description: Fields to return. Returns limited set of fields by default.
+        - in: query
+          name: populate
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Result venues.
@@ -490,6 +496,12 @@ paths:
             type: string
           required: true
           description: Venue ID.
+        - in: query
+          name: populate
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Venue data.
@@ -795,6 +807,12 @@ paths:
             type: string
           required: true
           description: Event ID.
+        - in: query
+          name: populate
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Event data.

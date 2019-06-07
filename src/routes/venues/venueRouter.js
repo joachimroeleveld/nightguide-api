@@ -31,7 +31,8 @@ router.get(
       'website',
       'facebook',
     ];
-    const populate = fields.filter(field => ['images'].includes(field));
+    const populate =
+      req.query.populate || fields.filter(field => ['images'].includes(field));
 
     const filterValues = {
       ...req.query.filter,
@@ -77,10 +78,11 @@ router.post(
 
 router.get(
   '/:venueId',
+  coerce('get', '/venues/{venueId}'),
   validator.validate('get', '/venues/{venueId}'),
   asyncMiddleware(async (req, res, next) => {
     const venue = await venueRepository.getVenue(req.params.venueId, {
-      populate: ['images'],
+      populate: req.query.populate || ['images', 'tags'],
     });
 
     if (!venue) {

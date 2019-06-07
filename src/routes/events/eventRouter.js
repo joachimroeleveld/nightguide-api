@@ -62,10 +62,13 @@ router.post(
 
 router.get(
   '/:eventId',
+  coerce('get', '/events/{eventId}'),
   validator.validate('get', '/events/{eventId}'),
   asyncMiddleware(async (req, res, next) => {
+    const populate = req.query.populate || ['images', 'tags'];
+
     const event = await eventRepository.getEvent(req.params.eventId, {
-      populate: ['images'],
+      populate,
     });
 
     if (!event) {
