@@ -102,47 +102,6 @@ Object {
 }
 `;
 
-exports[`events e2e GET /events/:eventId tags fields 1`] = `
-Object {
-  "__v": 0,
-  "createdAt": Any<String>,
-  "dates": Array [
-    Object {
-      "from": "2019-12-11T11:16:14.157Z",
-      "to": "2019-09-12T11:16:14.157Z",
-    },
-  ],
-  "id": Any<String>,
-  "images": Array [],
-  "location": Object {
-    "address1": "Vechtplantsoen 56",
-    "address2": "1",
-    "city": "Utrecht",
-    "coordinates": Object {
-      "latitude": 52.118273,
-      "longitude": 5.085487,
-    },
-    "country": "NL",
-    "postalCode": "3554TG",
-    "type": "address",
-  },
-  "tags": Array [
-    Object {
-      "__v": 0,
-      "_id": "5c7e74f6599cce0012cdff31",
-      "createdAt": "2019-06-07T12:32:03.720Z",
-      "name": Object {
-        "en": "LGBGTQ",
-      },
-      "slug": "lgbtq",
-      "updatedAt": "2019-06-07T12:32:03.720Z",
-    },
-  ],
-  "title": "Bevrijdingsfestival",
-  "updatedAt": Any<String>,
-}
-`;
-
 exports[`events e2e POST /events populates venue location data 1`] = `
 Object {
   "address1": "Vechtplantsoen 56",
