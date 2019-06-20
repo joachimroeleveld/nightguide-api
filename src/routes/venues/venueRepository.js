@@ -12,6 +12,8 @@ const {
   deserialize,
   deserializeImage,
 } = require('./lib/serialization');
+const { match } = require('./lib/aggregation');
+
 const cityConfig = require('../../shared/cityConfig');
 
 function createVenue(data) {
@@ -32,7 +34,7 @@ async function updateVenue(id, data, options) {
   return venue;
 }
 
-function getVenues(opts) {
+async function getVenues(opts, withCount = false) {
   const {
     populate = [],
     fields,
@@ -41,51 +43,76 @@ function getVenues(opts) {
     sortBy,
     longitude,
     latitude,
-    filter,
-    ids,
+    ...filters
   } = opts;
 
-  const findOpts = {};
+  const agg = Venue.aggregate();
+
+  let countAgg;
+  if (withCount) {
+    countAgg = match(Venue.aggregate(), filters);
+    countAgg.group({
+      _id: null,
+      totalCount: { $sum: 1 },
+    });
+  }
+
   if (sortBy && sortBy.distance) {
     if (!longitude || !latitude) {
       throw new InvalidArgumentError('missing_coordinates');
     }
-    findOpts['location.coordinates'] = {
-      $near: {
-        $geometry: {
-          type: 'Point',
-          coordinates: [longitude, latitude],
-        },
+    agg.near({
+      near: {
+        type: 'Point',
+        coordinates: [longitude, latitude],
       },
-    };
+      distanceField: 'distance',
+      spherical: true,
+    });
   }
 
-  const query = Venue.find(findOpts);
-
-  query.populate(populate.join(' '));
+  match(agg, filters);
 
   if (!sortBy) {
     // Order by name by default
-    query.sort({ name: 1 });
-  }
-  if (ids) {
-    query.in('_id', ids);
+    agg.sort({ name: 1 });
   }
   if (fields) {
-    // Location fields is required for serialization
-    query.select(['location.city', 'location.country', ...fields]);
+    let project = [];
+    if (!fields.includes('location')) {
+      project.push('location.city', 'location.country');
+    }
+    project = project.concat(fields);
+    // Location fields are required for serialization
+    agg.project(_.uniq(project).join(' '));
   }
   if (offset) {
-    query.skip(offset);
+    agg.append({
+      $skip: offset,
+    });
   }
   if (limit) {
-    query.limit(limit);
-  }
-  if (filter) {
-    query.where(filter);
+    agg.limit(limit);
   }
 
-  return query.exec();
+  if (populate.includes('images')) {
+    agg.lookup({
+      from: 'venueimages',
+      foreignField: '_id',
+      localField: 'images',
+      as: 'images',
+    });
+  }
+
+  const results = await agg.exec();
+
+  if (withCount) {
+    const countResult = await countAgg.exec();
+    const count = (countResult.length && countResult[0].totalCount) || 0;
+    return { totalCount: count, results };
+  } else {
+    return results;
+  }
 }
 
 function countVenues(filter) {

@@ -8,7 +8,6 @@ const { validator, coerce } = require('../../shared/openapi');
 const venueRepository = require('./venueRepository');
 const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
-const { createFilterFromValues } = require('./lib/filters');
 const { VENUE_IMAGE_PERSPECTIVES } = require('../../shared/constants');
 const eventRepository = require('../events/eventRepository');
 const { NotFoundError, InvalidRequestError } = require('../../shared/errors');
@@ -34,29 +33,54 @@ router.get(
     const populate =
       req.query.populate || fields.filter(field => ['images'].includes(field));
 
-    const filterValues = {
-      ...req.query.filter,
-      query: req.query.query,
-    };
-    const filter = createFilterFromValues(filterValues);
-
-    const venues = await venueRepository.getVenues({
-      offset,
-      limit,
-      fields,
-      populate,
-      filter,
-      ids: req.query.ids,
-      sortBy: deserializeSort(req.query.sortBy),
-      longitude: req.query.longitude,
-      latitude: req.query.latitude,
-    });
-
-    const totalCount = await venueRepository.countVenues(filter);
-    const results = venues.map(venueRepository.deserialize);
+    const { results, totalCount } = await venueRepository.getVenues(
+      {
+        offset,
+        limit,
+        fields,
+        populate,
+        sortBy: deserializeSort(req.query.sortBy),
+        ids: req.query.ids,
+        query: req.query.query,
+        longitude: req.query.longitude,
+        latitude: req.query.latitude,
+        city: req.query.city,
+        country: req.query.country,
+        cat: req.query.cat,
+        tag: req.query.tag,
+        hasFb: req.query.hasFb,
+        musicType: req.query.musicType,
+        visitorType: req.query.visitorType,
+        paymentMethod: req.query.paymentMethod,
+        doorPolicy: req.query.doorPolicy,
+        dresscode: req.query.dresscode,
+        capRange: req.query.capRange,
+        priceClass: req.query.priceClass,
+        noEntranceFee: req.query.noEntranceFee,
+        noCoatCheckFee: req.query.noCoatCheckFee,
+        noBouncers: req.query.noBouncers,
+        openTime: req.query.openTime,
+        terraceTime: req.query.terraceTime,
+        kitchenTime: req.query.kitchenTime,
+        busyTime: req.query.busyTime,
+        dancingTime: req.query.dancingTime,
+        bitesTime: req.query.bitesTime,
+        vipArea: req.query.vipArea,
+        smokingArea: req.query.smokingArea,
+        terrace: req.query.terrace,
+        terraceHeaters: req.query.terraceHeaters,
+        bouncers: req.query.bouncers,
+        kitchen: req.query.kitchen,
+        coatCheck: req.query.coatCheck,
+        parking: req.query.parking,
+        cigarettes: req.query.cigarettes,
+        accessible: req.query.accessible,
+      },
+      true
+    );
 
     res.json({
-      results,
+      results: results.map(venueRepository.deserialize),
       offset,
       limit,
       totalCount,

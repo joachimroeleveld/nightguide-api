@@ -8,12 +8,14 @@ async function resetDb() {
         mongoose.connection.collections[collection].remove(resolve)
       )
   );
-  const dropIndices = Object.keys(mongoose.connection.collections).map(
-    collection =>
-      new Promise(resolve =>
-        mongoose.connection.collections[collection].dropAllIndexes(resolve)
-      )
-  );
+
+  const dropIndices = [];
+  // const dropIndices = Object.keys(mongoose.connection.collections).map(
+  //   collection =>
+  //     new Promise(resolve =>
+  //       mongoose.connection.collections[collection].dropAllIndexes(resolve)
+  //     )
+  // );
 
   await Promise.all(_.flatten([removals, dropIndices]));
 }

@@ -1,4 +1,5 @@
 const moment = require('moment');
+const mongoose = require('mongoose');
 const _ = require('lodash');
 const unidecode = require('unidecode');
 
@@ -11,46 +12,49 @@ const {
   PreconditionFailedError,
 } = require('../../../shared/errors');
 const cityConfig = require('../../../shared/cityConfig');
-const { validateDateTimeIso8601 } = require('../../../shared/util/validate');
 
 // TODO: do validation in OpenAPI spec (not supported yet)
-function createFilterFromValues({
-  query: textFilter,
-  city,
-  country,
-  cat,
-  dancingTime,
-  openTime,
-  kitchenTime,
-  busyTime,
-  bitesTime,
-  terraceTime,
-  priceClass,
-  musicType,
-  visitorType,
-  hasFb,
-  dresscode,
-  paymentMethod,
-  doorPolicy,
-  capRange,
-  bouncers,
-  noBouncers,
-  parking,
-  accessible,
-  vipArea,
-  noEntranceFee,
-  kitchen,
-  coatCheck,
-  noCoatCheckFee,
-  smokingArea,
-  cigarettes,
-  terrace,
-  terraceHeaters,
-  tag,
-}) {
+function match(
+  agg,
+  {
+    query: textFilter,
+    city,
+    country,
+    cat,
+    dancingTime,
+    openTime,
+    kitchenTime,
+    busyTime,
+    bitesTime,
+    terraceTime,
+    priceClass,
+    musicType,
+    visitorType,
+    hasFb,
+    dresscode,
+    paymentMethod,
+    doorPolicy,
+    capRange,
+    bouncers,
+    noBouncers,
+    parking,
+    accessible,
+    vipArea,
+    noEntranceFee,
+    kitchen,
+    coatCheck,
+    noCoatCheckFee,
+    smokingArea,
+    cigarettes,
+    terrace,
+    terraceHeaters,
+    tag,
+    ids,
+  }
+) {
   const filter = { $and: [] };
 
-  if (textFilter && textFilter.length >= 2) {
+  if (textFilter) {
     filter.queryText = new RegExp(`\\b${unidecode(textFilter)}`, 'i');
   }
 
@@ -96,6 +100,9 @@ function createFilterFromValues({
   if (paymentMethod) {
     filter.paymentMethods = { $in: paymentMethod };
   }
+  if (ids) {
+    filter._id = { $in: ids.map(id => mongoose.Types.ObjectId(id)) };
+  }
 
   if (doorPolicy) {
     const doorPolicyFilter = _.flatten([doorPolicy]).map(doorPolicy => ({
@@ -125,12 +132,7 @@ function createFilterFromValues({
 
   if (priceClass) {
     const priceClasses = _.flatten([priceClass]).map(priceClass => {
-      priceClass = parseInt(priceClass);
-      if (
-        !priceClass ||
-        priceClass < 1 ||
-        priceClass > cityConf.priceClassRanges.length
-      ) {
+      if (!priceClass || priceClass > cityConf.priceClassRanges.length) {
         throw new InvalidArgumentError(
           'invalid_price_class',
           'Filter priceClass is invalid'
@@ -145,17 +147,17 @@ function createFilterFromValues({
     }
   }
 
-  if (noEntranceFee !== undefined) {
+  if (noEntranceFee) {
     filter.$and.push({
       $or: [{ 'fees.entrance': 0 }, { 'fees.entrance': { $exists: false } }],
     });
   }
-  if (noCoatCheckFee !== undefined) {
+  if (noCoatCheckFee) {
     filter.$and.push({
       $or: [{ 'fees.coatCheck': 0 }, { 'fees.coatCheck': { $exists: false } }],
     });
   }
-  if (noBouncers !== undefined) {
+  if (noBouncers) {
     filter.$and.push({
       facilities: { $nin: [VENUE_FACILITIES.FACILITY_BOUNCERS] },
     });
@@ -213,7 +215,7 @@ function createFilterFromValues({
     [VENUE_FACILITIES.FACILITY_ACCESSIBLE]: accessible,
   };
   const facilities = Object.keys(facilityFilterMap).filter(
-    facility => facilityFilterMap[facility] !== undefined
+    facility => facilityFilterMap[facility]
   );
   if (facilities.length) {
     filter.$and.push({ facilities: { $all: facilities } });
@@ -223,17 +225,10 @@ function createFilterFromValues({
     delete filter.$and;
   }
 
-  return filter;
+  return agg.match(filter);
 }
 
 function getCapRangeFilter(capRange) {
-  capRange = parseInt(capRange);
-  if (!capRange || capRange < 1 || capRange > VENUE_CAPACITY_RANGES.length) {
-    throw new InvalidArgumentError(
-      'invalid_filter',
-      'Filter capRange is invalid'
-    );
-  }
   const capLowerBound = VENUE_CAPACITY_RANGES[capRange - 1];
   const capUpperBound = VENUE_CAPACITY_RANGES[capRange];
   const capFilter = {
@@ -255,9 +250,6 @@ function getTimeRangeFilter(schedule, dateString) {
 }
 
 function parseDateString(dateString) {
-  if (!validateDateTimeIso8601(dateString)) {
-    throw new InvalidArgumentError(`invalid_date`);
-  }
   const momentObj = moment(dateString).utc();
   const dayKey = momentObj
     .locale('en')
@@ -275,5 +267,5 @@ function queryMerger(objValue, srcValue) {
 }
 
 module.exports = {
-  createFilterFromValues,
+  match,
 };

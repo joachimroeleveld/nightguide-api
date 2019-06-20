@@ -144,11 +144,9 @@ Object {
       await venueRepository.createVenue(TEST_VENUE_1);
       await venueRepository.createVenue(TEST_VENUE_2);
 
-      sandbox
-        .stub(venueRepository, 'getVenues')
-        .resolves([await venueRepository.getVenue(TEST_VENUE_1._id)]);
-
-      const res = await request(global.app).get('/venues');
+      const res = await request(global.app)
+        .get('/venues')
+        .query({ limit: 1 });
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
@@ -176,27 +174,24 @@ Object {
     });
 
     it('should sort results based on distance if specified', async () => {
-      // Wait for index to be built
-      Venue.on('index', async () => {
-        await venueRepository.createVenue(
-          setFixtureLocation(TEST_VENUE_1, COORDINATES_THE_HAGUE)
-        );
-        await venueRepository.createVenue(
-          setFixtureLocation(TEST_VENUE_2, COORDINATES_WOERDEN)
-        );
+      await venueRepository.createVenue(
+        setFixtureLocation(TEST_VENUE_1, COORDINATES_THE_HAGUE)
+      );
+      await venueRepository.createVenue(
+        setFixtureLocation(TEST_VENUE_2, COORDINATES_WOERDEN)
+      );
 
-        const res = await request(global.app)
-          .get('/venues')
-          .query({
-            sortBy: 'distance',
-            latitude: COORDINATES_UTRECHT[0],
-            longitude: COORDINATES_UTRECHT[1],
-          });
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          sortBy: 'distance',
+          latitude: COORDINATES_UTRECHT[0],
+          longitude: COORDINATES_UTRECHT[1],
+        });
 
-        expect(res.status).toEqual(200);
-        expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
-        expect(validateResponse(res)).toBeUndefined();
-      });
+      expect(res.status).toEqual(200);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
     });
 
     it('should throw if sorted by distance and no coordinates supplied', async () => {
@@ -241,10 +236,8 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            city: TEST_VENUE_1.location.city,
-            country: TEST_VENUE_1.location.country,
-          },
+          city: TEST_VENUE_1.location.city,
+          country: TEST_VENUE_1.location.country,
         });
 
       expect(res.status).toEqual(200);
@@ -266,9 +259,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            country: COUNTRIES.COUNTRY_NL,
-          },
+          country: COUNTRIES.COUNTRY_NL,
         });
 
       expect(res.status).toEqual(200);
@@ -290,9 +281,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            cat: VENUE_CATEGORIES.CATEGORY_BAR,
-          },
+          cat: VENUE_CATEGORIES.CATEGORY_BAR,
         });
 
       expect(res.status).toEqual(200);
@@ -314,9 +303,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            musicType: VENUE_MUSIC_TYPES.MUSIC_APRES_SKI,
-          },
+          musicType: VENUE_MUSIC_TYPES.MUSIC_APRES_SKI,
         });
 
       expect(res.status).toEqual(200);
@@ -338,9 +325,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            paymentMethod: VENUE_PAYMENT_METHODS.METHOD_CASH,
-          },
+          paymentMethod: VENUE_PAYMENT_METHODS.METHOD_CASH,
         });
 
       expect(res.status).toEqual(200);
@@ -362,9 +347,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            dresscode: VENUE_DRESSCODES.DRESSCODE_ALTERNATIVE,
-          },
+          dresscode: VENUE_DRESSCODES.DRESSCODE_ALTERNATIVE,
         });
 
       expect(res.status).toEqual(200);
@@ -386,9 +369,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            doorPolicy: VENUE_DOORPOLICIES.POLICY_GUESTLIST,
-          },
+          doorPolicy: VENUE_DOORPOLICIES.POLICY_GUESTLIST,
         });
 
       expect(res.status).toEqual(200);
@@ -410,7 +391,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: { capRange: 2 },
+          capRange: 2,
         });
 
       expect(res.status).toEqual(200);
@@ -432,9 +413,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            visitorType: VENUE_VISITOR_TYPES.VISITOR_LGBTQ,
-          },
+          visitorType: VENUE_VISITOR_TYPES.VISITOR_LGBTQ,
         });
 
       expect(res.status).toEqual(200);
@@ -456,9 +435,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            noEntranceFee: true,
-          },
+          noEntranceFee: true,
         });
 
       expect(res.status).toEqual(200);
@@ -480,9 +457,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            noCoatCheckFee: true,
-          },
+          noCoatCheckFee: true,
         });
 
       expect(res.status).toEqual(200);
@@ -504,9 +479,7 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            noBouncers: true,
-          },
+          noBouncers: true,
         });
 
       expect(res.status).toEqual(200);
@@ -544,13 +517,11 @@ Object {
         const res = await request(global.app)
           .get('/venues')
           .query({
-            filter: {
-              [`${filter}Time`]: moment()
-                .utc()
-                .day('wed')
-                .hour(21)
-                .toISOString(),
-            },
+            [`${filter}Time`]: moment()
+              .utc()
+              .day('wed')
+              .hour(21)
+              .toISOString(),
           });
 
         expect(res.status).toEqual(200);
@@ -593,13 +564,11 @@ Object {
         const res = await request(global.app)
           .get('/venues')
           .query({
-            filter: {
-              [`${filter}Time`]: moment()
-                .utc()
-                .day('wed')
-                .hour(21)
-                .toISOString(),
-            },
+            [`${filter}Time`]: moment()
+              .utc()
+              .day('wed')
+              .hour(21)
+              .toISOString(),
           });
 
         expect(res.status).toEqual(200);
@@ -619,7 +588,7 @@ Object {
 
       const res = await request(global.app)
         .get('/venues')
-        .query({ filter: { tag: tag1._id.toString() } });
+        .query({ tag: tag1._id.toString() });
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
@@ -658,13 +627,11 @@ Object {
       const res = await request(global.app)
         .get('/venues')
         .query({
-          filter: {
-            [`bitesTime`]: moment()
-              .utc()
-              .day('wed')
-              .hour(19)
-              .toISOString(),
-          },
+          [`bitesTime`]: moment()
+            .utc()
+            .day('wed')
+            .hour(19)
+            .toISOString(),
         });
 
       expect(res.status).toEqual(200);
@@ -698,9 +665,7 @@ Object {
         const res = await request(global.app)
           .get('/venues')
           .query({
-            filter: {
-              [_.camelCase(facility)]: true,
-            },
+            [_.camelCase(facility)]: true,
           });
 
         expect(res.status).toEqual(200);

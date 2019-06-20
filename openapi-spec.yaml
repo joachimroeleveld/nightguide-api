@@ -363,13 +363,159 @@ paths:
       tags:
         - venues
       parameters:
-        # TODO: uncomment when object parameter coercion works
-        #        - $ref: '#/components/parameters/VenueFilter'
         - in: query
-          name: filter
+          name: city
           schema:
-            type: object
-          description: Search filter
+            type: string
+        - in: query
+          name: country
+          schema:
+            type: string
+        - in: query
+          name: cat
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: tag
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: hasFb
+          schema:
+            type: boolean
+        - in: query
+          name: musicType
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: visitorType
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: paymentMethod
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: doorPolicy
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: dresscode
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: capRange
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int32
+              minimum: 1
+              maximum: 7
+        - in: query
+          name: priceClass
+          schema:
+            type: array
+            items:
+              type: integer
+              format: int32
+              minimum: 1
+        - in: query
+          name: noEntranceFee
+          schema:
+            type: boolean
+        - in: query
+          name: noCoatCheckFee
+          schema:
+            type: boolean
+        - in: query
+          name: noBouncers
+          schema:
+            type: boolean
+        - in: query
+          name: openTime
+          schema:
+            type: string
+            format: 'date-time'
+        - in: query
+          name: terraceTime
+          schema:
+            type: string
+            format: 'date-time'
+        - in: query
+          name: kitchenTime
+          schema:
+            type: string
+            format: 'date-time'
+        - in: query
+          name: busyTime
+          schema:
+            type: string
+            format: 'date-time'
+        - in: query
+          name: dancingTime
+          schema:
+            type: string
+            format: 'date-time'
+        - in: query
+          name: bitesTime
+          schema:
+            type: string
+            format: 'date-time'
+        - in: query
+          name: vipArea
+          schema:
+            type: boolean
+        - in: query
+          name: smokingArea
+          schema:
+            type: boolean
+        - in: query
+          name: terrace
+          schema:
+            type: boolean
+        - in: query
+          name: terraceHeaters
+          schema:
+            type: boolean
+        - in: query
+          name: bouncers
+          schema:
+            type: boolean
+        - in: query
+          name: kitchen
+          schema:
+            type: boolean
+        - in: query
+          name: coatCheck
+          schema:
+            type: boolean
+        - in: query
+          name: parking
+          schema:
+            type: boolean
+        - in: query
+          name: cigarettes
+          schema:
+            type: boolean
+        - in: query
+          name: accessible
+          schema:
+            type: boolean
         - in: query
           name: query
           schema:
@@ -1449,7 +1595,6 @@ components:
           type: integer
           format: int32
           minimum: 1
-          maximum: 4
         fees:
           type: object
           properties:
