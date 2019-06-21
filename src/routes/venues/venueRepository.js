@@ -12,7 +12,7 @@ const {
   deserialize,
   deserializeImage,
 } = require('./lib/serialization');
-const { match } = require('./lib/aggregation');
+const { match, sort } = require('./lib/aggregation');
 
 const cityConfig = require('../../shared/cityConfig');
 
@@ -43,6 +43,7 @@ async function getVenues(opts, withCount = false) {
     sortBy,
     longitude,
     latitude,
+    tags,
     ...filters
   } = opts;
 
@@ -72,11 +73,11 @@ async function getVenues(opts, withCount = false) {
   }
 
   match(agg, filters);
+  sort(agg, {
+    sortBy,
+    tags,
+  });
 
-  if (!sortBy) {
-    // Order by name by default
-    agg.sort({ name: 1 });
-  }
   if (fields) {
     let project = [];
     if (!fields.includes('location')) {

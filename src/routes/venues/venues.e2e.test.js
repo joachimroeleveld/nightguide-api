@@ -7,11 +7,11 @@ const request = require('supertest');
 const sinon = require('sinon');
 const _ = require('lodash');
 
-const Venue = require('./venueModel');
 const { validator } = require('../../shared/openapi');
 const imagesService = require('../../shared/services/images');
 const {
   TEST_TAG_1,
+  TEST_TAG_2,
   TEST_VENUE_1,
   TEST_VENUE_2,
   TEST_VENUE_3,
@@ -220,6 +220,22 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(2);
       expect(res.body.results.map(item => item.id)).toEqual(ids);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('exclude filter', async () => {
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+      const venue2 = await venueRepository.createVenue(TEST_VENUE_2);
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          exclude: venue1._id.toString(),
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toEqual(venue2._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -578,7 +594,7 @@ Object {
       });
     });
 
-    it('tags filter', async () => {
+    it('tag filter', async () => {
       const tag1 = await tagRepository.createTag(TEST_TAG_1);
       const venue1 = await venueRepository.createVenue({
         ...TEST_VENUE_1,
@@ -593,6 +609,30 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
       expect(res.body.results[0].id).toBe(venue1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('tags filter', async () => {
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
+      const tag2 = await tagRepository.createTag(TEST_TAG_2);
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+      const venue2 = await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        tags: [tag1._id.toString()],
+      });
+      const venue3 = await venueRepository.createVenue({
+        ...TEST_VENUE_3,
+        tags: [tag1._id.toString(), tag2._id.toString()],
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({ tags: [tag1._id.toString(), tag2._id.toString()] });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(2);
+      expect(res.body.results[0].id).toBe(venue3._id.toString());
+      expect(res.body.results[1].id).toBe(venue2._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -788,7 +828,7 @@ Object {
         .send()
         .expect(200);
 
-      expect(res.body.tags[0]._id).toEqual(tag1._id.toString());
+      expect(res.body.tags[0].id).toEqual(tag1._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 

@@ -384,6 +384,12 @@ paths:
             items:
               type: string
         - in: query
+          name: tags
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
           name: hasFb
           schema:
             type: boolean
@@ -532,6 +538,12 @@ paths:
           description: Sort with optional order
         - in: query
           name: ids
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: exclude
           schema:
             type: array
             items:
@@ -845,7 +857,19 @@ paths:
           schema:
             type: string
         - in: query
+          name: tag
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
           name: tags
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: exclude
           schema:
             type: array
             items:

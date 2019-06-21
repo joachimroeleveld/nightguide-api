@@ -1,3 +1,74 @@
+const unidecode = require('unidecode');
+const mongoose = require('mongoose');
+
+function match(
+  agg,
+  { textFilter, isFbEvent, dateFrom, venueId, country, city, ids, tag, exclude }
+) {
+  const match = {};
+  // Text filter must be first in aggregration pipeline
+  if (textFilter && textFilter.length >= 2) {
+    match.$text = { $search: unidecode(textFilter) };
+  }
+  if (ids) {
+    match._id = { $in: ids.map(id => mongoose.Types.ObjectId(id)) };
+  }
+  if (exclude) {
+    match._id = { $nin: exclude.map(id => mongoose.Types.ObjectId(id)) };
+  }
+  if (tag) {
+    match['tags'] = { $in: tag };
+  }
+  if (city) {
+    match['location.city'] = city;
+  }
+  if (country) {
+    match['location.country'] = country;
+  }
+  if (venueId) {
+    match['organiser.venue'] = venueId.toString();
+  }
+  if (isFbEvent) {
+    match['facebook.id'] = { $exists: true };
+  }
+  agg.match(match);
+
+  agg.addFields({
+    nextDate: getNextDateFieldExpr(new Date(dateFrom)),
+  });
+  if (dateFrom) {
+    agg.match({
+      nextDate: { $ne: null },
+    });
+  }
+
+  return agg;
+}
+
+function sort(agg, { sortBy, tags }) {
+  if (tags) {
+    sortByMatchingTags(agg, tags);
+  } else if (sortBy) {
+    agg.sort(sortBy);
+  } else {
+    // Order by date by default
+    agg.sort({ nextDate: 1 });
+  }
+
+  return agg;
+}
+
+function sortByMatchingTags(agg, tags) {
+  agg.addFields({
+    matchScore: {
+      $size: { $ifNull: [{ $setIntersection: ['$tags', tags] }, []] },
+    },
+  });
+  agg.match({ matchScore: { $gte: 1 } });
+  agg.sort({ matchScore: -1 });
+  agg.project('-matchScore');
+}
+
 function getNextDateFieldExpr(dateFrom) {
   return {
     $let: {
@@ -47,5 +118,6 @@ function getNextDateFieldExpr(dateFrom) {
 }
 
 module.exports = {
-  getNextDateFieldExpr,
+  sort,
+  match,
 };

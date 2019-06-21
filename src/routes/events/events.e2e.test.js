@@ -13,6 +13,7 @@ const {
   TEST_EVENT_1,
   TEST_EVENT_2,
   TEST_TAG_1,
+  TEST_TAG_2,
   generateMongoFixture,
   TEST_FACEBOOK_EVENT_1,
   TEST_VENUE_1,
@@ -192,7 +193,7 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('tags filter', async () => {
+    it('tag filter', async () => {
       const tag1 = await tagRepository.createTag(TEST_TAG_1);
       const event1 = await eventRepository.createEvent({
         ...TEST_EVENT_1,
@@ -202,11 +203,37 @@ Object {
 
       const res = await request(global.app)
         .get('/events')
-        .query({ tags: [tag1._id.toString()] });
+        .query({ tag: [tag1._id.toString()] });
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
       expect(res.body.results[0].id).toBe(event1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('tags filter', async () => {
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
+      const tag2 = await tagRepository.createTag(TEST_TAG_2);
+      const event1 = await eventRepository.createEvent(
+        generateMongoFixture(TEST_EVENT_1)
+      );
+      const event2 = await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        tags: [tag1._id.toString()],
+      });
+      const event3 = await eventRepository.createEvent({
+        ...TEST_EVENT_2,
+        tags: [tag1._id.toString(), tag2._id.toString()],
+      });
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({ tags: [tag1._id.toString(), tag2._id.toString()] });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(2);
+      expect(res.body.results[0].id).toBe(event3._id.toString());
+      expect(res.body.results[1].id).toBe(event2._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -254,6 +281,22 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(2);
       expect(res.body.results.map(item => item.id)).toEqual(ids);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('exclude filter', async () => {
+      const event1 = await eventRepository.createEvent(TEST_EVENT_1);
+      const event2 = await eventRepository.createEvent(TEST_EVENT_2);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          exclude: event1._id.toString(),
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toEqual(event2._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -386,7 +429,7 @@ Object {
         .send()
         .expect(200);
 
-      expect(res.body.tags[0]._id).toEqual(tag1._id.toString());
+      expect(res.body.tags[0].id).toEqual(tag1._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 

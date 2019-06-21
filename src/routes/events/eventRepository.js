@@ -2,19 +2,17 @@ const request = require('request-promise-native');
 const imgSize = require('image-size');
 const mimeTypes = require('mime-types');
 const _ = require('lodash');
-const unidecode = require('unidecode');
-const mongoose = require('mongoose');
 
 const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
 const Event = require('./eventModel');
 const EventImage = require('./eventImageModel');
+const { match, sort } = require('./lib/aggregation');
 const {
   serialize,
   deserialize,
   deserializeImage,
 } = require('./lib/serialization');
-const { getNextDateFieldExpr } = require('./lib/aggregation');
 
 function createEvent(data) {
   return Event.create(data);
@@ -40,74 +38,19 @@ async function updateEvent(conditions, data, options = {}) {
 }
 
 async function getEvents(opts, withCount = false) {
-  const {
-    fields = [],
-    offset,
-    limit,
-    sortBy,
-    textFilter,
-    isFbEvent,
-    dateFrom,
-    venueId,
-    country,
-    city,
-    ids,
-    tags,
-  } = opts;
-  const match = agg => {
-    const match = {};
-    // Text filter must be first in aggregration pipeline
-    if (textFilter && textFilter.length >= 2) {
-      match.$text = { $search: unidecode(textFilter) };
-    }
-    if (ids) {
-      const objectIds = ids.map(id => mongoose.Types.ObjectId(id));
-      match['_id'] = { $in: objectIds };
-    }
-    if (tags) {
-      match['tags'] = { $in: tags };
-    }
-    if (city) {
-      match['location.city'] = city;
-    }
-    if (country) {
-      match['location.country'] = country;
-    }
-    if (venueId) {
-      match['organiser.venue'] = venueId.toString();
-    }
-    if (isFbEvent) {
-      match['facebook.id'] = { $exists: true };
-    }
-    agg.match(match);
-
-    agg.addFields({
-      nextDate: getNextDateFieldExpr(new Date(dateFrom)),
-    });
-    if (dateFrom) {
-      agg.match({
-        nextDate: { $ne: null },
-      });
-    }
-
-    return agg;
-  };
-
-  const agg = match(Event.aggregate());
+  const { fields = [], offset, limit, sortBy, tags, ...filters } = opts;
+  const agg = match(Event.aggregate(), filters);
 
   let countAgg;
   if (withCount) {
-    countAgg = match(Event.aggregate());
+    countAgg = match(Event.aggregate(), filters);
     countAgg.group({
       _id: null,
       totalCount: { $sum: 1 },
     });
   }
 
-  if (!sortBy) {
-    // Order by title by default
-    agg.sort({ nextDate: 1 });
-  }
+  sort(agg, { sortBy, tags });
 
   if (fields.length) {
     agg.project(fields.join(' '));

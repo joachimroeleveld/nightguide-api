@@ -59,7 +59,7 @@ router.post(
   adminAuth(),
   validator.validate('post', '/tags'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = await tagRepository.serialize(req.body);
+    const doc = await tagRepository.serializeTag(req.body);
     const tag = await tagRepository.createTag(doc);
 
     res.status(201).json(tag.deserialize());
@@ -71,7 +71,7 @@ router.put(
   adminAuth(),
   validator.validate('put', '/tags/{tagId}'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = await tagRepository.serialize(req.body);
+    const doc = await tagRepository.serializeTag(req.body);
     const tag = await tagRepository.updateTag(req.params.tagId, doc, {
       omitUndefined: true,
     });

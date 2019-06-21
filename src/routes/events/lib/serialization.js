@@ -3,6 +3,7 @@ const _ = require('lodash');
 
 const { NotFoundError } = require('../../../shared/errors');
 const venueRepository = require('../../venues/venueRepository');
+const { deserializeTag } = require('../../tags/tagRepository');
 
 /**
  * Prepare event object to be sent to client.
@@ -21,6 +22,9 @@ function deserialize(event) {
 
   if (event.images) {
     event.images = event.images.map(deserializeImage);
+  }
+  if (event.tags) {
+    event.tags = event.tags.map(deserializeTag);
   }
 
   if (event.dates) {

@@ -50,6 +50,7 @@ function match(
     terraceHeaters,
     tag,
     ids,
+    exclude,
   }
 ) {
   const filter = { $and: [] };
@@ -102,6 +103,9 @@ function match(
   }
   if (ids) {
     filter._id = { $in: ids.map(id => mongoose.Types.ObjectId(id)) };
+  }
+  if (exclude) {
+    filter._id = { $nin: exclude.map(id => mongoose.Types.ObjectId(id)) };
   }
 
   if (doorPolicy) {
@@ -225,7 +229,33 @@ function match(
     delete filter.$and;
   }
 
-  return agg.match(filter);
+  agg.match(filter);
+
+  return agg;
+}
+
+function sort(agg, { sortBy, tags }) {
+  if (tags) {
+    sortByMatchingTags(agg, tags);
+  } else if (sortBy) {
+    agg.sort(sortBy);
+  } else {
+    // Order by name by default
+    agg.sort({ name: 1 });
+  }
+
+  return agg;
+}
+
+async function sortByMatchingTags(agg, tags) {
+  agg.addFields({
+    matchScore: {
+      $size: { $ifNull: [{ $setIntersection: ['$tags', tags] }, []] },
+    },
+  });
+  agg.match({ matchScore: { $gte: 1 } });
+  agg.sort({ matchScore: -1 });
+  agg.project('-matchScore');
 }
 
 function getCapRangeFilter(capRange) {
@@ -268,4 +298,5 @@ function queryMerger(objValue, srcValue) {
 
 module.exports = {
   match,
+  sort,
 };

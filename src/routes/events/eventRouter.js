@@ -34,7 +34,9 @@ router.get(
         city: req.query.city,
         country: req.query.country,
         ids: req.query.ids,
+        tag: req.query.tag,
         tags: req.query.tags,
+        exclude: req.query.exclude,
       },
       true
     );

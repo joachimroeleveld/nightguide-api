@@ -63,6 +63,6 @@ module.exports = {
   getTagBySlug,
   updateTag,
   deleteTag,
-  serialize,
-  deserialize,
+  serializeTag: serialize,
+  deserializeTag: deserialize,
 };

@@ -154,7 +154,7 @@ Object {
     it('happy path', async () => {
       const res = await request(global.app)
         .post('/tags')
-        .send(tagRepository.deserialize(TEST_TAG_1));
+        .send(tagRepository.deserializeTag(TEST_TAG_1));
       const body = res.body;
 
       expect(res.status).toEqual(201);

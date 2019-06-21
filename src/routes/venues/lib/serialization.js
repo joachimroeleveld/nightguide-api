@@ -3,6 +3,7 @@ const unidecode = require('unidecode');
 
 const { VENUE_CAPACITY_RANGES } = require('../../../shared/constants');
 const cityConfig = require('../../../shared/cityConfig');
+const { deserializeTag } = require('../../tags/tagRepository');
 
 /**
  * Prepare venue to be sent to client.
@@ -23,6 +24,9 @@ function deserialize(venue) {
 
   if (venue.images) {
     venue.images = venue.images.map(deserializeImage);
+  }
+  if (venue.tags) {
+    venue.tags = venue.tags.map(deserializeTag);
   }
 
   if (venue.location.coordinates) {
