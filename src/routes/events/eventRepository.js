@@ -38,7 +38,15 @@ async function updateEvent(conditions, data, options = {}) {
 }
 
 async function getEvents(opts, withCount = false) {
-  const { fields = [], offset, limit, sortBy, tags, ...filters } = opts;
+  const {
+    fields = [],
+    offset,
+    limit,
+    sortBy,
+    tags,
+    populate = [],
+    ...filters
+  } = opts;
   const agg = match(Event.aggregate(), filters);
 
   let countAgg;
@@ -52,12 +60,6 @@ async function getEvents(opts, withCount = false) {
 
   sort(agg, { sortBy, tags });
 
-  if (fields.length) {
-    agg.project(fields.join(' '));
-  } else {
-    agg.project('-nextDate');
-  }
-
   if (offset) {
     agg.append({
       $skip: offset,
@@ -67,13 +69,48 @@ async function getEvents(opts, withCount = false) {
     agg.limit(limit);
   }
 
-  if (fields.includes('images')) {
+  const project = {};
+
+  if (populate.includes('images')) {
     agg.lookup({
       from: 'eventimages',
       foreignField: '_id',
       localField: 'images',
       as: 'images',
     });
+  }
+  if (populate.includes('tags')) {
+    agg.lookup({
+      from: 'tags',
+      foreignField: '_id',
+      localField: 'tags',
+      as: 'tags',
+    });
+  }
+  if (populate.includes('organiser.venue')) {
+    agg.lookup({
+      from: 'venues',
+      let: { venue: '$organiser.venue' },
+      pipeline: [
+        { $match: { $expr: { $eq: ['$$venue', '$_id'] } } },
+        { $project: { name: 1, location: 1 } },
+      ],
+      as: 'organiser.venue',
+    });
+    agg.unwind({
+      path: '$organiser.venue',
+      preserveNullAndEmptyArrays: true,
+    });
+  }
+
+  if (fields.length) {
+    fields.forEach(field => {
+      project[field] = 1;
+    });
+  }
+
+  if (Object.keys(project).length) {
+    agg.project(project);
   }
 
   const results = await agg.exec();

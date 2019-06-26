@@ -30,8 +30,7 @@ router.get(
       'website',
       'facebook',
     ];
-    const populate =
-      req.query.populate || fields.filter(field => ['images'].includes(field));
+    const populate = req.query.populate || ['images', 'tags'];
 
     const { results, totalCount } = await venueRepository.getVenues(
       {

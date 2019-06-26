@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const unidecode = require('unidecode');
 
+const { isPopulated } = require('../../../shared/util/mongooseUtils');
 const { VENUE_CAPACITY_RANGES } = require('../../../shared/constants');
 const cityConfig = require('../../../shared/cityConfig');
 const { deserializeTag } = require('../../tags/tagRepository');
@@ -22,32 +23,37 @@ function deserialize(venue) {
   delete venue.sourceId;
   delete venue.queryText;
 
-  if (venue.images) {
+  if (isPopulated(venue.images)) {
     venue.images = venue.images.map(deserializeImage);
   }
-  if (venue.tags) {
+  if (isPopulated(venue.tags)) {
     venue.tags = venue.tags.map(deserializeTag);
   }
 
-  if (venue.location.coordinates) {
-    const longitude = venue.location.coordinates.coordinates[0];
-    const latitude = venue.location.coordinates.coordinates[1];
-    venue.location.coordinates = {
-      longitude,
-      latitude,
-    };
-  }
+  if (venue.location) {
+    if (venue.location.coordinates) {
+      const longitude = venue.location.coordinates.coordinates[0];
+      const latitude = venue.location.coordinates.coordinates[1];
+      venue.location.coordinates = {
+        longitude,
+        latitude,
+      };
+    }
 
-  const cityConf = cityConfig.get(venue.location.country, venue.location.city);
+    const cityConf = cityConfig.get(
+      venue.location.country,
+      venue.location.city
+    );
 
-  // Set computed fields
-  if (venue.capacity) {
-    venue.capacityRange = getCapacityRange(venue, cityConf);
-  }
-  if (venue.fees) {
-    venue.currency = cityConf.currency;
-    if (venue.fees.entrance) {
-      venue.entranceFeeRange = getEntranceFeeRange(venue, cityConf);
+    // Set computed fields
+    if (venue.capacity) {
+      venue.capacityRange = getCapacityRange(venue, cityConf);
+    }
+    if (venue.fees) {
+      venue.currency = cityConf.currency;
+      if (venue.fees.entrance) {
+        venue.entranceFeeRange = getEntranceFeeRange(venue, cityConf);
+      }
     }
   }
 

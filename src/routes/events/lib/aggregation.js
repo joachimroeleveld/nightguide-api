@@ -3,7 +3,18 @@ const mongoose = require('mongoose');
 
 function match(
   agg,
-  { textFilter, isFbEvent, dateFrom, venueId, country, city, ids, tag, exclude }
+  {
+    textFilter,
+    isFbEvent,
+    dateFrom,
+    venueId,
+    country,
+    city,
+    ids,
+    tag,
+    exclude,
+    tagged,
+  }
 ) {
   const match = {};
   // Text filter must be first in aggregration pipeline
@@ -17,7 +28,10 @@ function match(
     match._id = { $nin: exclude.map(id => mongoose.Types.ObjectId(id)) };
   }
   if (tag) {
-    match['tags'] = { $in: tag };
+    match['tags'] = { $in: tag.map(id => mongoose.Types.ObjectId(id)) };
+  }
+  if (tagged) {
+    match['tags.0'] = { $exists: true };
   }
   if (city) {
     match['location.city'] = city;
@@ -26,7 +40,7 @@ function match(
     match['location.country'] = country;
   }
   if (venueId) {
-    match['organiser.venue'] = venueId.toString();
+    match['organiser.venue'] = mongoose.Types.ObjectId(venueId.toString());
   }
   if (isFbEvent) {
     match['facebook.id'] = { $exists: true };
@@ -61,7 +75,17 @@ function sort(agg, { sortBy, tags }) {
 function sortByMatchingTags(agg, tags) {
   agg.addFields({
     matchScore: {
-      $size: { $ifNull: [{ $setIntersection: ['$tags', tags] }, []] },
+      $size: {
+        $ifNull: [
+          {
+            $setIntersection: [
+              '$tags',
+              tags.map(id => mongoose.Types.ObjectId(id)),
+            ],
+          },
+          [],
+        ],
+      },
     },
   });
   agg.match({ matchScore: { $gte: 1 } });

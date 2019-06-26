@@ -50,7 +50,7 @@ const TEST_FACEBOOK_EVENT_1 = Object.freeze({
     },
   },
   organiser: {
-    venue: 'foo',
+    venue: '5cdaa0b1f22f40bdba5ca3f3',
   },
   facebook: {
     id: '12345678',

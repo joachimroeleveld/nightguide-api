@@ -20,12 +20,18 @@ router.get(
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 20;
     const fields = req.query.fields || ['title', 'dates', 'location'];
+    const populate = req.query.populate || [
+      'images',
+      'tags',
+      'organiser.venue',
+    ];
 
     let { results, totalCount } = await eventRepository.getEvents(
       {
         offset,
         limit,
         fields,
+        populate,
         sortBy: deserializeSort(req.query.sortBy),
         venueId: req.query.venue,
         isFbEvent: req.query.isFbEvent,
@@ -37,6 +43,7 @@ router.get(
         tag: req.query.tag,
         tags: req.query.tags,
         exclude: req.query.exclude,
+        tagged: req.query.tagged,
       },
       true
     );
@@ -67,7 +74,11 @@ router.get(
   coerce('get', '/events/{eventId}'),
   validator.validate('get', '/events/{eventId}'),
   asyncMiddleware(async (req, res, next) => {
-    const populate = req.query.populate || ['images', 'tags'];
+    const populate = req.query.populate || [
+      'images',
+      'tags',
+      'organiser.venue',
+    ];
 
     const event = await eventRepository.getEvent(req.params.eventId, {
       populate,

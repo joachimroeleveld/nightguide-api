@@ -10,7 +10,7 @@ const EventSchema = new Schema(
     title: String,
     organiser: {
       venue: {
-        type: String,
+        type: Schema.Types.ObjectId,
         ref: 'Venue',
       },
     },
@@ -64,7 +64,7 @@ const EventSchema = new Schema(
       goingCount: Number,
     },
     queryText: String,
-    tags: [{ type: String, ref: 'Tag' }],
+    tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
   },
   {
     timestamps: true,

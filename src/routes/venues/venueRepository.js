@@ -73,20 +73,12 @@ async function getVenues(opts, withCount = false) {
   }
 
   match(agg, filters);
+
   sort(agg, {
     sortBy,
     tags,
   });
 
-  if (fields) {
-    let project = [];
-    if (!fields.includes('location')) {
-      project.push('location.city', 'location.country');
-    }
-    project = project.concat(fields);
-    // Location fields are required for serialization
-    agg.project(_.uniq(project).join(' '));
-  }
   if (offset) {
     agg.append({
       $skip: offset,
@@ -103,6 +95,24 @@ async function getVenues(opts, withCount = false) {
       localField: 'images',
       as: 'images',
     });
+  }
+  if (populate.includes('tags')) {
+    agg.lookup({
+      from: 'tags',
+      foreignField: '_id',
+      localField: 'tags',
+      as: 'tags',
+    });
+  }
+
+  if (fields) {
+    let project = [];
+    if (!fields.includes('location')) {
+      project.push('location.city', 'location.country');
+    }
+    project = project.concat(fields);
+    // Location fields are required for serialization
+    agg.project(_.uniq(project).join(' '));
   }
 
   const results = await agg.exec();

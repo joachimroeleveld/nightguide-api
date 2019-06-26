@@ -237,6 +237,24 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('tagged filter', async () => {
+      const tag1 = await tagRepository.createTag(TEST_TAG_1);
+      const event1 = await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        tags: [tag1._id.toString()],
+      });
+      await eventRepository.createEvent(TEST_EVENT_2);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({ tagged: true });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toBe(event1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('country filter', async () => {
       await eventRepository.createEvent({
         ...TEST_EVENT_1,
@@ -455,7 +473,8 @@ Object {
         .send(event1)
         .expect(200);
 
-      expect(res.body).toMatchSnapshot(EVENT_SNAPSHOT_MATCHER);
+      const { organiser, ...body } = res.body;
+      expect(body).toMatchSnapshot(EVENT_SNAPSHOT_MATCHER);
       expect(validateResponse(res)).toBeUndefined();
     });
   });

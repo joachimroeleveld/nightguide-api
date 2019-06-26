@@ -1,6 +1,8 @@
 const unidecode = require('unidecode');
 const _ = require('lodash');
+const mongoose = require('mongoose');
 
+const { isPopulated } = require('../../../shared/util/mongooseUtils');
 const { NotFoundError } = require('../../../shared/errors');
 const venueRepository = require('../../venues/venueRepository');
 const { deserializeTag } = require('../../tags/tagRepository');
@@ -20,11 +22,18 @@ function deserialize(event) {
   delete event._id;
   delete event.queryText;
 
-  if (event.images) {
+  if (isPopulated(event.images)) {
     event.images = event.images.map(deserializeImage);
   }
-  if (event.tags) {
+  if (isPopulated(event.tags)) {
     event.tags = event.tags.map(deserializeTag);
+  }
+  if (
+    event.organiser &&
+    event.organiser.venue &&
+    isPopulated(event.organiser.venue)
+  ) {
+    event.organiser.venue = venueRepository.deserialize(event.organiser.venue);
   }
 
   if (event.dates) {
