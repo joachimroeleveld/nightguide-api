@@ -15,8 +15,8 @@ exports.deserializeSort = function(param) {
     sortArray = [param];
   }
   return sortArray.reduce((acc, item) => {
-    const by = item.split(',')[0];
-    const order = (item.split(',')[1] || 'asc') === 'asc' ? 1 : -1;
+    const by = item.split(':')[0];
+    const order = (item.split(':')[1] || 'desc') === 'desc' ? -1 : 1;
     acc[by] = order;
     return acc;
   }, {});
