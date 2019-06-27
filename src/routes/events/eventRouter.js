@@ -26,16 +26,22 @@ router.get(
       'organiser.venue',
     ];
 
+    const defaultSort = {
+      'nextDate.from': 1,
+      'nextDate.interestedCount': -1,
+    };
+
     let { results, totalCount } = await eventRepository.getEvents(
       {
         offset,
         limit,
         fields,
         populate,
-        sortBy: deserializeSort(req.query.sortBy),
+        sortBy: deserializeSort(req.query.sortBy) || defaultSort,
         venueId: req.query.venue,
         isFbEvent: req.query.isFbEvent,
-        dateFrom: req.query.dateFrom,
+        dateFrom: req.query.dateFrom ? new Date(req.query.dateFrom) : undefined,
+        dateTo: req.query.dateTo ? new Date(req.query.dateTo) : undefined,
         textFilter: req.query.text,
         city: req.query.city,
         country: req.query.country,

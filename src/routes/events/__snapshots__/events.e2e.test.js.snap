@@ -12,9 +12,7 @@ Object {
   ],
   "facebook": Object {
     "description": "Description",
-    "goingCount": 100,
     "id": "12345678",
-    "interestedCount": 1,
     "title": "Title",
   },
   "id": Any<String>,

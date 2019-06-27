@@ -5,6 +5,8 @@ const nodeRequest = require('request-promise-native');
 const request = require('supertest');
 const sinon = require('sinon');
 const _ = require('lodash');
+const mongoose = require('mongoose');
+mongoose.set('debug', true);
 
 const Event = require('./eventModel');
 const { validator } = require('../../shared/openapi');
@@ -228,7 +230,10 @@ Object {
 
       const res = await request(global.app)
         .get('/events')
-        .query({ tags: [tag1._id.toString(), tag2._id.toString()] });
+        .query({
+          tags: [tag1._id.toString(), tag2._id.toString()],
+          sortBy: 'tagsMatchScore:desc',
+        });
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(2);
@@ -358,6 +363,50 @@ Object {
       expect(res.body.results.length).toBe(2);
       expect(res.body.results.map(event => event.id).sort()).toEqual(
         [futureEvent._id, ongoingEvent._id].sort()
+      );
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('dateTo filter', async () => {
+      const pastEvent = generateMongoFixture(TEST_EVENT_1, {
+        dates: [
+          {
+            from: new Date(2018, 1, 1),
+            to: new Date(2018, 1, 2),
+          },
+        ],
+      });
+      const futureEvent = generateMongoFixture(TEST_EVENT_1, {
+        dates: [
+          {
+            from: new Date(2050, 1, 1),
+            to: new Date(2050, 1, 2),
+          },
+        ],
+      });
+      const ongoingEvent = generateMongoFixture(TEST_EVENT_1, {
+        dates: [
+          {
+            from: new Date(2017, 1, 1),
+            to: new Date(2050, 1, 2),
+          },
+        ],
+      });
+
+      await eventRepository.createEvent(pastEvent);
+      await eventRepository.createEvent(ongoingEvent);
+      await eventRepository.createEvent(futureEvent);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          dateTo: new Date().toISOString(),
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(2);
+      expect(res.body.results.map(event => event.id).sort()).toEqual(
+        [pastEvent._id, ongoingEvent._id].sort()
       );
       expect(validateResponse(res)).toBeUndefined();
     });

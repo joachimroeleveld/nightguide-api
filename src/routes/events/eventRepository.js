@@ -43,7 +43,6 @@ async function getEvents(opts, withCount = false) {
     offset,
     limit,
     sortBy,
-    tags,
     populate = [],
     ...filters
   } = opts;
@@ -58,7 +57,9 @@ async function getEvents(opts, withCount = false) {
     });
   }
 
-  sort(agg, { sortBy, tags });
+  if (sortBy) {
+    sort(agg, sortBy);
+  }
 
   if (offset) {
     agg.append({
@@ -109,6 +110,7 @@ async function getEvents(opts, withCount = false) {
     });
   } else {
     project.nextDate = 0;
+    project.tagsMatchScore = 0;
   }
 
   agg.project(project);

@@ -7,6 +7,7 @@ function match(
     textFilter,
     isFbEvent,
     dateFrom,
+    dateTo,
     venueId,
     country,
     city,
@@ -14,9 +15,11 @@ function match(
     tag,
     exclude,
     tagged,
+    tags,
   }
 ) {
   const match = {};
+
   // Text filter must be first in aggregration pipeline
   if (textFilter && textFilter.length >= 2) {
     match.$text = { $search: unidecode(textFilter) };
@@ -45,36 +48,38 @@ function match(
   if (isFbEvent) {
     match['facebook.id'] = { $exists: true };
   }
+  if (dateFrom || dateTo) {
+    Object.assign(match, matchDateRange(dateFrom, dateTo));
+  }
+  if (tags) {
+    agg.addFields(getTagMatchScoreFieldExpr(tags));
+    agg.match({ tagsMatchScore: { $gte: 1 } });
+  }
+
   agg.match(match);
 
-  agg.addFields({
-    nextDate: getNextDateFieldExpr(new Date(dateFrom)),
-  });
-  if (dateFrom) {
-    agg.match({
-      nextDate: { $ne: null },
+  return agg;
+}
+
+function sort(agg, sortBy) {
+  // Project nextDate field if necessary
+  const nextDateInSort = Object.keys(sortBy).filter(
+    key => key.indexOf('nextDate') === 0
+  ).length;
+  if (nextDateInSort) {
+    agg.addFields({
+      nextDate: getNextDateFieldExpr(new Date()),
     });
   }
 
-  return agg;
-}
-
-function sort(agg, { sortBy, tags }) {
-  if (tags) {
-    sortByMatchingTags(agg, tags);
-  } else if (sortBy) {
-    agg.sort(sortBy);
-  } else {
-    // Order by date by default
-    agg.sort({ nextDate: 1 });
-  }
+  agg.sort(sortBy);
 
   return agg;
 }
 
-function sortByMatchingTags(agg, tags) {
-  agg.addFields({
-    matchScore: {
+function getTagMatchScoreFieldExpr(tags) {
+  return {
+    tagsMatchScore: {
       $size: {
         $ifNull: [
           {
@@ -87,13 +92,10 @@ function sortByMatchingTags(agg, tags) {
         ],
       },
     },
-  });
-  agg.match({ matchScore: { $gte: 1 } });
-  agg.sort({ matchScore: -1 });
-  agg.project('-matchScore');
+  };
 }
 
-function getNextDateFieldExpr(dateFrom) {
+function getNextDateFieldExpr(baseDate) {
   return {
     $let: {
       vars: {
@@ -116,10 +118,10 @@ function getNextDateFieldExpr(dateFrom) {
                       $or: [
                         // Check on both fields because `date.to` may not exist
                         {
-                          $gte: ['$$date.from', dateFrom],
+                          $gte: ['$$date.from', baseDate],
                         },
                         {
-                          $gte: ['$$date.to', dateFrom],
+                          $gte: ['$$date.to', baseDate],
                         },
                       ],
                     },
@@ -139,6 +141,41 @@ function getNextDateFieldExpr(dateFrom) {
       },
     },
   };
+}
+
+function matchDateRange(dateFrom, dateTo) {
+  const match = { $and: [] };
+  if (dateFrom) {
+    match.$and.push({
+      // Check on both fields because `date.to` may not exist
+      $or: [
+        {
+          dates: {
+            $elemMatch: {
+              from: { $gte: dateFrom },
+            },
+          },
+        },
+        {
+          dates: {
+            $elemMatch: {
+              to: { $gte: dateFrom },
+            },
+          },
+        },
+      ],
+    });
+  }
+  if (dateTo) {
+    match.$and.push({
+      dates: {
+        $elemMatch: {
+          from: { $lte: dateTo },
+        },
+      },
+    });
+  }
+  return match;
 }
 
 module.exports = {
