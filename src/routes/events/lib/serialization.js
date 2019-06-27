@@ -38,11 +38,13 @@ function deserialize(event) {
 
   if (event.dates) {
     event.dates = event.dates.map(date => {
-      const dates = { from: date.from.toISOString() };
-      if (date.to) {
-        dates.to = date.to.toISOString();
+      if (date.from) {
+        date.from = date.from.toISOString();
       }
-      return dates;
+      if (date.to) {
+        date.to = date.to.toISOString();
+      }
+      return date;
     });
   }
 

@@ -1802,6 +1802,9 @@ components:
               to:
                 type: string
                 format: date-time
+              interestedCount:
+                type: number
+                format: int32
         description:
           $ref: '#/components/schemas/TranslatedObject'
         location:

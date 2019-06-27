@@ -69,7 +69,9 @@ async function getEvents(opts, withCount = false) {
     agg.limit(limit);
   }
 
-  const project = {};
+  const project = {
+    nextDate: -1,
+  };
 
   if (populate.includes('images')) {
     agg.lookup({
@@ -109,9 +111,7 @@ async function getEvents(opts, withCount = false) {
     });
   }
 
-  if (Object.keys(project).length) {
-    agg.project(project);
-  }
+  agg.project(project);
 
   const results = await agg.exec();
 

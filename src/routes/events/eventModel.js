@@ -51,6 +51,7 @@ const EventSchema = new Schema(
         to: {
           type: Date,
         },
+        interestedCount: Number,
       },
     ],
     repeat: {}, // TODO
@@ -60,8 +61,6 @@ const EventSchema = new Schema(
       id: String,
       title: String,
       description: String,
-      interestedCount: Number,
-      goingCount: Number,
     },
     queryText: String,
     tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
@@ -72,7 +71,6 @@ const EventSchema = new Schema(
 );
 
 EventSchema.index({ 'facebook.id': 1 }, { sparse: true, unique: true });
-EventSchema.index({ 'facebook.goingCount': -1 });
 EventSchema.index({ 'organiser.venue': 1 });
 EventSchema.index({ tags: 1 });
 EventSchema.index({ queryText: 'text' });
