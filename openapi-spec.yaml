@@ -364,6 +364,10 @@ paths:
         - venues
       parameters:
         - in: query
+          name: pageSlug
+          schema:
+            type: string
+        - in: query
           name: city
           schema:
             type: string
@@ -1545,6 +1549,8 @@ components:
         name:
           type: string
         queryText:
+          type: string
+        pageSlug:
           type: string
         categories:
           type: array

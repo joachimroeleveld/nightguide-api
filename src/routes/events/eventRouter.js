@@ -50,6 +50,7 @@ router.get(
         tags: req.query.tags,
         exclude: req.query.exclude,
         tagged: req.query.tagged,
+        pageSlug: req.query.pageSlug,
       },
       true
     );

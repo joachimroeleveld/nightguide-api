@@ -1,19 +1,17 @@
 const config = {
-  NL: {
-    Utrecht: {
-      timezone: 'Europe/Amsterdam',
-      currency: 'EUR',
-      priceClassRanges: {
-        coke: [0, 2.3, 2.8, 3.3],
-        beer: [0, 2.4, 3, 3.6],
-      },
-      entranceFeeRanges: [0, 10, 20, 40],
+  'nl/utrecht': {
+    timezone: 'Europe/Amsterdam',
+    currency: 'EUR',
+    priceClassRanges: {
+      coke: [0, 2.3, 2.8, 3.3],
+      beer: [0, 2.4, 3, 3.6],
     },
+    entranceFeeRanges: [0, 10, 20, 40],
+  },
+  'es/ibiza': {
+    timezone: 'Europe/Amsterdam',
+    currency: 'EUR',
   },
 };
 
-module.exports = {
-  config,
-  get: (country, city) =>
-    config[country] && config[country][city] ? config[country][city] : null,
-};
+module.exports = config;

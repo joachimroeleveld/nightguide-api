@@ -35,7 +35,7 @@ router.get(
   '/city-config',
   adminAuth(),
   asyncMiddleware(async (req, res, next) => {
-    res.json(cityConfig.config);
+    res.json(cityConfig);
   })
 );
 

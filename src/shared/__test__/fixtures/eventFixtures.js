@@ -21,6 +21,7 @@ const TEST_EVENT_1 = Object.freeze({
       coordinates: COORDINATES_UTRECHT,
     },
   },
+  pageSlug: 'nl/utrecht',
 });
 
 const TEST_EVENT_2 = Object.freeze({
@@ -55,6 +56,7 @@ const TEST_FACEBOOK_EVENT_1 = Object.freeze({
   facebook: {
     id: '12345678',
   },
+  pageSlug: 'nl/utrecht',
 });
 
 const TEST_FACEBOOK_EVENT_2 = Object.freeze({

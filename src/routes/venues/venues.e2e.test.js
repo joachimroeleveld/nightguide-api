@@ -81,6 +81,7 @@ Object {
     "postalCode": "3554TG",
   },
   "name": "Tivoli",
+  "pageSlug": "nl/utrecht",
 }
 `,
         VENUE_SNAPSHOT_MATCHER
@@ -254,6 +255,28 @@ Object {
         .query({
           city: TEST_VENUE_1.location.city,
           country: TEST_VENUE_1.location.country,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('pageSlug filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        pageSlug: 'nl/utrecht',
+      });
+      await venueRepository.createVenue({
+        ...TEST_VENUE_2,
+        pageSlug: 'es/ibiza',
+      });
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          pageSlug: 'nl/utrecht',
         });
 
       expect(res.status).toEqual(200);
@@ -805,6 +828,7 @@ Object {
         dresscode: VENUE_DRESSCODES.DRESSCODE_ALTERNATIVE,
         facilities: [VENUE_FACILITIES.FACILITY_ACCESSIBLE],
         timeSchedule: TEST_VENUE_TIMESCHEDULE,
+        pageSlug: 'nl/utrecht',
       });
 
       const res = await request(global.app)

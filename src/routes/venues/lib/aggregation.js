@@ -51,6 +51,7 @@ function match(
     tag,
     ids,
     exclude,
+    pageSlug,
   }
 ) {
   const filter = { $and: [] };
@@ -59,20 +60,22 @@ function match(
     filter.queryText = new RegExp(`\\b${unidecode(textFilter)}`, 'i');
   }
 
-  let cityConf;
+  let cityConf = cityConfig[pageSlug];
   // Check preconditions
   if (priceClass) {
-    cityConf = cityConfig.get(country, city);
     if (!cityConf) {
       throw new PreconditionFailedError(
-        'invalid_location',
-        'Invalid country or city argument'
+        'invalid_page_slug',
+        'Invalid pageSlug'
       );
     }
   }
 
   if (country) {
     filter['location.country'] = country;
+  }
+  if (pageSlug) {
+    filter['pageSlug'] = pageSlug;
   }
   if (city) {
     if (!country) {

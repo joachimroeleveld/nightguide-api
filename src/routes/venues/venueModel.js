@@ -126,6 +126,10 @@ const VenueSchema = new Schema(
       },
     ],
     tags: [{ type: String, ref: 'Tag' }],
+    pageSlug: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

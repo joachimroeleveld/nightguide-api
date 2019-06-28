@@ -11,6 +11,7 @@ const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const { VENUE_IMAGE_PERSPECTIVES } = require('../../shared/constants');
 const eventRepository = require('../events/eventRepository');
 const { NotFoundError, InvalidRequestError } = require('../../shared/errors');
+const cityConfig = require('../../shared/cityConfig');
 
 const upload = multer();
 const router = new Router();
@@ -76,6 +77,7 @@ router.get(
         parking: req.query.parking,
         cigarettes: req.query.cigarettes,
         accessible: req.query.accessible,
+        pageSlug: req.query.pageSlug,
       },
       true
     );
@@ -203,7 +205,7 @@ router.put(
       throw new NotFoundError('venue_not_found');
     }
 
-    const cityConf = venueRepository.getCityConfigForVenue(venue);
+    const cityConf = cityConfig[venue.pageSlug];
     const currentEvents = await eventRepository.getEvents({
       venueId: req.params.venueId,
       fields: ['facebook.id'],

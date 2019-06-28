@@ -5,8 +5,6 @@ const nodeRequest = require('request-promise-native');
 const request = require('supertest');
 const sinon = require('sinon');
 const _ = require('lodash');
-const mongoose = require('mongoose');
-mongoose.set('debug', true);
 
 const Event = require('./eventModel');
 const { validator } = require('../../shared/openapi');
@@ -257,6 +255,28 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
       expect(res.body.results[0].id).toBe(event1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('pageSlug filter', async () => {
+      await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        pageSlug: 'nl/utrecht',
+      });
+      await eventRepository.createEvent({
+        ...TEST_EVENT_2,
+        pageSlug: 'es/ibiza',
+      });
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          pageSlug: 'nl/utrecht',
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_EVENT_1.name);
       expect(validateResponse(res)).toBeUndefined();
     });
 

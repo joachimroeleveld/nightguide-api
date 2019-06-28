@@ -2,31 +2,33 @@
 
 exports[`users e2e GET /misc/city-config happy path 1`] = `
 Object {
-  "NL": Object {
-    "Utrecht": Object {
-      "currency": "EUR",
-      "entranceFeeRanges": Array [
+  "es/ibiza": Object {
+    "currency": "EUR",
+    "timezone": "Europe/Amsterdam",
+  },
+  "nl/utrecht": Object {
+    "currency": "EUR",
+    "entranceFeeRanges": Array [
+      0,
+      10,
+      20,
+      40,
+    ],
+    "priceClassRanges": Object {
+      "beer": Array [
         0,
-        10,
-        20,
-        40,
+        2.4,
+        3,
+        3.6,
       ],
-      "priceClassRanges": Object {
-        "beer": Array [
-          0,
-          2.4,
-          3,
-          3.6,
-        ],
-        "coke": Array [
-          0,
-          2.3,
-          2.8,
-          3.3,
-        ],
-      },
-      "timezone": "Europe/Amsterdam",
+      "coke": Array [
+        0,
+        2.3,
+        2.8,
+        3.3,
+      ],
     },
+    "timezone": "Europe/Amsterdam",
   },
 }
 `;

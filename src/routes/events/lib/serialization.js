@@ -1,6 +1,5 @@
 const unidecode = require('unidecode');
 const _ = require('lodash');
-const mongoose = require('mongoose');
 
 const { isPopulated } = require('../../../shared/util/mongooseUtils');
 const { NotFoundError } = require('../../../shared/errors');
@@ -99,6 +98,7 @@ async function serialize(event) {
     if (!venue) {
       throw NotFoundError('venue_not_found');
     }
+    event.pageSlug = venue.pageSlug;
     event.location = {
       type: 'venue',
       ...venue.toObject().location,

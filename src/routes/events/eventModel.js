@@ -64,6 +64,10 @@ const EventSchema = new Schema(
     },
     queryText: String,
     tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
+    pageSlug: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,

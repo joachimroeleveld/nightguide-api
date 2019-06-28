@@ -40,10 +40,7 @@ function deserialize(venue) {
       };
     }
 
-    const cityConf = cityConfig.get(
-      venue.location.country,
-      venue.location.city
-    );
+    const cityConf = cityConfig[venue.pageSlug];
 
     // Set computed fields
     if (venue.capacity) {
@@ -85,8 +82,8 @@ function serialize(data) {
   }
 
   let cityConf;
-  if (data.location && data.location.country && data.location.city) {
-    cityConf = cityConfig.get(data.location.country, data.location.city);
+  if (data.pageSlug) {
+    cityConf = cityConfig[data.pageSlug];
   }
 
   if (data.prices && cityConf) {

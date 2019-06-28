@@ -15,6 +15,7 @@ const TEST_VENUE_1 = Object.freeze({
       coordinates: COORDINATES_UTRECHT,
     },
   },
+  pageSlug: 'nl/utrecht',
 });
 
 const TEST_VENUE_2 = Object.freeze({

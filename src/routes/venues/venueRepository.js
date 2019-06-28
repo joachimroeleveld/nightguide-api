@@ -14,8 +14,6 @@ const {
 } = require('./lib/serialization');
 const { match, sort } = require('./lib/aggregation');
 
-const cityConfig = require('../../shared/cityConfig');
-
 function createVenue(data) {
   return Venue.create(data);
 }
@@ -107,11 +105,9 @@ async function getVenues(opts, withCount = false) {
 
   if (fields) {
     let project = [];
-    if (!fields.includes('location')) {
-      project.push('location.city', 'location.country');
-    }
+    // pageSlug field is required for serialization
+    project.push('pageSlug');
     project = project.concat(fields);
-    // Location fields are required for serialization
     agg.project(_.uniq(project).join(' '));
   }
 
@@ -198,10 +194,6 @@ async function uploadVenueImageByUrl(venueId, image) {
   });
 }
 
-function getCityConfigForVenue(venue) {
-  return cityConfig.get(venue.location.country, venue.location.city);
-}
-
 module.exports = {
   createVenue,
   getVenues,
@@ -214,5 +206,4 @@ module.exports = {
   serialize,
   deserialize,
   deserializeImage,
-  getCityConfigForVenue,
 };

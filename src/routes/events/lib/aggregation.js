@@ -16,6 +16,7 @@ function match(
     exclude,
     tagged,
     tags,
+    pageSlug,
   }
 ) {
   const match = {};
@@ -35,6 +36,9 @@ function match(
   }
   if (tagged) {
     match['tags.0'] = { $exists: true };
+  }
+  if (pageSlug) {
+    match['pageSlug'] = pageSlug;
   }
   if (city) {
     match['location.city'] = city;
