@@ -1571,7 +1571,8 @@ components:
               type: string
             country:
               type: string
-              enum: ['NL']
+              minLength: 2
+              maxLength: 2
             coordinates:
               type: object
               properties:
@@ -1670,6 +1671,11 @@ components:
             oneOf:
               - type: string
               - $ref: '#/components/schemas/VenueImage'
+        admin:
+          type: object
+          properties:
+            hide:
+              type: boolean
     VenueFacilities:
       type: string
       enum:
@@ -1831,7 +1837,8 @@ components:
               type: string
             country:
               type: string
-              enum: ['NL']
+              minLength: 2
+              maxLength: 2
             coordinates:
               type: object
               properties:
@@ -1856,6 +1863,19 @@ components:
               type: string
             description:
               type: string
+        tickets:
+          type: object
+          properties:
+            priceFrom:
+              type: number
+              format: double
+            checkoutUrl:
+              type: string
+        admin:
+          type: object
+          properties:
+            hide:
+              type: boolean
     EventImage:
       allOf:
         - $ref: '#/components/schemas/Image'

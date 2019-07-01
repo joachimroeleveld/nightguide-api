@@ -52,6 +52,7 @@ function match(
     ids,
     exclude,
     pageSlug,
+    showHidden,
   }
 ) {
   const filter = { $and: [] };
@@ -94,6 +95,9 @@ function match(
   }
   if (hasFb) {
     filter['facebook.id'] = { $exists: true };
+  }
+  if (!showHidden) {
+    filter['admin.hide'] = { $ne: true };
   }
   if (musicType) {
     filter.musicTypes = { $in: musicType };

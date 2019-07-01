@@ -78,6 +78,7 @@ router.get(
         cigarettes: req.query.cigarettes,
         accessible: req.query.accessible,
         pageSlug: req.query.pageSlug,
+        showHidden: req.query.showHidden,
       },
       true
     );

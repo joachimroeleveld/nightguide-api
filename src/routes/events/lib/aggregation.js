@@ -17,6 +17,7 @@ function match(
     tagged,
     tags,
     pageSlug,
+    showHidden,
   }
 ) {
   const match = {};
@@ -35,7 +36,7 @@ function match(
     match['tags'] = { $in: tag.map(id => mongoose.Types.ObjectId(id)) };
   }
   if (tagged) {
-    match['tags.0'] = { $exists: true };
+    match['tags.0'] = { $exists: tagged };
   }
   if (pageSlug) {
     match['pageSlug'] = pageSlug;
@@ -51,6 +52,9 @@ function match(
   }
   if (isFbEvent) {
     match['facebook.id'] = { $exists: true };
+  }
+  if (!showHidden) {
+    match['admin.hide'] = { $ne: true };
   }
   if (dateFrom || dateTo) {
     Object.assign(match, matchDateRange(dateFrom, dateTo));

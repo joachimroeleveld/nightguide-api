@@ -22,6 +22,7 @@ const CLIENT_IDS = {
 const COUNTRIES = {
   COUNTRY_NL: 'NL',
   COUNTRY_BE: 'BE',
+  COUNTRY_ES: 'ES',
 };
 
 const VENUE_MUSIC_TYPES = {

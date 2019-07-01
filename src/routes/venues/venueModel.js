@@ -130,6 +130,9 @@ const VenueSchema = new Schema(
       type: String,
       required: true,
     },
+    admin: {
+      hide: Boolean,
+    },
   },
   {
     timestamps: true,

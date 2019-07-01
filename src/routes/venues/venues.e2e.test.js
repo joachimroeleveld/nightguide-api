@@ -285,6 +285,41 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('filters hidden docs by default', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        admin: {
+          hide: true,
+        },
+      });
+      await venueRepository.createVenue(TEST_VENUE_2);
+
+      const res = await request(global.app).get('/venues');
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_VENUE_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('showHidden filter', async () => {
+      await venueRepository.createVenue({
+        ...TEST_VENUE_1,
+        admin: {
+          hide: true,
+        },
+      });
+      await venueRepository.createVenue(TEST_VENUE_2);
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({ showHidden: true });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(2);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('country filter', async () => {
       await venueRepository.createVenue({
         ...TEST_VENUE_1,
@@ -829,6 +864,9 @@ Object {
         facilities: [VENUE_FACILITIES.FACILITY_ACCESSIBLE],
         timeSchedule: TEST_VENUE_TIMESCHEDULE,
         pageSlug: 'nl/utrecht',
+        admin: {
+          hide: true,
+        },
       });
 
       const res = await request(global.app)

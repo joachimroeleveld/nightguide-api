@@ -485,13 +485,22 @@ Object {
 
     it('simple fields', async () => {
       const event1 = await eventRepository.createEvent({
-        ...TEST_EVENT_1,
+        ..._.set(TEST_EVENT_1, 'dates[0].interestedCount', 0),
         description: {
           en: 'Simple description',
         },
         location: {
           ...TEST_EVENT_1.location,
           address2: '1',
+        },
+        pageSlug: 'nl/utrecht',
+        admin: {
+          hide: true,
+        },
+        videoUrl: 'https://www.youtube.com/watch?v=dTYOkcRH220',
+        tickets: {
+          priceFrom: 10,
+          checkoutUrl: 'https://nightguide.app',
         },
       });
 
@@ -544,6 +553,43 @@ Object {
 
       const { organiser, ...body } = res.body;
       expect(body).toMatchSnapshot(EVENT_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('filters hidden docs by default', async () => {
+      await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        admin: {
+          hide: true,
+        },
+      });
+      await eventRepository.createEvent(TEST_EVENT_2);
+
+      const res = await request(global.app).get('/events');
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_EVENT_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('showHidden filter', async () => {
+      await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        admin: {
+          hide: true,
+        },
+      });
+      await eventRepository.createEvent(TEST_EVENT_2);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          showHidden: true,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(2);
       expect(validateResponse(res)).toBeUndefined();
     });
   });

@@ -51,6 +51,7 @@ router.get(
         exclude: req.query.exclude,
         tagged: req.query.tagged,
         pageSlug: req.query.pageSlug,
+        showHidden: req.query.showHidden,
       },
       true
     );
