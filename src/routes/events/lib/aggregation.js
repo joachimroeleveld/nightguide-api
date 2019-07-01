@@ -35,7 +35,7 @@ function match(
   if (tag) {
     match['tags'] = { $in: tag.map(id => mongoose.Types.ObjectId(id)) };
   }
-  if (tagged) {
+  if (tagged !== undefined) {
     match['tags.0'] = { $exists: tagged };
   }
   if (pageSlug) {

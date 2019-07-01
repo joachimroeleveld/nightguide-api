@@ -8,7 +8,6 @@ const { validator, coerce } = require('../../shared/openapi');
 const venueRepository = require('./venueRepository');
 const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
-const { VENUE_IMAGE_PERSPECTIVES } = require('../../shared/constants');
 const eventRepository = require('../events/eventRepository');
 const { NotFoundError, InvalidRequestError } = require('../../shared/errors');
 const cityConfig = require('../../shared/cityConfig');
@@ -156,12 +155,7 @@ router.post(
   '/:venueId/images',
   adminAuth(),
   validator.validate('post', '/venues/{venueId}/images'),
-  upload.fields(
-    VENUE_IMAGE_PERSPECTIVES.map(perspective => ({
-      name: perspective,
-      maxCount: 1,
-    }))
-  ),
+  upload.array('images', 10),
   asyncMiddleware(async (req, res, next) => {
     let venue = await venueRepository.getVenue(req.params.venueId);
 
@@ -171,12 +165,10 @@ router.post(
 
     let promises;
     if (req.files) {
-      promises = Object.keys(req.files).map(perspective => {
-        const file = req.files[perspective].shift();
+      promises = req.files.map((file, index) => {
         return venueRepository.uploadVenueImage(req.params.venueId, {
           buffer: file.buffer,
           mime: file.mimetype,
-          perspective,
         });
       });
     } else {

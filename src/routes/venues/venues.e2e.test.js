@@ -28,7 +28,6 @@ const {
 } = require('../../shared/__test__/testUtils');
 const venueRepository = require('./venueRepository');
 const {
-  VENUE_IMAGE_PERSPECTIVES,
   VENUE_CATEGORIES,
   VENUE_MUSIC_TYPES,
   VENUE_VISITOR_TYPES,
@@ -984,7 +983,7 @@ Object {
 
       const res = await request(global.app)
         .post(`/venues/${venue.id}/images`)
-        .attach(VENUE_IMAGE_PERSPECTIVES[0], IMAGE_FIXTURE_PATH);
+        .attach('images', IMAGE_FIXTURE_PATH);
 
       expect(res.status).toEqual(200);
       expect(res.body.results[0].url).toEqual('testurl');
@@ -1013,7 +1012,6 @@ Object {
           images: [
             {
               url: 'http://testurl.com',
-              perspective: VENUE_IMAGE_PERSPECTIVES[0],
             },
           ],
         });

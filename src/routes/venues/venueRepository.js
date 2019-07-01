@@ -138,7 +138,7 @@ async function deleteVenue(id, opts) {
   return Venue.findByIdAndRemove(id, opts).exec();
 }
 
-async function uploadVenueImage(venueId, { buffer, mime, perspective }) {
+async function uploadVenueImage(venueId, { buffer, mime }) {
   if (!imagesService.SUPPORTED_MIME_TYPES.includes(mime)) {
     throw new InvalidArgumentError('invalid_mime');
   }
@@ -151,7 +151,6 @@ async function uploadVenueImage(venueId, { buffer, mime, perspective }) {
   const image = new VenueImage({
     filesize: buffer.byteLength,
     filetype: mime,
-    perspective,
   });
 
   image.filename = `${image._id}.${mimeTypes.extension(mime)}`;
@@ -179,7 +178,7 @@ async function uploadVenueImage(venueId, { buffer, mime, perspective }) {
 }
 
 async function uploadVenueImageByUrl(venueId, image) {
-  const { url, perspective } = image;
+  const { url } = image;
   const res = await request.get({
     uri: url,
     resolveWithFullResponse: true,
@@ -189,7 +188,6 @@ async function uploadVenueImageByUrl(venueId, image) {
 
   return await uploadVenueImage(venueId, {
     buffer: res.body,
-    perspective,
     mime,
   });
 }

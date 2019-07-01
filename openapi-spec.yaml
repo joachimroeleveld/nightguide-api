@@ -1782,18 +1782,6 @@ components:
     VenueImage:
       allOf:
         - $ref: '#/components/schemas/Image'
-        - type: object
-          properties:
-            perspective:
-              type: string
-              enum: [
-                'front_bar',
-                'front_venue',
-                'front_stage',
-                'from_bar',
-                'from_stage',
-                'atmosphere',
-              ]
     Event:
       type: object
       properties:

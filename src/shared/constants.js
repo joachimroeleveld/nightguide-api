@@ -113,15 +113,6 @@ const VENUE_FACILITIES = {
   FACILITY_TERRACE_HEATERS: 'terrace_heaters',
 };
 
-const VENUE_IMAGE_PERSPECTIVES = [
-  'front_bar',
-  'front_venue',
-  'front_stage',
-  'from_bar',
-  'from_stage',
-  'atmosphere',
-];
-
 const VENUE_CAPACITY_RANGES = [1, 50, 200, 500, 1000, 5000, 10000];
 
 module.exports = {
@@ -138,6 +129,5 @@ module.exports = {
   VENUE_VISITOR_TYPES,
   VENUE_DRESSCODES,
   VENUE_FACILITIES,
-  VENUE_IMAGE_PERSPECTIVES,
   VENUE_CAPACITY_RANGES,
 };

@@ -3,8 +3,6 @@ const Schema = mongoose.Schema;
 const uuidv4 = require('uuid/v4');
 const { deserializeImage } = require('./lib/serialization');
 
-const { VENUE_IMAGE_PERSPECTIVES } = require('../../shared/constants');
-
 const VenueImageSchema = new Schema({
   _id: {
     type: String,
@@ -21,10 +19,6 @@ const VenueImageSchema = new Schema({
   url: {
     type: String,
     required: true,
-  },
-  perspective: {
-    type: String,
-    enum: Object.values(VENUE_IMAGE_PERSPECTIVES),
   },
 });
 
