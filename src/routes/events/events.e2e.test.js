@@ -358,17 +358,8 @@ Object {
           },
         ],
       });
-      const ongoingEvent = generateMongoFixture(TEST_EVENT_1, {
-        dates: [
-          {
-            from: new Date(2017, 1, 1),
-            to: new Date(2050, 1, 2),
-          },
-        ],
-      });
 
       await eventRepository.createEvent(pastEvent);
-      await eventRepository.createEvent(ongoingEvent);
       await eventRepository.createEvent(futureEvent);
 
       const res = await request(global.app)
@@ -378,10 +369,8 @@ Object {
         });
 
       expect(res.status).toEqual(200);
-      expect(res.body.results.length).toBe(2);
-      expect(res.body.results.map(event => event.id).sort()).toEqual(
-        [futureEvent._id, ongoingEvent._id].sort()
-      );
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toBe(futureEvent._id);
       expect(validateResponse(res)).toBeUndefined();
     });
 

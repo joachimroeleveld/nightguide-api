@@ -145,9 +145,6 @@ function matchDateRange(dateFrom, dateTo) {
         {
           'dates.from': { $gte: dateFrom },
         },
-        {
-          'dates.to': { $gte: dateFrom },
-        },
       ],
     });
   }
