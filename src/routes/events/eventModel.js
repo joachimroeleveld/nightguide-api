@@ -85,7 +85,6 @@ const EventSchema = new Schema(
 EventSchema.index({ 'facebook.id': 1 }, { sparse: true, unique: true });
 EventSchema.index({ 'organiser.venue': 1 });
 EventSchema.index({ tags: 1 });
-EventSchema.index({ queryText: 'text' });
 
 EventSchema.method('deserialize', function() {
   return deserialize(this);

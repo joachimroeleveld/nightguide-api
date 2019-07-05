@@ -35,16 +35,21 @@ function deserialize(event) {
     event.organiser.venue = venueRepository.deserialize(event.organiser.venue);
   }
 
+  const serializeDate = date => {
+    if (date.from) {
+      date.from = date.from.toISOString();
+    }
+    if (date.to) {
+      date.to = date.to.toISOString();
+    }
+    return date;
+  };
+
   if (event.dates) {
-    event.dates = event.dates.map(date => {
-      if (date.from) {
-        date.from = date.from.toISOString();
-      }
-      if (date.to) {
-        date.to = date.to.toISOString();
-      }
-      return date;
-    });
+    event.dates = event.dates.map(serializeDate);
+  }
+  if (event.date) {
+    event.date = serializeDate(event.date);
   }
 
   if (event.location && event.location.coordinates) {

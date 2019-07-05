@@ -7,7 +7,7 @@ const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
 const Event = require('./eventModel');
 const EventImage = require('./eventImageModel');
-const { match, sort } = require('./lib/aggregation');
+const { match } = require('./lib/aggregation');
 const {
   serialize,
   deserialize,
@@ -46,11 +46,24 @@ async function getEvents(opts, withCount = false) {
     populate = [],
     ...filters
   } = opts;
-  const agg = match(Event.aggregate(), filters);
+
+  const createAgg = () => {
+    const agg = Event.aggregate();
+    agg.unwind({
+      path: '$dates',
+      includeArrayIndex: 'dateIndex',
+    });
+    agg.addFields({
+      date: '$dates',
+    });
+    return match(agg, filters);
+  };
+
+  const agg = createAgg();
 
   let countAgg;
   if (withCount) {
-    countAgg = match(Event.aggregate(), filters);
+    countAgg = createAgg();
     countAgg.group({
       _id: null,
       totalCount: { $sum: 1 },
@@ -58,7 +71,10 @@ async function getEvents(opts, withCount = false) {
   }
 
   if (sortBy) {
-    sort(agg, sortBy);
+    const sort = _.mapKeys(sortBy, (val, key) =>
+      key.replace('date.', 'dates.')
+    );
+    agg.sort(sort);
   }
 
   if (offset) {
@@ -109,7 +125,7 @@ async function getEvents(opts, withCount = false) {
       project[field] = 1;
     });
   } else {
-    project.nextDate = 0;
+    project.dates = 0;
     project.tagsMatchScore = 0;
   }
 

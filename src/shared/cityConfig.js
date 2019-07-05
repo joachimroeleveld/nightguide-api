@@ -9,7 +9,7 @@ const config = {
     entranceFeeRanges: [0, 10, 20, 40],
   },
   'es/ibiza': {
-    timezone: 'Europe/Amsterdam',
+    timezone: 'Europe/Madrid',
     currency: 'EUR',
   },
 };

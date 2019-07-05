@@ -52,12 +52,10 @@ describe('events e2e', () => {
       expect(res.body.results[0]).toMatchInlineSnapshot(
         `
 Object {
-  "dates": Array [
-    Object {
-      "from": "2019-12-11T11:16:14.157Z",
-      "to": "2019-09-12T11:16:14.157Z",
-    },
-  ],
+  "date": Object {
+    "from": "2019-12-11T11:16:14.157Z",
+    "to": "2019-09-12T11:16:14.157Z",
+  },
   "id": "5cab012f2830a46462316889",
   "location": Object {
     "address1": "Vechtplantsoen 56",

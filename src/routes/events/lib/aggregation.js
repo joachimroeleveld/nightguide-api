@@ -22,9 +22,16 @@ function match(
 ) {
   const match = {};
 
-  // Text filter must be first in aggregration pipeline
-  if (textFilter && textFilter.length >= 2) {
-    match.$text = { $search: unidecode(textFilter) };
+  // Default filters
+  if (!showHidden) {
+    match['admin.hide'] = { $ne: true };
+  }
+  if (tagged !== undefined) {
+    match['tags.0'] = { $exists: tagged };
+  }
+
+  if (textFilter && textFilter.length > 2) {
+    match.queryText = new RegExp(`\\b${unidecode(textFilter)}`, 'i');
   }
   if (ids) {
     match._id = { $in: ids.map(id => mongoose.Types.ObjectId(id)) };
@@ -34,9 +41,6 @@ function match(
   }
   if (tag) {
     match['tags'] = { $in: tag.map(id => mongoose.Types.ObjectId(id)) };
-  }
-  if (tagged !== undefined) {
-    match['tags.0'] = { $exists: tagged };
   }
   if (pageSlug) {
     match['pageSlug'] = pageSlug;
@@ -53,9 +57,6 @@ function match(
   if (isFbEvent) {
     match['facebook.id'] = { $exists: true };
   }
-  if (!showHidden) {
-    match['admin.hide'] = { $ne: true };
-  }
   if (dateFrom || dateTo) {
     Object.assign(match, matchDateRange(dateFrom, dateTo));
   }
@@ -65,22 +66,6 @@ function match(
   }
 
   agg.match(match);
-
-  return agg;
-}
-
-function sort(agg, sortBy) {
-  // Project nextDate field if necessary
-  const nextDateInSort = Object.keys(sortBy).filter(
-    key => key.indexOf('nextDate') === 0
-  ).length;
-  if (nextDateInSort) {
-    agg.addFields({
-      nextDate: getNextDateFieldExpr(new Date()),
-    });
-  }
-
-  agg.sort(sortBy);
 
   return agg;
 }
@@ -158,35 +143,22 @@ function matchDateRange(dateFrom, dateTo) {
       // Check on both fields because `date.to` may not exist
       $or: [
         {
-          dates: {
-            $elemMatch: {
-              from: { $gte: dateFrom },
-            },
-          },
+          'dates.from': { $gte: dateFrom },
         },
         {
-          dates: {
-            $elemMatch: {
-              to: { $gte: dateFrom },
-            },
-          },
+          'dates.to': { $gte: dateFrom },
         },
       ],
     });
   }
   if (dateTo) {
     match.$and.push({
-      dates: {
-        $elemMatch: {
-          from: { $lte: dateTo },
-        },
-      },
+      'dates.from': { $lte: dateTo },
     });
   }
   return match;
 }
 
 module.exports = {
-  sort,
   match,
 };

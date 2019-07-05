@@ -4,7 +4,7 @@ exports[`users e2e GET /misc/city-config happy path 1`] = `
 Object {
   "es/ibiza": Object {
     "currency": "EUR",
-    "timezone": "Europe/Amsterdam",
+    "timezone": "Europe/Madrid",
   },
   "nl/utrecht": Object {
     "currency": "EUR",

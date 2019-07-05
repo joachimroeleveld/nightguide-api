@@ -19,7 +19,7 @@ router.get(
   asyncMiddleware(async (req, res, next) => {
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 20;
-    const fields = req.query.fields || ['title', 'dates', 'location'];
+    const fields = req.query.fields || ['title', 'date', 'location'];
     const populate = req.query.populate || [
       'images',
       'tags',
@@ -27,8 +27,8 @@ router.get(
     ];
 
     const defaultSort = {
-      'nextDate.from': 1,
-      'nextDate.interestedCount': -1,
+      'date.from': 1,
+      'date.interestedCount': -1,
     };
 
     let { results, totalCount } = await eventRepository.getEvents(

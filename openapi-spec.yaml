@@ -1791,20 +1791,12 @@ components:
           type: string
         queryText:
           type: string
+        date:
+          $ref: '#/components/schemas/EventDate'
         dates:
           type: array
           items:
-            type: object
-            properties:
-              from:
-                type: string
-                format: date-time
-              to:
-                type: string
-                format: date-time
-              interestedCount:
-                type: number
-                format: int32
+            $ref: '#/components/schemas/EventDate'
         description:
           $ref: '#/components/schemas/TranslatedObject'
         location:
@@ -1867,6 +1859,18 @@ components:
     EventImage:
       allOf:
         - $ref: '#/components/schemas/Image'
+    EventDate:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        interestedCount:
+          type: number
+          format: int32
     User:
       type: object
       required:

@@ -1,0 +1,295 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`venues e2e GET /venues/:venueId capacity field 1`] = `
+Object {
+  "__v": 0,
+  "capacity": 250,
+  "capacityRange": Array [
+    200,
+    500,
+  ],
+  "categories": Array [],
+  "createdAt": Any<String>,
+  "facilities": Array [],
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+  },
+  "musicTypes": Array [],
+  "name": "Tivoli",
+  "pageSlug": "nl/utrecht",
+  "paymentMethods": Array [],
+  "tags": Array [],
+  "updatedAt": Any<String>,
+  "visitorTypes": Array [],
+}
+`;
+
+exports[`venues e2e GET /venues/:venueId fees field 1`] = `
+Object {
+  "__v": 0,
+  "categories": Array [],
+  "createdAt": Any<String>,
+  "currency": "EUR",
+  "entranceFeeRange": Array [
+    10,
+    20,
+  ],
+  "facilities": Array [],
+  "fees": Object {
+    "coatCheck": 2,
+    "entrance": 11,
+  },
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+  },
+  "musicTypes": Array [],
+  "name": "Tivoli",
+  "pageSlug": "nl/utrecht",
+  "paymentMethods": Array [],
+  "tags": Array [],
+  "updatedAt": Any<String>,
+  "visitorTypes": Array [],
+}
+`;
+
+exports[`venues e2e GET /venues/:venueId happy path 1`] = `
+Object {
+  "__v": 0,
+  "categories": Array [],
+  "createdAt": Any<String>,
+  "facilities": Array [],
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+  },
+  "musicTypes": Array [],
+  "name": "Tivoli",
+  "pageSlug": "nl/utrecht",
+  "paymentMethods": Array [],
+  "tags": Array [],
+  "updatedAt": Any<String>,
+  "visitorTypes": Array [],
+}
+`;
+
+exports[`venues e2e GET /venues/:venueId location fields 1`] = `
+Object {
+  "__v": 0,
+  "categories": Array [],
+  "createdAt": Any<String>,
+  "facilities": Array [],
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "address2": "1",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+  },
+  "musicTypes": Array [],
+  "name": "Tivoli",
+  "pageSlug": "nl/utrecht",
+  "paymentMethods": Array [],
+  "tags": Array [],
+  "updatedAt": Any<String>,
+  "visitorTypes": Array [],
+}
+`;
+
+exports[`venues e2e GET /venues/:venueId prices field 1`] = `
+Object {
+  "__v": 0,
+  "categories": Array [],
+  "createdAt": Any<String>,
+  "facilities": Array [],
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+  },
+  "musicTypes": Array [],
+  "name": "Tivoli",
+  "pageSlug": "nl/utrecht",
+  "paymentMethods": Array [],
+  "prices": Object {
+    "coke": 2,
+  },
+  "tags": Array [],
+  "updatedAt": Any<String>,
+  "visitorTypes": Array [],
+}
+`;
+
+exports[`venues e2e GET /venues/:venueId simple fields 1`] = `
+Object {
+  "__v": 0,
+  "admin": Object {
+    "hide": true,
+  },
+  "categories": Array [
+    "club",
+  ],
+  "createdAt": Any<String>,
+  "description": Object {
+    "en": "Simple description",
+  },
+  "doorPolicy": Object {
+    "description": Object {
+      "en": "Test",
+    },
+    "policy": "moderate",
+  },
+  "dresscode": "alternative",
+  "facebook": Object {
+    "id": "facebookid",
+    "pagesId": "fbpagesid",
+  },
+  "facilities": Array [
+    "accessible",
+  ],
+  "id": Any<String>,
+  "images": Array [],
+  "instagram": Object {
+    "explorePage": "explorepage",
+    "id": "instagramid",
+  },
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+  },
+  "musicTypes": Array [
+    "apres_ski",
+  ],
+  "name": "Tivoli",
+  "pageSlug": "nl/utrecht",
+  "paymentMethods": Array [
+    "cash",
+  ],
+  "phoneNumber": "+31623676279",
+  "tags": Array [],
+  "timeSchedule": Object {
+    "bitesUntil": Object {
+      "fri": null,
+      "mon": null,
+      "sat": null,
+      "sun": null,
+      "thu": null,
+      "tue": 3600,
+      "wed": null,
+    },
+    "busyFrom": Object {
+      "fri": null,
+      "mon": null,
+      "sat": null,
+      "sun": null,
+      "thu": null,
+      "tue": 3600,
+      "wed": null,
+    },
+    "dancingFrom": Object {
+      "fri": null,
+      "mon": null,
+      "sat": null,
+      "sun": null,
+      "thu": null,
+      "tue": 3600,
+      "wed": null,
+    },
+    "drinksFrom": Object {
+      "fri": null,
+      "mon": null,
+      "sat": null,
+      "sun": null,
+      "thu": null,
+      "tue": 3600,
+      "wed": null,
+    },
+    "kitchen": Object {
+      "fri": null,
+      "mon": null,
+      "sat": null,
+      "sun": null,
+      "thu": null,
+      "tue": Object {
+        "from": 0,
+        "to": 3600,
+      },
+      "wed": null,
+    },
+    "open": Object {
+      "fri": null,
+      "mon": null,
+      "sat": null,
+      "sun": null,
+      "thu": null,
+      "tue": Object {
+        "from": 0,
+        "to": 3600,
+      },
+      "wed": null,
+    },
+    "terrace": Object {
+      "fri": null,
+      "mon": null,
+      "sat": null,
+      "sun": null,
+      "thu": null,
+      "tue": Object {
+        "from": 0,
+        "to": 3600,
+      },
+      "wed": null,
+    },
+  },
+  "twitterHandle": "twitterhandle",
+  "updatedAt": Any<String>,
+  "visitorTypes": Array [
+    "lgbtq",
+  ],
+  "website": "http://foo.bar",
+}
+`;
