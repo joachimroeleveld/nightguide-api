@@ -199,12 +199,12 @@ router.put(
     }
 
     const cityConf = cityConfig[venue.pageSlug];
-    const currentEvents = await eventRepository.getEvents({
-      venueId: req.params.venueId,
-      fields: ['facebook.id'],
-      isFbEvent: true,
-      dateFrom: moment().tz(cityConf.timezone),
-    });
+    // const currentEvents = await eventRepository.getEvents({
+    //   venueId: req.params.venueId,
+    //   fields: ['facebook.id'],
+    //   isFbEvent: true,
+    //   dateFrom: moment().tz(cityConf.timezone),
+    // });
 
     for (const event of req.body) {
       const data = await eventRepository.serialize({
@@ -226,15 +226,15 @@ router.put(
       );
     }
 
-    if (currentEvents.length) {
-      const oldEventIds = _.difference(
-        currentEvents.map(event => event.facebook.id),
-        req.body.map(event => event.facebook.id)
-      );
-      await eventRepository.deleteEvents({
-        'facebook.id': { $in: oldEventIds },
-      });
-    }
+    // if (currentEvents.length) {
+    //   const oldEventIds = _.difference(
+    //     currentEvents.map(event => event.facebook.id),
+    //     req.body.map(event => event.facebook.id)
+    //   );
+    //   await eventRepository.deleteEvents({
+    //     'facebook.id': { $in: oldEventIds },
+    //   });
+    // }
 
     res.status(200).end();
   })

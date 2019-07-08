@@ -109,6 +109,42 @@ Object {
 }
 `;
 
+exports[`events e2e GET /events/:fbEventId happy path 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "dates": Array [
+    Object {
+      "from": "2019-12-11T11:16:14.157Z",
+      "to": "2019-09-12T11:16:14.157Z",
+    },
+  ],
+  "facebook": Object {
+    "id": "12345678",
+  },
+  "id": Any<String>,
+  "images": Array [],
+  "location": Object {
+    "address1": "Vechtplantsoen 56",
+    "address2": "1",
+    "city": "Utrecht",
+    "coordinates": Object {
+      "latitude": 52.118273,
+      "longitude": 5.085487,
+    },
+    "country": "NL",
+    "postalCode": "3554TG",
+    "type": "venue",
+  },
+  "organiser": Object {
+    "venue": null,
+  },
+  "pageSlug": "nl/utrecht",
+  "tags": Array [],
+  "updatedAt": Any<String>,
+}
+`;
+
 exports[`events e2e POST /events populates venue location data 1`] = `
 Object {
   "address1": "Vechtplantsoen 56",

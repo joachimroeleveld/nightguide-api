@@ -1154,6 +1154,32 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /events/facebook-events/{fbEventId}:
+    get:
+      summary: Get a Facebook event.
+      operationId: getFacebookEvent
+      tags:
+        - events
+      parameters:
+        - in: path
+          name: fbEventId
+          schema:
+            type: string
+          required: true
+          description: Facebook event ID.
+      responses:
+        '200':
+          description: Event data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /events/facebook-events/{fbEventId}/image:
     put:
       summary: Update an event's Facebook image

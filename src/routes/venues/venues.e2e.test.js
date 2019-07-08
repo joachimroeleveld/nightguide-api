@@ -1060,26 +1060,26 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('deletes old future events', async () => {
-      const event2Data = eventRepository.deserialize(
-        _({ ...TEST_FACEBOOK_EVENT_2 })
-          .set('organiser.venue', venue1._id.toString())
-          .set('facebook.id', 'bar')
-          .value()
-      );
-      const res = await request(global.app)
-        .put(`/venues/${venue1._id}/facebook-events`)
-        .send([event2Data]);
-
-      const venueEvents = await eventRepository.getEvents({
-        venueId: venue1._id,
-      });
-
-      expect(res.status).toEqual(200);
-      expect(venueEvents.length).toEqual(1);
-      expect(venueEvents[0].facebook.id).toEqual('bar');
-      expect(validateResponse(res)).toBeUndefined();
-    });
+    // it('deletes old future events', async () => {
+    //   const event2Data = eventRepository.deserialize(
+    //     _({ ...TEST_FACEBOOK_EVENT_2 })
+    //       .set('organiser.venue', venue1._id.toString())
+    //       .set('facebook.id', 'bar')
+    //       .value()
+    //   );
+    //   const res = await request(global.app)
+    //     .put(`/venues/${venue1._id}/facebook-events`)
+    //     .send([event2Data]);
+    //
+    //   const venueEvents = await eventRepository.getEvents({
+    //     venueId: venue1._id,
+    //   });
+    //
+    //   expect(res.status).toEqual(200);
+    //   expect(venueEvents.length).toEqual(1);
+    //   expect(venueEvents[0].facebook.id).toEqual('bar');
+    //   expect(validateResponse(res)).toBeUndefined();
+    // });
 
     it('does not delete past events', async () => {
       await eventRepository.createEvent({

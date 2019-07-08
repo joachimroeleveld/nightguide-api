@@ -732,6 +732,26 @@ Object {
     });
   });
 
+  describe('GET /events/:fbEventId', () => {
+    const validateResponse = validator.validateResponse(
+      'get',
+      '/events/facebook-events/{fbEventId}'
+    );
+
+    it('happy path', async () => {
+      const event1 = await eventRepository.createEvent(TEST_FACEBOOK_EVENT_1);
+
+      const res = await request(global.app)
+        .get(`/events/facebook-events/${event1.facebook.id}`)
+        .send()
+        .expect(200);
+
+      expect(res.body).toMatchSnapshot(EVENT_SNAPSHOT_MATCHER);
+      expect(res.body.facebook.id).toEqual(TEST_FACEBOOK_EVENT_1.facebook.id);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
   describe('PUT /events/facebook-events/:fbEventId/image', () => {
     const validateResponse = validator.validateResponse(
       'put',

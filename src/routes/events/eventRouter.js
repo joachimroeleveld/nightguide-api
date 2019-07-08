@@ -27,8 +27,9 @@ router.get(
     ];
 
     const defaultSort = {
-      'date.from': 1,
       'date.interestedCount': -1,
+      'date.from': 1,
+      _id: 1,
     };
 
     let { results, totalCount } = await eventRepository.getEvents(
@@ -170,6 +171,21 @@ router.delete(
     );
 
     res.json({ success: true });
+  })
+);
+
+router.get(
+  '/facebook-events/:fbEventId',
+  validator.validate('get', '/events/facebook-events/{fbEventId}'),
+  asyncMiddleware(async (req, res, next) => {
+    const event = await eventRepository.getEventByFbId(req.params.fbEventId);
+    if (!event) {
+      throw new NotFoundError('event_not_found');
+    }
+
+    // Forward to GET /event/:eventId
+    req.url = `/${event._id.toString()}`;
+    return router.handle(req, res, next);
   })
 );
 
