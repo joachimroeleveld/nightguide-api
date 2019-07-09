@@ -5,4 +5,5 @@ module.exports = {
   health: require('./healthRouter'),
   misc: require('./misc/miscRouter'),
   tags: require('./tags/tagRouter'),
+  artists: require('./artists/artistRouter'),
 };

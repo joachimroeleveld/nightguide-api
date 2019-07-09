@@ -13,6 +13,7 @@ module.exports = {
   ...require('./venueFixtures'),
   ...require('./eventFixtures'),
   ...require('./locationFixtures'),
+  ...require('./artistFixtures'),
   ...require('./tagFixtures'),
   generateMongoFixture,
 };

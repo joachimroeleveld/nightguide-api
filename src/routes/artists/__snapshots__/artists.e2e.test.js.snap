@@ -1,0 +1,21 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`artists e2e GET /artists/:artistId happy path 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": "Avicii",
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`artists e2e GET /artists/:artistId simple fields 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": "Foo",
+  "updatedAt": Any<String>,
+}
+`;

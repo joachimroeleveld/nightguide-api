@@ -840,7 +840,7 @@ paths:
             maxLength: 255
           description: Search query
         - in: query
-          name: venueId
+          name: venue
           schema:
             type: string
         - in: query
@@ -1426,6 +1426,144 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /artists:
+    get:
+      operationId: getArtists
+      tags: [artists]
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Result artists.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Artist'
+                  totalCount:
+                    type: integer
+                    format: int32
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      summary: Create an artist.
+      operationId: createArtist
+      tags:
+        - artists
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Artist'
+      responses:
+        '201':
+          description: Artist created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artist'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /artists/{artistId}:
+    get:
+      summary: Get an artist.
+      operationId: getArtist
+      tags:
+        - artists
+      parameters:
+        - in: path
+          name: artistId
+          schema:
+            type: string
+          required: true
+          description: Artist ID.
+      responses:
+        '200':
+          description: Artist data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artist'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      summary: Update an artist.
+      operationId: updateArtist
+      tags:
+        - artists
+      parameters:
+        - in: path
+          name: artistId
+          schema:
+            type: string
+          required: true
+          description: Artist ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Artist'
+      responses:
+        '200':
+          description: Artist updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artist'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete an artist.
+      operationId: deleteArtist
+      tags:
+        - artists
+      parameters:
+        - in: path
+          name: artistId
+          schema:
+            type: string
+          required: true
+          description: Artist ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
 components:
   parameters:
@@ -1529,12 +1667,20 @@ components:
             required:
               - success
   schemas:
+    Artist:
+      properties:
+        id:
+          type: string
+        name:
+          type: string
     Tag:
       properties:
         id:
           type: string
-        imageUrl:
+        slug:
           type: string
+        name:
+          $ref: '#/components/schemas/TranslatedObject'
     Image:
       required:
         - id
