@@ -17,11 +17,13 @@ const {
   generateMongoFixture,
   TEST_FACEBOOK_EVENT_1,
   TEST_VENUE_1,
+  TEST_ARTIST_1,
 } = require('../../shared/__test__/fixtures');
 const { resetDb } = require('../../shared/__test__/testUtils');
 const eventRepository = require('./eventRepository');
 const venueRepository = require('../venues/venueRepository');
 const tagRepository = require('../tags/tagRepository');
+const artistRepository = require('../artists/artistRepository');
 const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 const EventImage = require('../events/eventImageModel');
 
@@ -513,6 +515,22 @@ Object {
         .expect(200);
 
       expect(res.body.tags[0].id).toEqual(tag1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('artists fields', async () => {
+      const artist1 = await artistRepository.createArtist(TEST_ARTIST_1);
+      const event1 = await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        artists: [artist1._id.toString()],
+      });
+
+      const res = await request(global.app)
+        .get(`/events/${event1._id}`)
+        .send()
+        .expect(200);
+
+      expect(res.body.artists[0].id).toEqual(artist1._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 

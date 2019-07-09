@@ -86,6 +86,7 @@ router.get(
     const populate = req.query.populate || [
       'images',
       'tags',
+      'artists',
       'organiser.venue',
     ];
 

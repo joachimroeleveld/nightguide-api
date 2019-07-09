@@ -65,6 +65,7 @@ const EventSchema = new Schema(
     },
     queryText: String,
     tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
+    artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
     pageSlug: {
       type: String,
       required: true,

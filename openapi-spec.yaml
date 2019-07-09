@@ -1567,63 +1567,6 @@ paths:
 
 components:
   parameters:
-    VenueFilter:
-      in: query
-      name: filter
-      schema:
-        type: object
-        required:
-          - city
-          - country
-        properties:
-          city:
-            type: string
-          country:
-            type: string
-          phone:
-            type: string
-          cat:
-            $ref: '#/components/schemas/VenueCategories'
-          priceClass:
-            type: string
-          musicType:
-            $ref: '#/components/schemas/VenueMusicTypes'
-          visitorType:
-            $ref: '#/components/schemas/VenueVisitorTypes'
-          dresscode:
-            $ref: '#/components/schemas/VenueDresscodes'
-          paymentMethod:
-            $ref: '#/components/schemas/VenuePaymentMethods'
-          doorPolicy:
-            $ref: '#/components/schemas/VenueDoorPolicies'
-          capRange:
-            type: string
-          bouncers:
-            type: boolean
-          noBouncers:
-            type: boolean
-          parking:
-            type: boolean
-          accessible:
-            type: boolean
-          vip:
-            type: boolean
-          noEntranceFee:
-            type: boolean
-          kitchen:
-            type: boolean
-          coatCheck:
-            type: boolean
-          noCoatCheckFee:
-            type: boolean
-          smoking:
-            type: boolean
-          cigarettes:
-            type: boolean
-          terrace:
-            type: boolean
-          heatedTerrace:
-            type: boolean
   responses:
     ServerError:
       description: Internal server error
@@ -1843,6 +1786,18 @@ components:
             oneOf:
               - type: string
               - $ref: '#/components/schemas/VenueImage'
+        artists:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - $ref: '#/components/schemas/Artist'
+        tags:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - $ref: '#/components/schemas/Tag'
         admin:
           type: object
           properties:

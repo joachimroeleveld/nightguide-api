@@ -5,6 +5,7 @@ const { isPopulated } = require('../../../shared/util/mongooseUtils');
 const { NotFoundError } = require('../../../shared/errors');
 const venueRepository = require('../../venues/venueRepository');
 const { deserializeTag } = require('../../tags/tagRepository');
+const artistRepository = require('../../artists/artistRepository');
 
 /**
  * Prepare event object to be sent to client.
@@ -26,6 +27,9 @@ function deserialize(event) {
   }
   if (isPopulated(event.tags)) {
     event.tags = event.tags.map(deserializeTag);
+  }
+  if (isPopulated(event.artists)) {
+    event.artists = event.artists.map(artistRepository.deserialize);
   }
   if (
     event.organiser &&
