@@ -118,7 +118,7 @@ UserSchema.method('sendPasswordResetEmail', async function() {
     throw new Error('no_reset_token');
   }
 
-  const resetUrl = `${config.get('HOST')}/users/${
+  const resetUrl = `${config.get('URL')}/users/${
     user._id
   }/reset-password?token=${user.passwordResetToken}`;
 
@@ -141,7 +141,7 @@ UserSchema.method('sendVerificationEmail', async function() {
     throw new Error('no_verification_token');
   }
 
-  const verifyUrl = `${config.get('HOST')}/users/${
+  const verifyUrl = `${config.get('URL')}/users/${
     user._id
   }/verify-account?token=${user.verificationToken}`;
 

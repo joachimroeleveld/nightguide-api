@@ -114,7 +114,7 @@ router.get(
     } catch (e) {
       if (e instanceof TokenExpiredError) {
         renderArgs.problem = e.type;
-        renderArgs.resendTokenUrl = `${config.get('HOST')}/users/${
+        renderArgs.resendTokenUrl = `${config.get('URL')}/users/${
           req.params.userId
         }/resend-verification-token?token=${req.query.token}`;
       } else if (
@@ -162,7 +162,7 @@ router.get(
     }
 
     const renderArgs = {
-      resetUrl: `${config.get('HOST')}/users/${user._id}/reset-password?token=${
+      resetUrl: `${config.get('URL')}/users/${user._id}/reset-password?token=${
         user.passwordResetToken
       }`,
       staticUrl: config.get('STATIC_URL'),
