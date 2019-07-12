@@ -43,7 +43,6 @@ const EventSchema = new Schema(
     },
     dates: [
       {
-        _id: false,
         from: {
           type: Date,
           required: true,
@@ -52,6 +51,7 @@ const EventSchema = new Schema(
           type: Date,
         },
         interestedCount: Number,
+        artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
       },
     ],
     repeat: {}, // TODO

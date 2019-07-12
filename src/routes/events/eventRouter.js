@@ -88,6 +88,7 @@ router.get(
       'tags',
       'artists',
       'organiser.venue',
+      'dates.artists',
     ];
 
     const event = await eventRepository.getEvent(req.params.eventId, {

@@ -40,11 +40,18 @@ function deserialize(event) {
   }
 
   const serializeDate = date => {
+    if (date._id) {
+      date.id = date._id;
+      delete date._id;
+    }
     if (date.from) {
       date.from = date.from.toISOString();
     }
     if (date.to) {
       date.to = date.to.toISOString();
+    }
+    if (isPopulated(date.artists)) {
+      date.artists = date.artists.map(artistRepository.deserialize);
     }
     return date;
   };

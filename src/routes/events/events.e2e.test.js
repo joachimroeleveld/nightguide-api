@@ -131,18 +131,18 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    it('return a totalCount with each result', async () => {
-      await eventRepository.createEvent(TEST_EVENT_1);
-      await eventRepository.createEvent(TEST_EVENT_2);
+    it('return a totalcount with each result', async () => {
+      await eventrepository.createevent(test_event_1);
+      await eventrepository.createevent(test_event_2);
 
       const res = await request(global.app)
         .get('/events')
         .query({ limit: 1 });
 
-      expect(res.status).toEqual(200);
-      expect(res.body.results.length).toBe(1);
-      expect(res.body.totalCount).toBe(2);
-      expect(validateResponse(res)).toBeUndefined();
+      expect(res.status).toequal(200);
+      expect(res.body.results.length).tobe(1);
+      expect(res.body.totalcount).tobe(2);
+      expect(validateresponse(res)).tobeundefined();
     });
 
     it('should handle special characters in search queries', async () => {
@@ -522,6 +522,7 @@ Object {
       const artist1 = await artistRepository.createArtist(TEST_ARTIST_1);
       const event1 = await eventRepository.createEvent({
         ...TEST_EVENT_1,
+        dates: [_.set(TEST_EVENT_1.dates[0], 'artists', [artist1])],
         artists: [artist1._id.toString()],
       });
 
@@ -531,6 +532,7 @@ Object {
         .expect(200);
 
       expect(res.body.artists[0].id).toEqual(artist1._id.toString());
+      expect(res.body.dates[0].artists[0].id).toEqual(artist1._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 
