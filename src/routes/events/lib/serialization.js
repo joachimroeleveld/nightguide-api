@@ -85,6 +85,13 @@ async function serialize(event) {
     delete event.id;
   }
 
+  if (event.dates) {
+    event.dates = event.dates.map(({ id, ...date }) => ({
+      _id: id,
+      ...date,
+    }));
+  }
+
   if (!event.queryText) {
     event.queryText = unidecode(
       event.title || _.get(event, 'facebook.title') || ''

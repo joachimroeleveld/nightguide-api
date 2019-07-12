@@ -6,6 +6,7 @@ const nodeRequest = require('request-promise-native');
 const request = require('supertest');
 const sinon = require('sinon');
 const _ = require('lodash');
+const update = require('immutability-helper');
 
 const { validator } = require('../../shared/openapi');
 const imagesService = require('../../shared/services/images');
@@ -17,7 +18,6 @@ const {
   TEST_VENUE_3,
   TEST_VENUE_TIMESCHEDULE,
   TEST_FACEBOOK_EVENT_1,
-  TEST_FACEBOOK_EVENT_2,
   COORDINATES_THE_HAGUE,
   COORDINATES_WOERDEN,
   COORDINATES_UTRECHT,
@@ -1036,11 +1036,9 @@ Object {
 
     beforeEach(async () => {
       venue1 = await venueRepository.createVenue(TEST_VENUE_1);
-      event1 = _.set(
-        { ...TEST_FACEBOOK_EVENT_1 },
-        'organiser.venue',
-        venue1._id.toString()
-      );
+      event1 = update(TEST_FACEBOOK_EVENT_1, {
+        organiser: { venue: { $set: venue1._id.toString() } },
+      });
     });
 
     it('adds new events', async () => {

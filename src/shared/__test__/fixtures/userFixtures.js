@@ -1,6 +1,7 @@
+const { deepFreeze } = require('../../util/objects');
 const { USER_GENDER_TYPES } = require('../../constants');
 
-const TEST_USER_1 = Object.freeze({
+const TEST_USER_1 = deepFreeze({
   _id: '5c001cac8e84e1067f34695c',
   email: 'alice@rogers.nl',
   password: 'test-password',
@@ -10,7 +11,7 @@ const TEST_USER_1 = Object.freeze({
   gender: USER_GENDER_TYPES.GENDER_FEMALE,
 });
 
-const TEST_USER_2 = Object.freeze({
+const TEST_USER_2 = deepFreeze({
   _id: '5c0261a0801b80bed2f047dd',
   email: 'bart@holister.nl',
   password: 'foobar',
@@ -20,7 +21,7 @@ const TEST_USER_2 = Object.freeze({
   gender: USER_GENDER_TYPES.GENDER_MALE,
 });
 
-const TEST_USER_FACEBOOK_1 = Object.freeze({
+const TEST_USER_FACEBOOK_1 = deepFreeze({
   _id: '5c25359626569c001187a14b',
   email: 'facebook@roy.com',
   facebook: {

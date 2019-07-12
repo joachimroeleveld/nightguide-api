@@ -5,6 +5,7 @@ const nodeRequest = require('request-promise-native');
 const request = require('supertest');
 const sinon = require('sinon');
 const _ = require('lodash');
+const update = require('immutability-helper');
 
 const Event = require('./eventModel');
 const { validator } = require('../../shared/openapi');
@@ -55,7 +56,9 @@ describe('events e2e', () => {
         `
 Object {
   "date": Object {
+    "artists": Array [],
     "from": "2019-12-11T11:16:14.157Z",
+    "id": "5d2861d4314defa5a500e11c",
     "to": "2019-09-12T11:16:14.157Z",
   },
   "id": "5cab012f2830a46462316889",
@@ -132,17 +135,17 @@ Object {
     });
 
     it('return a totalcount with each result', async () => {
-      await eventrepository.createevent(test_event_1);
-      await eventrepository.createevent(test_event_2);
+      await eventRepository.createEvent(TEST_EVENT_1);
+      await eventRepository.createEvent(TEST_EVENT_2);
 
       const res = await request(global.app)
         .get('/events')
         .query({ limit: 1 });
 
-      expect(res.status).toequal(200);
-      expect(res.body.results.length).tobe(1);
-      expect(res.body.totalcount).tobe(2);
-      expect(validateresponse(res)).tobeundefined();
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.totalCount).toBe(2);
+      expect(validateResponse(res)).toBeUndefined();
     });
 
     it('should handle special characters in search queries', async () => {
@@ -437,11 +440,9 @@ Object {
 
     it('populates venue location data', async () => {
       const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
-      const eventData = _.set(
-        { ...TEST_FACEBOOK_EVENT_1 },
-        'organiser.venue',
-        venue1._id.toString()
-      );
+      const eventData = update(TEST_FACEBOOK_EVENT_1, {
+        organiser: { venue: { $set: venue1._id.toString() } },
+      });
       const res = await request(global.app)
         .post('/events')
         .send(eventRepository.deserialize(eventData));
@@ -520,11 +521,12 @@ Object {
 
     it('artists fields', async () => {
       const artist1 = await artistRepository.createArtist(TEST_ARTIST_1);
-      const event1 = await eventRepository.createEvent({
-        ...TEST_EVENT_1,
-        dates: [_.set(TEST_EVENT_1.dates[0], 'artists', [artist1])],
-        artists: [artist1._id.toString()],
-      });
+      const event1 = await eventRepository.createEvent(
+        update(TEST_EVENT_1, {
+          dates: { 0: { artists: { $set: artist1._id.toString() } } },
+          artists: { $set: [artist1._id.toString()] },
+        })
+      );
 
       const res = await request(global.app)
         .get(`/events/${event1._id}`)

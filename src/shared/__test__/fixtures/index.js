@@ -1,7 +1,9 @@
 const mongoose = require('mongoose');
 
+const { deepFreeze } = require('../../util/objects');
+
 function generateMongoFixture(base, overrides) {
-  return Object.freeze({
+  return deepFreeze({
     ...base,
     _id: new mongoose.Types.ObjectId().toString(),
     ...overrides,
