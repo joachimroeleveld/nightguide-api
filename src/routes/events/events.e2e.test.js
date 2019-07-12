@@ -90,6 +90,7 @@ Object {
         .get('/events')
         .query({
           limit: 1,
+          sortBy: 'id:asc',
         });
 
       expect(res.status).toEqual(200);
@@ -326,7 +327,7 @@ Object {
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(2);
-      expect(res.body.results.map(item => item.id)).toEqual(ids);
+      expect(res.body.results.map(item => item.id).sort()).toEqual(ids.sort());
       expect(validateResponse(res)).toBeUndefined();
     });
 

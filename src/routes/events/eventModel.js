@@ -62,6 +62,7 @@ const EventSchema = new Schema(
       id: String,
       title: String,
       description: String,
+      datesChanged: Boolean,
     },
     queryText: String,
     tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],

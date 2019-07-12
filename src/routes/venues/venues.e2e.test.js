@@ -18,6 +18,7 @@ const {
   TEST_VENUE_3,
   TEST_VENUE_TIMESCHEDULE,
   TEST_FACEBOOK_EVENT_1,
+  TEST_FACEBOOK_EVENT_2,
   COORDINATES_THE_HAGUE,
   COORDINATES_WOERDEN,
   COORDINATES_UTRECHT,
@@ -844,6 +845,7 @@ Object {
         facebook: {
           id: 'facebookid',
           pagesId: 'fbpagesid',
+          datesChanged: true,
         },
         instagram: {
           id: 'instagramid',
@@ -1058,41 +1060,38 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
-    // it('deletes old future events', async () => {
-    //   const event2Data = eventRepository.deserialize(
-    //     _({ ...TEST_FACEBOOK_EVENT_2 })
-    //       .set('organiser.venue', venue1._id.toString())
-    //       .set('facebook.id', 'bar')
-    //       .value()
-    //   );
-    //   const res = await request(global.app)
-    //     .put(`/venues/${venue1._id}/facebook-events`)
-    //     .send([event2Data]);
-    //
-    //   const venueEvents = await eventRepository.getEvents({
-    //     venueId: venue1._id,
-    //   });
-    //
-    //   expect(res.status).toEqual(200);
-    //   expect(venueEvents.length).toEqual(1);
-    //   expect(venueEvents[0].facebook.id).toEqual('bar');
-    //   expect(validateResponse(res)).toBeUndefined();
-    // });
-
-    it('does not delete past events', async () => {
-      await eventRepository.createEvent({
-        ...event1,
-        dates: [
-          {
-            from: new Date(2018, 1, 1),
-            to: new Date(2018, 1, 2),
-          },
-        ],
-      });
+    it('adds new dates', async () => {
+      await eventRepository.createEvent(event1);
 
       const res = await request(global.app)
         .put(`/venues/${venue1._id}/facebook-events`)
-        .send([]);
+        .send([
+          eventRepository.deserialize({
+            ...event1,
+            dates: TEST_FACEBOOK_EVENT_2.dates,
+          }),
+        ]);
+
+      const venueEvents = await eventRepository.getEvents({
+        venueId: venue1._id,
+      });
+
+      expect(res.status).toEqual(200);
+      expect(venueEvents.length).toEqual(2);
+      expect(venueEvents[0].facebook.datesChanged).toEqual(true);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('updates existing dates', async () => {
+      await eventRepository.createEvent(event1);
+
+      const res = await request(global.app)
+        .put(`/venues/${venue1._id}/facebook-events`)
+        .send([
+          eventRepository.deserialize(
+            update(event1, { dates: { 0: { interestedCount: { $set: 999 } } } })
+          ),
+        ]);
 
       const venueEvents = await eventRepository.getEvents({
         venueId: venue1._id,
@@ -1100,7 +1099,8 @@ Object {
 
       expect(res.status).toEqual(200);
       expect(venueEvents.length).toEqual(1);
-      expect(venueEvents[0]._id.toString()).toEqual(TEST_FACEBOOK_EVENT_1._id);
+      expect(venueEvents[0].facebook.datesChanged).toBeUndefined();
+      expect(venueEvents[0].date.interestedCount).toEqual(999);
       expect(validateResponse(res)).toBeUndefined();
     });
 

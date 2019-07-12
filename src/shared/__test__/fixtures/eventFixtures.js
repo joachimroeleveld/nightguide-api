@@ -29,6 +29,13 @@ const TEST_EVENT_1 = deepFreeze({
 const TEST_EVENT_2 = deepFreeze({
   ...TEST_EVENT_1,
   _id: '5cab1b4c56e3d06b5f732676',
+  dates: [
+    {
+      _id: '5d19f6824697baeac21cbed2',
+      from: new Date('2017-12-11T11:16:14.157Z'),
+      to: new Date('2017-09-12T11:16:14.157Z'),
+    },
+  ],
   title: 'Bingo',
 });
 
@@ -36,7 +43,7 @@ const TEST_FACEBOOK_EVENT_1 = deepFreeze({
   _id: '5d2862c69c9f05a5fc25b3c7',
   dates: [
     {
-      _id: '5d2861d4314defa5a500e11c',
+      _id: '5d19f6824697baeac21cbee1',
       from: new Date('2019-12-11T11:16:14.157Z'),
       to: new Date('2019-09-12T11:16:14.157Z'),
     },
@@ -65,6 +72,13 @@ const TEST_FACEBOOK_EVENT_1 = deepFreeze({
 const TEST_FACEBOOK_EVENT_2 = deepFreeze({
   ...TEST_FACEBOOK_EVENT_1,
   _id: '5cab012f2830a46462316881',
+  dates: [
+    {
+      _id: '5d19f08392e71d392c5ddba1',
+      from: new Date('2017-12-11T11:16:14.157Z'),
+      to: new Date('2017-09-12T11:16:14.157Z'),
+    },
+  ],
   facebook: {
     ...TEST_FACEBOOK_EVENT_1.facebook,
     id: 'abcdefgh',

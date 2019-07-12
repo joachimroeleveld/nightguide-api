@@ -198,17 +198,49 @@ router.put(
       throw new NotFoundError('venue_not_found');
     }
 
-    const cityConf = cityConfig[venue.pageSlug];
-    // const currentEvents = await eventRepository.getEvents({
-    //   venueId: req.params.venueId,
-    //   fields: ['facebook.id'],
-    //   isFbEvent: true,
-    //   dateFrom: moment().tz(cityConf.timezone),
-    // });
-
     for (const event of req.body) {
+      const existingEvent = await eventRepository.getEventByFbId(
+        event.facebook.id,
+        {
+          fields: ['dates'],
+        }
+      );
+
+      let dates = event.dates;
+      let datesChanged = false;
+      if (existingEvent) {
+        const datesEqual = (a, b) =>
+          new Date(a.from).getTime() === new Date(b.from).getTime();
+
+        // Get dates not in update
+        const existingDatesNotInUpdate = existingEvent.dates
+          .map(date => date.toObject())
+          .filter(
+            existingDate =>
+              !_.find(dates, date => datesEqual(date, existingDate))
+          );
+        datesChanged = _.find(
+          dates,
+          date =>
+            !_.find(existingEvent.dates, existingDate =>
+              datesEqual(existingDate, date)
+            )
+        );
+        // Sort old and new dates
+        dates = existingDatesNotInUpdate.concat(dates).sort((a, b) => {
+          const dateA = new Date(a.from);
+          const dateB = new Date(b.from);
+          return dateA - dateB;
+        });
+      }
+
+      if (datesChanged) {
+        event.facebook.datesChanged = true;
+      }
+
       const data = await eventRepository.serialize({
         ...event,
+        dates,
         location: {
           type: 'venue',
         },
@@ -216,25 +248,12 @@ router.put(
           venue: req.params.venueId,
         },
       });
-      if (!_.get(data, 'facebook.id')) {
-        throw new InvalidRequestError('missing_facebook_id');
-      }
       await eventRepository.updateEvent(
         { 'facebook.id': data.facebook.id },
         data,
         { upsert: true }
       );
     }
-
-    // if (currentEvents.length) {
-    //   const oldEventIds = _.difference(
-    //     currentEvents.map(event => event.facebook.id),
-    //     req.body.map(event => event.facebook.id)
-    //   );
-    //   await eventRepository.deleteEvents({
-    //     'facebook.id': { $in: oldEventIds },
-    //   });
-    // }
 
     res.status(200).end();
   })

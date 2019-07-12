@@ -812,7 +812,11 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Event'
+                allOf:
+                  - $ref: '#/components/schemas/Event'
+                required:
+                  - facebook
+                  - dates
       responses:
         '200':
           description: Events updated.
