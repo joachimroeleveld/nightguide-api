@@ -19,7 +19,7 @@ const routes = require('./routes');
 const { createExpressApp } = require('./framework/expressServer');
 
 const PORT = config.get('PORT') || 8080;
-const HOST = config.get('HOST') || 'localhost';
+const HOST = config.get('HOST') || undefined;
 
 async function startServer() {
   const app = createExpressApp();
