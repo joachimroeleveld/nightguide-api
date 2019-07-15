@@ -14,7 +14,7 @@ async function getArtists(opts = {}) {
     where._id = { $in: ids };
   }
 
-  query.where(where);
+  query.where(where).sort({ name: 1 });
 
   return await query.exec();
 }
