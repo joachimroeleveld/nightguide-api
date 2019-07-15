@@ -69,6 +69,25 @@ Object {
       expect(res.body.results.map(item => item.id).sort()).toEqual(ids);
       expect(validateResponse(res)).toBeUndefined();
     });
+
+    it('query filter', async () => {
+      const artist1 = await artistRepository.createArtist({
+        ...TEST_ARTIST_1,
+        name: 'Test',
+      });
+      await artistRepository.createArtist(TEST_ARTIST_2);
+
+      const res = await request(global.app)
+        .get('/artists')
+        .query({
+          query: 'Test',
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toEqual(artist1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
   });
 
   describe('GET /artists/:artistId', () => {

@@ -4,7 +4,7 @@ const { NotFoundError } = require('../../shared/errors');
 const { serialize, deserialize } = require('./lib/serialization');
 
 async function getArtists(opts = {}) {
-  const { ids } = opts;
+  const { ids, query: textFilter } = opts;
 
   const query = Artist.find();
 
@@ -12,6 +12,9 @@ async function getArtists(opts = {}) {
 
   if (ids) {
     where._id = { $in: ids };
+  }
+  if (textFilter && textFilter.length >= 2) {
+    where.name = new RegExp(`\\b${textFilter}`, 'i');
   }
 
   query.where(where).sort({ name: 1 });

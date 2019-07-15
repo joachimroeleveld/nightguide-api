@@ -13,6 +13,7 @@ router.get(
   validator.validate('get', '/artists'),
   asyncMiddleware(async (req, res, next) => {
     let artists = await artistRepository.getArtists({
+      query: req.query.query,
       ids: req.query.ids,
     });
 
