@@ -119,6 +119,23 @@ Object {
       expect(body.id).toEqual(TEST_ARTIST_1._id);
       expect(validateResponse(res)).toBeUndefined();
     });
+
+    it('does not allow creating docs with the same name', async () => {
+      await artistRepository.createArtist({
+        ...TEST_ARTIST_1,
+        name: 'Foo',
+      });
+
+      const res = await request(global.app)
+        .post('/artists')
+        .send({
+          ...artistRepository.deserialize(TEST_ARTIST_2),
+          name: 'Foo',
+        });
+
+      expect(res.status).toEqual(500);
+      expect(validateResponse(res)).toBeUndefined();
+    });
   });
 
   describe('PUT /artists', () => {

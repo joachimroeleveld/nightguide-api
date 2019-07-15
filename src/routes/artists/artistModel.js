@@ -15,6 +15,14 @@ const ArtistSchema = new Schema(
   }
 );
 
+ArtistSchema.index(
+  { name: 1 },
+  {
+    unique: true,
+    collation: { locale: 'en', strength: 1 },
+  }
+);
+
 ArtistSchema.method('deserialize', function() {
   return deserialize(this);
 });
