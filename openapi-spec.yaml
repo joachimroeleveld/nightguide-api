@@ -1570,7 +1570,6 @@ paths:
           $ref: '#/components/responses/ServerError'
 
 components:
-  parameters:
   responses:
     ServerError:
       description: Internal server error
@@ -1790,12 +1789,6 @@ components:
             oneOf:
               - type: string
               - $ref: '#/components/schemas/VenueImage'
-        artists:
-          type: array
-          items:
-            oneOf:
-              - type: string
-              - $ref: '#/components/schemas/Artist'
         tags:
           type: array
           items:
@@ -1974,6 +1967,8 @@ components:
               type: string
             description:
               type: string
+            datesChanged:
+              type: boolean
         tickets:
           type: object
           properties:
@@ -2008,8 +2003,8 @@ components:
           type: array
           items:
             oneOf:
+              - type: object
               - type: string
-              - $ref: '#/components/schemas/Artist'
     User:
       type: object
       required:
