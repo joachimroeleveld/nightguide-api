@@ -423,6 +423,29 @@ Object {
       );
       expect(validateResponse(res)).toBeUndefined();
     });
+
+    it('createdAfter filter', async () => {
+      const newEvent = generateMongoFixture(TEST_EVENT_1, {
+        createdAt: new Date(2050, 1, 1),
+      });
+      const oldEvent = generateMongoFixture(TEST_EVENT_1, {
+        createdAt: new Date(2018, 1, 1),
+      });
+
+      await eventRepository.createEvent(oldEvent);
+      await eventRepository.createEvent(newEvent);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          createdAfter: new Date().toISOString(),
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toEqual(newEvent._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
   });
 
   describe('POST /events', () => {

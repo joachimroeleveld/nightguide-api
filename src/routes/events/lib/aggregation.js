@@ -8,6 +8,7 @@ function match(
     isFbEvent,
     dateFrom,
     dateTo,
+    createdAfter,
     venueId,
     country,
     city,
@@ -59,6 +60,9 @@ function match(
   }
   if (dateFrom || dateTo) {
     Object.assign(match, matchDateRange(dateFrom, dateTo));
+  }
+  if (createdAfter) {
+    match['createdAt'] = { $gte: createdAfter };
   }
   if (tags) {
     agg.addFields(getTagMatchScoreFieldExpr(tags));

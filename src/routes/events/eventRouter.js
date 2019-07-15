@@ -41,6 +41,9 @@ router.get(
         sortBy: deserializeSort(req.query.sortBy) || defaultSort,
         venueId: req.query.venue,
         isFbEvent: req.query.isFbEvent,
+        createdAfter: req.query.createdAfter
+          ? new Date(req.query.createdAfter)
+          : undefined,
         dateFrom: req.query.dateFrom ? new Date(req.query.dateFrom) : undefined,
         dateTo: req.query.dateTo ? new Date(req.query.dateTo) : undefined,
         textFilter: req.query.text,
