@@ -262,6 +262,24 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('datesChanged filter', async () => {
+      const event1 = await eventRepository.createEvent(
+        update(TEST_FACEBOOK_EVENT_1, {
+          facebook: { datesChanged: { $set: true } },
+        })
+      );
+      await eventRepository.createEvent(TEST_EVENT_2);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({ datesChanged: true });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toBe(event1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('pageSlug filter', async () => {
       await eventRepository.createEvent({
         ...TEST_EVENT_1,
@@ -444,6 +462,29 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(1);
       expect(res.body.results[0].id).toEqual(newEvent._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('createdBefore filter', async () => {
+      const oldEvent = generateMongoFixture(TEST_EVENT_1, {
+        createdAt: new Date(2018, 1, 1),
+      });
+      const newEvent = generateMongoFixture(TEST_EVENT_1, {
+        createdAt: new Date(2050, 1, 1),
+      });
+
+      await eventRepository.createEvent(oldEvent);
+      await eventRepository.createEvent(newEvent);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          createdBefore: new Date().toISOString(),
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toEqual(oldEvent._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
   });

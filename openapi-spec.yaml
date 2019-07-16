@@ -852,11 +852,25 @@ paths:
           schema:
             type: boolean
         - in: query
+          name: datesChanged
+          schema:
+            type: boolean
+        - in: query
           name: tagged
           schema:
             type: boolean
         - in: query
           name: dateFrom
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: createdAfter
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: createdBefore
           schema:
             type: string
             format: date-time

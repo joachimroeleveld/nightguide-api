@@ -9,6 +9,7 @@ function match(
     dateFrom,
     dateTo,
     createdAfter,
+    createdBefore,
     venueId,
     country,
     city,
@@ -16,6 +17,7 @@ function match(
     tag,
     exclude,
     tagged,
+    datesChanged,
     tags,
     pageSlug,
     showHidden,
@@ -26,9 +28,6 @@ function match(
   // Default filters
   if (!showHidden) {
     match['admin.hide'] = { $ne: true };
-  }
-  if (tagged !== undefined) {
-    match['tags.0'] = { $exists: tagged };
   }
 
   if (textFilter && textFilter.length > 2) {
@@ -64,9 +63,18 @@ function match(
   if (createdAfter) {
     match['createdAt'] = { $gte: createdAfter };
   }
+  if (createdBefore) {
+    match['createdAt'] = { $lt: createdBefore };
+  }
   if (tags) {
     agg.addFields(getTagMatchScoreFieldExpr(tags));
     agg.match({ tagsMatchScore: { $gte: 1 } });
+  }
+  if (tagged !== undefined) {
+    match['tags.0'] = { $exists: tagged };
+  }
+  if (datesChanged !== undefined) {
+    match['facebook.datesChanged'] = datesChanged;
   }
 
   agg.match(match);

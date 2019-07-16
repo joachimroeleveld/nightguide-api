@@ -44,6 +44,10 @@ router.get(
         createdAfter: req.query.createdAfter
           ? new Date(req.query.createdAfter)
           : undefined,
+        createdBefore: req.query.createdBefore
+          ? new Date(req.query.createdBefore)
+          : undefined,
+        datesChanged: req.query.datesChanged,
         dateFrom: req.query.dateFrom ? new Date(req.query.dateFrom) : undefined,
         dateTo: req.query.dateTo ? new Date(req.query.dateTo) : undefined,
         textFilter: req.query.text,
