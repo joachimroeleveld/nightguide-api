@@ -16,6 +16,7 @@ const {
   TEST_VENUE_1,
   TEST_VENUE_2,
   TEST_VENUE_3,
+  TEST_ARTIST_1,
   TEST_VENUE_TIMESCHEDULE,
   TEST_FACEBOOK_EVENT_1,
   TEST_FACEBOOK_EVENT_2,
@@ -1083,7 +1084,11 @@ Object {
     });
 
     it('updates existing dates', async () => {
-      await eventRepository.createEvent(event1);
+      await eventRepository.createEvent(
+        update(event1, {
+          dates: { 0: { artists: { $set: [TEST_ARTIST_1._id] } } },
+        })
+      );
 
       const res = await request(global.app)
         .put(`/venues/${venue1._id}/facebook-events`)
@@ -1101,6 +1106,9 @@ Object {
       expect(venueEvents.length).toEqual(1);
       expect(venueEvents[0].facebook.datesChanged).toBeUndefined();
       expect(venueEvents[0].date.interestedCount).toEqual(999);
+      expect(venueEvents[0].date.artists[0]._id.toString()).toEqual(
+        TEST_ARTIST_1._id
+      );
       expect(validateResponse(res)).toBeUndefined();
     });
 

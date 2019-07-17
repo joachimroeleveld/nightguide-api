@@ -212,13 +212,25 @@ router.put(
         const datesEqual = (a, b) =>
           new Date(a.from).getTime() === new Date(b.from).getTime();
 
+        const existingDates = existingEvent.dates.map(date => date.toObject());
+
         // Get dates not in update
-        const existingDatesNotInUpdate = existingEvent.dates
-          .map(date => date.toObject())
-          .filter(
-            existingDate =>
-              !_.find(dates, date => datesEqual(date, existingDate))
+        const existingDatesNotInUpdate = existingDates.filter(
+          existingDate => !_.find(dates, date => datesEqual(date, existingDate))
+        );
+
+        // Merge existing dates that are matching (preserve fields)
+        const newAndUpdatedDates = event.dates.map(date => {
+          const existingDate = _.find(existingDates, existingDate =>
+            datesEqual(existingDate, date)
           );
+          return {
+            ...(existingDate || {}),
+            ...date,
+          };
+        });
+
+        // Mark whether new dates were added (or changed)
         datesChanged = _.find(
           dates,
           date =>
@@ -226,12 +238,15 @@ router.put(
               datesEqual(existingDate, date)
             )
         );
+
         // Sort old and new dates
-        dates = existingDatesNotInUpdate.concat(dates).sort((a, b) => {
-          const dateA = new Date(a.from);
-          const dateB = new Date(b.from);
-          return dateA - dateB;
-        });
+        dates = existingDatesNotInUpdate
+          .concat(newAndUpdatedDates)
+          .sort((a, b) => {
+            const dateA = new Date(a.from);
+            const dateB = new Date(b.from);
+            return dateA - dateB;
+          });
       }
 
       if (datesChanged) {
