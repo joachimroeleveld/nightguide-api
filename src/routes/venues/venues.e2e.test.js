@@ -1113,6 +1113,8 @@ Object {
     });
 
     it('updates existing events with a facebook id', async () => {
+      await eventRepository.createEvent(event1);
+
       const res = await request(global.app)
         .put(`/venues/${venue1._id}/facebook-events`)
         .send([

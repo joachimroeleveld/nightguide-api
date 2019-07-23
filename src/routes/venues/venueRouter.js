@@ -207,7 +207,6 @@ router.put(
       );
 
       let dates = event.dates;
-      let datesChanged = false;
       if (existingEvent) {
         const datesEqual = (a, b) =>
           new Date(a.from).getTime() === new Date(b.from).getTime();
@@ -220,37 +219,38 @@ router.put(
         );
 
         // Merge existing dates that are matching (preserve fields)
-        const newAndUpdatedDates = event.dates.map(date => {
+        const updatedDates = event.dates.reduce((updatedDates, date) => {
           const existingDate = _.find(existingDates, existingDate =>
             datesEqual(existingDate, date)
           );
-          return {
-            ...(existingDate || {}),
+          if (!existingDate) return updatedDates;
+          return updatedDates.concat({
+            ...existingDate,
             ...date,
-          };
-        });
+          });
+        }, []);
 
-        // Mark whether new dates were added (or changed)
-        datesChanged = _.find(
-          dates,
+        const newDates = dates.filter(
           date =>
             !_.find(existingEvent.dates, existingDate =>
               datesEqual(existingDate, date)
             )
         );
 
+        // Mark whether new dates were added
+        if (newDates.length) {
+          event.facebook.datesChanged = true;
+        }
+
         // Sort old and new dates
         dates = existingDatesNotInUpdate
-          .concat(newAndUpdatedDates)
+          .concat(newDates)
+          .concat(updatedDates)
           .sort((a, b) => {
             const dateA = new Date(a.from);
             const dateB = new Date(b.from);
             return dateA - dateB;
           });
-      }
-
-      if (datesChanged) {
-        event.facebook.datesChanged = true;
       }
 
       const data = await eventRepository.serialize({
