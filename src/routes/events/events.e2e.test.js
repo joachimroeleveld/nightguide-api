@@ -100,6 +100,24 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('should skip items set in offset parameter', async () => {
+      await eventRepository.createEvent(TEST_EVENT_1);
+      const event2 = await eventRepository.createEvent(TEST_EVENT_2);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          offset: 1,
+          sortBy: 'id:asc',
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toEqual(1);
+      expect(res.body.offset).toEqual(1);
+      expect(res.body.results[0].id).toEqual(event2._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('should return only fields set in the fields parameter', async () => {
       await eventRepository.createEvent(TEST_EVENT_1);
 
@@ -346,6 +364,51 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toBe(2);
       expect(res.body.results.map(item => item.id).sort()).toEqual(ids.sort());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('artist filter', async () => {
+      const artist1 = await artistRepository.createArtist(TEST_ARTIST_1);
+      const event1 = await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        dates: [
+          {
+            ...TEST_EVENT_1.dates[0],
+            artists: [artist1._id.toString()],
+          },
+        ],
+      });
+      await eventRepository.createEvent(TEST_EVENT_2);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          artist: [artist1._id.toString()],
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toBe(event1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('venue filter', async () => {
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+      const event1 = await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        organiser: { venue: venue1._id.toString() },
+      });
+      const event2 = await eventRepository.createEvent(TEST_EVENT_2);
+
+      const res = await request(global.app)
+        .get('/events')
+        .query({
+          venue: venue1._id.toString(),
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toBe(event1._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 

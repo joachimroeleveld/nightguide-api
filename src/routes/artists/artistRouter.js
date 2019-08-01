@@ -12,14 +12,24 @@ router.get(
   coerce('get', '/artists'),
   validator.validate('get', '/artists'),
   asyncMiddleware(async (req, res, next) => {
-    let artists = await artistRepository.getArtists({
-      query: req.query.query,
-      ids: req.query.ids,
-    });
+    const offset = parseInt(req.query.offset) || 0;
+    const limit = parseInt(req.query.limit) || 20;
+
+    const { results, totalCount } = await artistRepository.getArtists(
+      {
+        offset,
+        limit,
+        query: req.query.query,
+        ids: req.query.ids,
+      },
+      true
+    );
 
     const json = {
-      results: artists.map(artist => artist.deserialize()),
-      totalCount: artists.length,
+      offset,
+      limit,
+      results: results.map(artistRepository.deserialize),
+      totalCount,
     };
 
     res.json(json);

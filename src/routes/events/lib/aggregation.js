@@ -10,11 +10,12 @@ function match(
     dateTo,
     createdAfter,
     createdBefore,
-    venueId,
+    venue,
     country,
     city,
     ids,
     tag,
+    artist,
     exclude,
     tagged,
     datesChanged,
@@ -45,14 +46,21 @@ function match(
   if (pageSlug) {
     match['pageSlug'] = pageSlug;
   }
+  if (artist) {
+    match['date.artists'] = {
+      $in: artist.map(id => mongoose.Types.ObjectId(id)),
+    };
+  }
   if (city) {
     match['location.city'] = city;
   }
   if (country) {
     match['location.country'] = country;
   }
-  if (venueId) {
-    match['organiser.venue'] = mongoose.Types.ObjectId(venueId.toString());
+  if (venue) {
+    match['organiser.venue'] = {
+      $in: venue.map(id => mongoose.Types.ObjectId(id)),
+    };
   }
   if (isFbEvent) {
     match['facebook.id'] = { $exists: true };

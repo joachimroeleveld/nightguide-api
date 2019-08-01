@@ -846,7 +846,15 @@ paths:
         - in: query
           name: venue
           schema:
-            type: string
+            type: array
+            items:
+              type: string
+        - in: query
+          name: artist
+          schema:
+            type: array
+            items:
+              type: string
         - in: query
           name: isFbEvent
           schema:

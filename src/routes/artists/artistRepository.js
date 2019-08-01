@@ -2,24 +2,47 @@ const Artist = require('./artistModel');
 const _ = require('lodash');
 const { NotFoundError } = require('../../shared/errors');
 const { serialize, deserialize } = require('./lib/serialization');
+const { match } = require('./lib/aggregation');
 
-async function getArtists(opts = {}) {
-  const { ids, query: textFilter } = opts;
+async function getArtists(opts = {}, withCount = false) {
+  const { offset, limit, ...filters } = opts;
 
-  const query = Artist.find();
+  const createAgg = () => {
+    const agg = Artist.aggregate();
+    return match(agg, filters);
+  };
 
-  const where = {};
-
-  if (ids) {
-    where._id = { $in: ids };
+  let countAgg;
+  if (withCount) {
+    countAgg = createAgg();
+    countAgg.group({
+      _id: null,
+      totalCount: { $sum: 1 },
+    });
   }
-  if (textFilter && textFilter.length >= 2) {
-    where.name = new RegExp(`\\b${textFilter}`, 'i');
+
+  const agg = createAgg();
+
+  agg.sort({ name: 1 });
+
+  if (offset) {
+    agg.append({
+      $skip: offset,
+    });
+  }
+  if (limit) {
+    agg.limit(limit);
   }
 
-  query.where(where).sort({ name: 1 });
+  const results = await agg.exec();
 
-  return await query.exec();
+  if (withCount) {
+    const countResult = await countAgg.exec();
+    const count = (countResult.length && countResult[0].totalCount) || 0;
+    return { totalCount: count, results };
+  } else {
+    return results;
+  }
 }
 
 async function getArtist(artistId, opts = {}) {

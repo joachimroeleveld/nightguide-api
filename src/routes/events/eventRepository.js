@@ -86,6 +86,14 @@ async function getEvents(opts, withCount = false) {
     agg.limit(limit);
   }
 
+  if (populate.includes('date.artists')) {
+    agg.lookup({
+      from: 'artists',
+      foreignField: '_id',
+      localField: 'date.artists',
+      as: 'date.artists',
+    });
+  }
   if (populate.includes('images')) {
     agg.lookup({
       from: 'eventimages',

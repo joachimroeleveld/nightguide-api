@@ -51,6 +51,54 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('should limit the amount of results to the limit parameter', async () => {
+      const artist1 = await artistRepository.createArtist(TEST_ARTIST_1);
+      await artistRepository.createArtist(TEST_ARTIST_2);
+
+      const res = await request(global.app)
+        .get('/artists')
+        .query({
+          limit: 1,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toEqual(1);
+      expect(res.body.limit).toEqual(1);
+      expect(res.body.results[0].id).toEqual(artist1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('should skip items set in offset parameter', async () => {
+      await artistRepository.createArtist(TEST_ARTIST_1);
+      const artist2 = await artistRepository.createArtist(TEST_ARTIST_2);
+
+      const res = await request(global.app)
+        .get('/artists')
+        .query({
+          offset: 1,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toEqual(1);
+      expect(res.body.offset).toEqual(1);
+      expect(res.body.results[0].id).toEqual(artist2._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('returns a totalcount with each result', async () => {
+      await artistRepository.createArtist(TEST_ARTIST_1);
+      await artistRepository.createArtist(TEST_ARTIST_2);
+
+      const res = await request(global.app)
+        .get('/artists')
+        .query({ limit: 1 });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.totalCount).toBe(2);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('ids filter', async () => {
       const artist1 = await artistRepository.createArtist(TEST_ARTIST_1);
       const artist2 = await artistRepository.createArtist(TEST_ARTIST_2);
@@ -100,7 +148,7 @@ Object {
       const artist1 = await artistRepository.createArtist(TEST_ARTIST_1);
 
       const res = await request(global.app)
-        .get(`/artists/${artist1._id}`)
+        .get(`/artists/${artist1._id.toString()}`)
         .send()
         .expect(200);
 

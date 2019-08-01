@@ -98,12 +98,31 @@ Object {
         .get('/venues')
         .query({
           limit: 1,
+          sortBy: 'id:asc',
         });
 
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toEqual(1);
       expect(res.body.limit).toEqual(1);
       expect(res.body.results[0].id).toEqual(venue1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('should skip items set in offset parameter', async () => {
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+      const venue2 = await venueRepository.createVenue(TEST_VENUE_2);
+
+      const res = await request(global.app)
+        .get('/venues')
+        .query({
+          offset: 1,
+          sortBy: 'id:asc',
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toEqual(1);
+      expect(res.body.offset).toEqual(1);
+      expect(res.body.results[0].id).toEqual(venue2._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 

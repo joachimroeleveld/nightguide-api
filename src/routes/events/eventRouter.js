@@ -22,7 +22,7 @@ router.get(
     const fields = req.query.fields || ['title', 'date', 'location'];
     const populate = req.query.populate || [
       'images',
-      'tags',
+      'date.artists',
       'organiser.venue',
     ];
 
@@ -39,7 +39,7 @@ router.get(
         fields,
         populate,
         sortBy: deserializeSort(req.query.sortBy) || defaultSort,
-        venueId: req.query.venue,
+        venue: req.query.venue,
         isFbEvent: req.query.isFbEvent,
         createdAfter: req.query.createdAfter
           ? new Date(req.query.createdAfter)
@@ -56,6 +56,7 @@ router.get(
         ids: req.query.ids,
         tag: req.query.tag,
         tags: req.query.tags,
+        artist: req.query.artist,
         exclude: req.query.exclude,
         tagged: req.query.tagged,
         pageSlug: req.query.pageSlug,
