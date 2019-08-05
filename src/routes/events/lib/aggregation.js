@@ -1,5 +1,6 @@
 const unidecode = require('unidecode');
 const mongoose = require('mongoose');
+const moment = require('moment');
 
 function match(
   agg,
@@ -160,8 +161,23 @@ function matchDateRange(dateFrom, dateTo) {
   const match = { $and: [] };
   if (dateFrom) {
     match.$and.push({
-      // Check on both fields because `date.to` may not exist
       $or: [
+        // Ongoing
+        {
+          $and: [
+            {
+              'dates.from': {
+                $gte: moment(dateFrom)
+                  .set({ hour: 0, minute: 0, second: 0 })
+                  .toDate(),
+              },
+            },
+            {
+              'dates.to': { $gte: dateFrom },
+            },
+          ],
+        },
+        // Future
         {
           'dates.from': { $gte: dateFrom },
         },
