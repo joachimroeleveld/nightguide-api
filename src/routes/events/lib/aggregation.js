@@ -1,6 +1,7 @@
 const unidecode = require('unidecode');
 const mongoose = require('mongoose');
-const moment = require('moment');
+const moment = require('moment-timezone');
+const cityConfig = require('../../../shared/cityConfig');
 
 function match(
   agg,
@@ -67,7 +68,11 @@ function match(
     match['facebook.id'] = { $exists: true };
   }
   if (dateFrom || dateTo) {
-    Object.assign(match, matchDateRange(dateFrom, dateTo));
+    let timezone;
+    if (pageSlug) {
+      timezone = (cityConfig[pageSlug] || {}).timezone;
+    }
+    Object.assign(match, matchDateRange(dateFrom, dateTo, timezone));
   }
   if (createdAfter) {
     match['createdAt'] = { $gte: createdAfter };
@@ -157,38 +162,49 @@ function getNextDateFieldExpr(baseDate) {
   };
 }
 
-function matchDateRange(dateFrom, dateTo) {
+function matchDateRange(dateFrom, dateTo, timezone = null) {
   const match = { $and: [] };
+
   if (dateFrom) {
-    match.$and.push({
-      $or: [
-        // Ongoing
-        {
-          $and: [
-            {
-              'dates.from': {
-                $gte: moment(dateFrom)
-                  .set({ hour: 0, minute: 0, second: 0 })
-                  .toDate(),
-              },
+    const dateFromMatch = [
+      {
+        // Future events
+        $or: [
+          {
+            'dates.from': { $gte: dateFrom },
+          },
+        ],
+      },
+    ];
+
+    if (timezone) {
+      // Ongoing
+      dateFromMatch.push({
+        $and: [
+          {
+            'dates.from': {
+              $gte: moment(dateFrom)
+                .tz(timezone || 'utc')
+                .set({ hour: 0, minute: 0, second: 0 })
+                .toDate(),
             },
-            {
-              'dates.to': { $gte: dateFrom },
-            },
-          ],
-        },
-        // Future
-        {
-          'dates.from': { $gte: dateFrom },
-        },
-      ],
-    });
+          },
+          {
+            'dates.to': { $gte: dateFrom },
+          },
+        ],
+      });
+    }
+
+    match.$and.push(...dateFromMatch);
   }
+
   if (dateTo) {
     match.$and.push({
       'dates.from': { $lte: dateTo },
     });
   }
+
   return match;
 }
 
