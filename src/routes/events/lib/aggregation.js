@@ -166,20 +166,15 @@ function matchDateRange(dateFrom, dateTo, timezone = null) {
   const match = { $and: [] };
 
   if (dateFrom) {
-    const dateFromMatch = [
+    const dateFromOr = [
       {
-        // Future events
-        $or: [
-          {
-            'dates.from': { $gte: dateFrom },
-          },
-        ],
+        'dates.from': { $gte: dateFrom },
       },
     ];
 
     if (timezone) {
       // Ongoing
-      dateFromMatch.push({
+      dateFromOr.push({
         $and: [
           {
             'dates.from': {
@@ -196,7 +191,9 @@ function matchDateRange(dateFrom, dateTo, timezone = null) {
       });
     }
 
-    match.$and.push(...dateFromMatch);
+    match.$and.push({
+      $or: dateFromOr,
+    });
   }
 
   if (dateTo) {
