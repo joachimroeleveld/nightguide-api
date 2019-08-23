@@ -1594,6 +1594,210 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /content/{contentType}:
+    post:
+      summary: Create content from a certain type.
+      operationId: createContent
+      tags:
+        - content
+      parameters:
+        - in: path
+          name: contentType
+          schema:
+            type: string
+          required: true
+          description: Content type
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Content'
+      responses:
+        '201':
+          description: Content created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    get:
+      operationId: getContent
+      tags:
+        - content
+      parameters:
+        - in: path
+          name: contentType
+          schema:
+            type: string
+          required: true
+          description: Content type
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: pageSlug
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result content.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Content'
+                  totalCount:
+                    type: integer
+                    format: int32
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /content/{contentType}/{contentId}:
+    get:
+      operationId: getContentById
+      tags:
+        - content
+      parameters:
+        - in: path
+          name: contentType
+          schema:
+            type: string
+          required: true
+          description: Content type
+        - in: path
+          name: contentId
+          schema:
+            type: string
+          required: true
+          description: Content ID
+      responses:
+        '200':
+          description: Content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      operationId: updateContentById
+      tags:
+        - content
+      parameters:
+        - in: path
+          name: contentType
+          schema:
+            type: string
+          required: true
+          description: Content type
+        - in: path
+          name: contentId
+          schema:
+            type: string
+          required: true
+          description: Content ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Content'
+      responses:
+        '200':
+          description: Content updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      operationId: deleteContentById
+      tags:
+        - content
+      parameters:
+        - in: path
+          name: contentType
+          schema:
+            type: string
+          required: true
+          description: Content type
+        - in: path
+          name: contentId
+          schema:
+            type: string
+          required: true
+          description: Content ID
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /content/{contentType}/slug/{slug}:
+    get:
+      operationId: getContentBySlug
+      tags:
+        - content
+      parameters:
+        - in: path
+          name: contentType
+          schema:
+            type: string
+          required: true
+          description: Content type
+        - in: path
+          name: slug
+          schema:
+            type: string
+          required: true
+          description: URL slug
+      responses:
+        '200':
+          description: Content.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Content'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
 components:
   responses:
@@ -1843,27 +2047,13 @@ components:
         ]
     VenueDoorPolicies:
       type: string
-      enum:
-        [
-          'moderate',
-          'strict',
-          'guestlist'
-        ]
+      enum: ['moderate', 'strict', 'guestlist']
     VenuePaymentMethods:
       type: string
-      enum:
-        [
-          'debit_card',
-          'credit_card',
-          'cash'
-        ]
+      enum: ['debit_card', 'credit_card', 'cash']
     VenueDresscodes:
       type: string
-      enum:
-        [
-          'chique',
-          'alternative'
-        ]
+      enum: ['chique', 'alternative']
     VenueVisitorTypes:
       type: string
       enum:
@@ -2031,6 +2221,18 @@ components:
             oneOf:
               - type: object
               - type: string
+    Content:
+      type: object
+      required:
+        - title
+      properties:
+        title:
+          $ref: '#/components/schemas/TranslatedObject'
+        urlSlugs:
+          type: array
+          items:
+            type: string
+            maxLength: 255
     User:
       type: object
       required:

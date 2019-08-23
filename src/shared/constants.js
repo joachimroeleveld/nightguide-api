@@ -2,6 +2,10 @@ const SPEC_FILE_NAME = 'openapi-spec.yaml';
 
 const FEEDBACK_EMAIL = 'feedback@nightguide.app';
 
+const CONTENT_TYPES = {
+  CONTENT_TYPE_VENUES_ARTICLE: 'venues-articles',
+};
+
 const USER_ROLES = {
   ROLE_STANDARD: 'standard',
   ROLE_ADMIN: 'admin',
@@ -130,4 +134,5 @@ module.exports = {
   VENUE_DRESSCODES,
   VENUE_FACILITIES,
   VENUE_CAPACITY_RANGES,
+  CONTENT_TYPES,
 };

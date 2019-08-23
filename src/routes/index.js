@@ -6,4 +6,5 @@ module.exports = {
   misc: require('./misc/miscRouter'),
   tags: require('./tags/tagRouter'),
   artists: require('./artists/artistRouter'),
+  content: require('./content/contentRouter'),
 };

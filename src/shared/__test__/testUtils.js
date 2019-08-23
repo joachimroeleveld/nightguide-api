@@ -9,8 +9,8 @@ async function resetDb() {
       )
   );
 
-  const dropIndices = [];
-  // const dropIndices = Object.keys(mongoose.connection.collections).map(
+  let dropIndices = [];
+  // dropIndices = Object.keys(mongoose.connection.collections).map(
   //   collection =>
   //     new Promise(resolve =>
   //       mongoose.connection.collections[collection].dropAllIndexes(resolve)
