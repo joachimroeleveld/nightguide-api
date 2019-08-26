@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const mongoose = require('mongoose');
 
 const config = require('../../shared/config');
 const User = require('./userModel');
@@ -45,7 +46,7 @@ exports.createUser = async (data, setVerified = false) => {
 };
 
 exports.getUser = async (where, select) => {
-  if (_.isString(where)) {
+  if (mongoose.Types.ObjectId.isValid(where)) {
     where = { _id: where };
   }
   const query = User.findOne(where);
