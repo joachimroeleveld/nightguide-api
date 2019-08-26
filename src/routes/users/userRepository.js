@@ -63,7 +63,9 @@ exports.getUserByEmail = async (email, opts) => {
 };
 
 exports.updateUser = async (query, update, options = {}) => {
-  const select = typeof query === 'string' ? { _id: query } : query;
+  const select = mongoose.Types.ObjectId.isValid(query)
+    ? { _id: query }
+    : query;
   const defaultedOptions = {
     new: true,
     ...options,
