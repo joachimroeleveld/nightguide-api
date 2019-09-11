@@ -1,4 +1,8 @@
 const config = {
+  'nl/amsterdam': {
+    timezone: 'Europe/Amsterdam',
+    currency: 'EUR',
+  },
   'nl/utrecht': {
     timezone: 'Europe/Amsterdam',
     currency: 'EUR',
