@@ -6,6 +6,10 @@ Object {
     "currency": "EUR",
     "timezone": "Europe/Madrid",
   },
+  "nl/amsterdam": Object {
+    "currency": "EUR",
+    "timezone": "Europe/Amsterdam",
+  },
   "nl/utrecht": Object {
     "currency": "EUR",
     "entranceFeeRanges": Array [
