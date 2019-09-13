@@ -1,7 +1,6 @@
 const { Router } = require('express');
 const multer = require('multer');
 const _ = require('lodash');
-const moment = require('moment-timezone');
 
 const { deserializeSort } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
@@ -9,8 +8,7 @@ const venueRepository = require('./venueRepository');
 const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const eventRepository = require('../events/eventRepository');
-const { NotFoundError, InvalidRequestError } = require('../../shared/errors');
-const cityConfig = require('../../shared/cityConfig');
+const { NotFoundError } = require('../../shared/errors');
 
 const upload = multer();
 const router = new Router();

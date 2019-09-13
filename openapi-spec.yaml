@@ -1594,6 +1594,152 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /configs:
+    get:
+      operationId: getConfigs
+      tags: [configs]
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: query
+          schema:
+            type: string
+        - in: query
+          name: pageSlug
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result configs.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Config'
+                  totalCount:
+                    type: integer
+                    format: int32
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      summary: Create an config.
+      operationId: createConfig
+      tags:
+        - configs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Config'
+      responses:
+        '201':
+          description: Config created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /configs/{configId}:
+    get:
+      summary: Get an config.
+      operationId: getConfig
+      tags:
+        - configs
+      parameters:
+        - in: path
+          name: configId
+          schema:
+            type: string
+          required: true
+          description: Config ID.
+      responses:
+        '200':
+          description: Config data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      summary: Update an config.
+      operationId: updateConfig
+      tags:
+        - configs
+      parameters:
+        - in: path
+          name: configId
+          schema:
+            type: string
+          required: true
+          description: Config ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Config'
+      responses:
+        '200':
+          description: Config updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete an config.
+      operationId: deleteConfig
+      tags:
+        - configs
+      parameters:
+        - in: path
+          name: configId
+          schema:
+            type: string
+          required: true
+          description: Config ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /content/{contentType}:
     post:
       summary: Create content from a certain type.
@@ -2227,6 +2373,17 @@ components:
           items:
             type: string
             maxLength: 255
+    Config:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        pageSlug:
+          type: string
+        payload:
+          type: object
     User:
       type: object
       required:

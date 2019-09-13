@@ -18,5 +18,6 @@ module.exports = {
   ...require('./artistFixtures'),
   ...require('./tagFixtures'),
   ...require('./contentFixtures'),
+  ...require('./configFixtures'),
   generateMongoFixture,
 };
