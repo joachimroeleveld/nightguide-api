@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`configs e2e GET /configs/:configId happy path 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": "Config A",
+  "payload": Object {
+    "setting": 1,
+  },
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`configs e2e GET /configs/:configId simple fields 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": "Foo",
+  "payload": Object {
+    "setting": 1,
+  },
+  "updatedAt": Any<String>,
+}
+`;
