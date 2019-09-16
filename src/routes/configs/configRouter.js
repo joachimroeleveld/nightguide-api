@@ -3,6 +3,7 @@ const { Router } = require('express');
 const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
+const { NotFoundError } = require('../../shared/errors');
 const configRepository = require('./configRepository');
 
 const router = new Router();
@@ -99,6 +100,23 @@ router.delete(
     await configRepository.deleteConfig(req.params.configId);
 
     res.json({ success: true });
+  })
+);
+
+router.get(
+  '/name/:configName',
+  validator.validate('get', '/configs/name/{configName}'),
+  asyncMiddleware(async (req, res, next) => {
+    const doc = await configRepository.getConfigByName(
+      req.params.configName,
+      req.query.pageSlug
+    );
+
+    if (!doc) {
+      throw new NotFoundError('config_not_found');
+    }
+
+    res.json(doc.deserialize());
   })
 );
 

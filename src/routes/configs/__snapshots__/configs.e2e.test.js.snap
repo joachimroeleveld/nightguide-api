@@ -25,3 +25,43 @@ Object {
   "updatedAt": Any<String>,
 }
 `;
+
+exports[`configs e2e GET /configs/name/:configName happy path 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": "test",
+  "pageSlug": "foo/bar",
+  "payload": Object {
+    "setting": 1,
+  },
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`configs e2e GET /configs/name/:configName no pageslug 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": "test",
+  "payload": Object {
+    "setting": 1,
+  },
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`configs e2e GET /configs/name/:configName works without pageslug 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "name": "test",
+  "payload": Object {
+    "setting": 1,
+  },
+  "updatedAt": Any<String>,
+}
+`;

@@ -251,4 +251,46 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
   });
+
+  describe('GET /configs/name/:configName', () => {
+    const validateResponse = validator.validateResponse(
+      'get',
+      '/configs/name/{configName}'
+    );
+
+    it('happy path', async () => {
+      const config1 = await configRepository.createConfig({
+        ...TEST_CONFIG_1,
+        name: 'test',
+        pageSlug: 'foo/bar',
+      });
+
+      const res = await request(global.app)
+        .get(`/configs/name/test`)
+        .query({ pageSlug: 'foo/bar' })
+        .send()
+        .expect(200);
+
+      expect(res.body.id).toEqual(config1._id.toString());
+      expect(res.body).toMatchSnapshot(CONFIG_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('works without pageslug', async () => {
+      const config1 = await configRepository.createConfig({
+        ...TEST_CONFIG_1,
+        name: 'test',
+        pageSlug: undefined,
+      });
+
+      const res = await request(global.app)
+        .get(`/configs/name/test`)
+        .send()
+        .expect(200);
+
+      expect(res.body.id).toEqual(config1._id.toString());
+      expect(res.body).toMatchSnapshot(CONFIG_SNAPSHOT_MATCHER);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
 });

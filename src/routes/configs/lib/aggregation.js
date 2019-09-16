@@ -11,7 +11,7 @@ function match(agg, filter) {
     match.name = new RegExp(`\\b${query}`, 'i');
   }
   if (pageSlug) {
-    match['pageSlug'] = pageSlug;
+    match.pageSlug = pageSlug;
   }
   agg.match(match);
 

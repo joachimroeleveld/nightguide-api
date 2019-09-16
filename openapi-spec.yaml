@@ -1631,7 +1631,7 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
     post:
-      summary: Create an config.
+      summary: Create a config.
       operationId: createConfig
       tags:
         - configs
@@ -1658,7 +1658,7 @@ paths:
           $ref: '#/components/responses/ServerError'
   /configs/{configId}:
     get:
-      summary: Get an config.
+      summary: Get a config.
       operationId: getConfig
       tags:
         - configs
@@ -1685,7 +1685,7 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
     put:
-      summary: Update an config.
+      summary: Update a config.
       operationId: updateConfig
       tags:
         - configs
@@ -1718,7 +1718,7 @@ paths:
         '500':
           $ref: '#/components/responses/ServerError'
     delete:
-      summary: Delete an config.
+      summary: Delete a config.
       operationId: deleteConfig
       tags:
         - configs
@@ -1738,6 +1738,24 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '404':
           $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /configs/name/{configName}:
+    get:
+      operationId: getConfigByName
+      tags: [configs]
+      parameters:
+        - in: query
+          name: pageSlug
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Result config.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Config'
         '500':
           $ref: '#/components/responses/ServerError'
   /content/{contentType}:

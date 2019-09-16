@@ -75,12 +75,20 @@ async function deleteConfig(id, opts) {
   return Config.findByIdAndRemove(id, opts).exec();
 }
 
+async function getConfigByName(name, pageSlug) {
+  return await Config.findOne({
+    name,
+    pageSlug,
+  }).exec();
+}
+
 module.exports = {
   getConfigs,
   createConfig,
   getConfig,
   updateConfig,
   deleteConfig,
+  getConfigByName,
   serialize,
   deserialize,
 };
