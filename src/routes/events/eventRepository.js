@@ -86,6 +86,14 @@ async function getEvents(opts, withCount = false) {
     agg.limit(limit);
   }
 
+  if (populate.includes('artists')) {
+    agg.lookup({
+      from: 'artists',
+      foreignField: '_id',
+      localField: 'artists',
+      as: 'artists',
+    });
+  }
   if (populate.includes('date.artists')) {
     agg.lookup({
       from: 'artists',
