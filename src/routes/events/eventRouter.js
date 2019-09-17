@@ -24,6 +24,7 @@ router.get(
       'images',
       'date.artists',
       'organiser.venue',
+      'tags',
     ];
 
     const defaultSort = {
