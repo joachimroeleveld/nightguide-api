@@ -75,8 +75,8 @@ const EventSchema = new Schema(
     },
     tickets: {
       provider: String,
-      priceFrom: Number,
       checkoutUrl: String,
+      providerData: Object,
     },
     admin: {
       hide: Boolean,

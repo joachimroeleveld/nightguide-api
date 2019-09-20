@@ -2348,11 +2348,10 @@ components:
           properties:
             provider:
               type: string
-            priceFrom:
-              type: number
-              format: double
             checkoutUrl:
               type: string
+            providerData:
+              type: object
         admin:
           type: object
           properties:

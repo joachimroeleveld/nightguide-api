@@ -603,7 +603,13 @@ Object {
 
     it('simple fields', async () => {
       const event1 = await eventRepository.createEvent({
-        ..._.set(TEST_EVENT_1, 'dates[0].interestedCount', 0),
+        dates: update(TEST_EVENT_1.dates, {
+          [0]: {
+            interestedCount: { $set: 0 },
+            ticketsUrl: { $set: 'http://foo.bar' },
+            providerEventId: { $set: '1234' },
+          },
+        }),
         description: {
           en: 'Simple description',
         },
@@ -617,8 +623,11 @@ Object {
         },
         videoUrl: 'https://www.youtube.com/watch?v=dTYOkcRH220',
         tickets: {
-          priceFrom: 10,
           checkoutUrl: 'https://nightguide.app',
+          provider: 'eventix',
+          providerData: {
+            shopId: 'foo',
+          },
         },
       });
 
