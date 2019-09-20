@@ -2346,6 +2346,8 @@ components:
         tickets:
           type: object
           properties:
+            provider:
+              type: string
             priceFrom:
               type: number
               format: double
@@ -2373,6 +2375,10 @@ components:
         interestedCount:
           type: number
           format: int32
+        ticketsUrl:
+          type: string
+        providerEventId:
+          type: string
         artists:
           type: array
           items:

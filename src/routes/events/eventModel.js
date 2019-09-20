@@ -52,6 +52,7 @@ const EventSchema = new Schema(
         },
         interestedCount: Number,
         ticketsUrl: String,
+        providerEventId: String,
         artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
       },
     ],
@@ -73,6 +74,7 @@ const EventSchema = new Schema(
       required: true,
     },
     tickets: {
+      provider: String,
       priceFrom: Number,
       checkoutUrl: String,
     },
