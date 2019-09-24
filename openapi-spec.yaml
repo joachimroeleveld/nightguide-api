@@ -2374,6 +2374,7 @@ components:
         interestedCount:
           type: number
           format: int32
+          nullable: true
         ticketsUrl:
           type: string
         providerEventId:
@@ -2405,6 +2406,7 @@ components:
           type: string
         pageSlug:
           type: string
+          nullable: true
         payload:
           type: object
     User:

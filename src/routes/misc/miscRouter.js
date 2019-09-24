@@ -1,11 +1,9 @@
 const { Router } = require('express');
 
-const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const mail = require('../../shared/services/mail');
 const { validator } = require('../../shared/openapi');
 const { FEEDBACK_EMAIL } = require('../../shared/constants');
-const cityConfig = require('../../shared/cityConfig');
 
 const router = new Router();
 
@@ -28,14 +26,6 @@ router.post(
     );
 
     res.json({ success: true });
-  })
-);
-
-router.get(
-  '/city-config',
-  adminAuth(),
-  asyncMiddleware(async (req, res, next) => {
-    res.json(cityConfig);
   })
 );
 
