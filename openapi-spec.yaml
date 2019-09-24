@@ -791,6 +791,36 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /venues/{venueId}/images/{imageId}:
+    delete:
+      summary: Delete a venue image.
+      operationId: deleteVenueImage
+      tags:
+        - events
+      parameters:
+        - in: path
+          name: venueId
+          schema:
+            type: string
+          required: true
+          description: Venue ID.
+        - in: path
+          name: imageId
+          schema:
+            type: string
+          required: true
+          description: Image ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /venues/{venueId}/facebook-events:
     put:
       summary: Update a venue's Facebook events.

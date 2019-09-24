@@ -143,6 +143,10 @@ router.delete(
       throw new NotFoundError('venue_not_found');
     }
 
+    for (const imageId of venue.images) {
+      await venueRepository.deleteVenueImageById(req.params.venueId, imageId);
+    }
+
     await venueRepository.deleteVenue(req.params.venueId);
 
     res.json({ success: true });
@@ -269,6 +273,29 @@ router.put(
     }
 
     res.status(200).end();
+  })
+);
+
+router.delete(
+  '/:venueId/images/:imageId',
+  adminAuth(),
+  validator.validate('delete', '/venues/{venueId}/images/{imageId}'),
+  asyncMiddleware(async (req, res, next) => {
+    const venue = await venueRepository.getVenue(req.params.Id);
+
+    if (!venue) {
+      throw new NotFoundError('venue_not_found');
+    }
+    if (!venue.images.includes(req.params.imageId)) {
+      throw new NotFoundError('image_not_found');
+    }
+
+    await venueRepository.deleteVenueImageById(
+      req.params.venueId,
+      req.params.imageId
+    );
+
+    res.json({ success: true });
   })
 );
 

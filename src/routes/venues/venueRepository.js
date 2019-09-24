@@ -192,6 +192,22 @@ async function uploadVenueImageByUrl(venueId, image) {
   });
 }
 
+async function deleteVenueImageById(venueId, imageId) {
+  const image = await VenueImage.findById(imageId).exec();
+
+  if (!image) {
+    return false;
+  }
+
+  await imagesService.deleteFile(image.filename);
+
+  await VenueImage.findByIdAndRemove(imageId).exec();
+
+  await Venue.findByIdAndUpdate(venueId, {
+    $pull: { images: imageId },
+  }).exec();
+}
+
 module.exports = {
   createVenue,
   getVenues,
@@ -204,4 +220,5 @@ module.exports = {
   serialize,
   deserialize,
   deserializeImage,
+  deleteVenueImageById,
 };

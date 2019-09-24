@@ -41,6 +41,8 @@ const {
 } = require('../../shared/constants');
 const eventRepository = require('../events/eventRepository');
 const tagRepository = require('../tags/tagRepository');
+const VenueImage = require('./venueImageModel');
+
 const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 
 const VENUE_SNAPSHOT_MATCHER = {
@@ -1158,6 +1160,36 @@ Object {
     });
   });
 
+  describe('DELETE /venues/:venueId/images/:imageId', () => {
+    const validateResponse = validator.validateResponse(
+      'delete',
+      '/venues/{venueId}/images/{imageId}'
+    );
+
+    it('happy path', async () => {
+      const venue = await venueRepository.createVenue(TEST_VENUE_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('foo');
+      sandbox.stub(imagesService, 'deleteFile').resolves();
+      const image = await venueRepository.uploadVenueImage(venue._id, {
+        buffer: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        mime: 'image/jpeg',
+      });
+
+      const res = await request(global.app).delete(
+        `/venues/${venue._id.toString()}/images/${image._id}`
+      );
+
+      const newVenue = await venueRepository.getVenue(venue._id);
+
+      expect(res.status).toEqual(200);
+      expect(imagesService.deleteFile.calledWith(image.filename)).toBe(true);
+      expect(newVenue.images.length).toEqual(0);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
   describe('DELETE /venues/:venueId', () => {
     const validateResponse = validator.validateResponse(
       'delete',
@@ -1172,6 +1204,25 @@ Object {
       const venue = await venueRepository.getVenue(venue1._id);
 
       expect(venue).toBe(null);
+      expect(res.status).toEqual(200);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('deletes venue images', async () => {
+      const venue = await venueRepository.createVenue(TEST_VENUE_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('foo');
+      sandbox.stub(imagesService, 'deleteFile').resolves();
+      const image = await venueRepository.uploadVenueImage(venue._id, {
+        buffer: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        mime: 'image/jpeg',
+      });
+
+      const res = await request(global.app).delete(`/venues/${venue._id}`);
+      const deletedImage = await VenueImage.findById(image._id).exec();
+
+      expect(deletedImage).toBe(null);
       expect(res.status).toEqual(200);
       expect(validateResponse(res)).toBeUndefined();
     });

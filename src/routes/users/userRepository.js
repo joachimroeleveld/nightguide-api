@@ -239,7 +239,10 @@ function signLoginToken(user, clientId = null) {
   }
 
   let expiry = '1h';
-  if ([CLIENT_IDS.CLIENT_APP, CLIENT_IDS.CLIENT_ADMIN].includes(clientId)) {
+  if (
+    [CLIENT_IDS.CLIENT_APP, CLIENT_IDS.CLIENT_ADMIN].includes(clientId) ||
+    process.env.NODE_ENV === 'development'
+  ) {
     // Never expire token for these clients
     expiry = null;
   }
