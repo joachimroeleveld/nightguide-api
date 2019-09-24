@@ -1,5 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`misc e2e POST /misc/user-feedback happy path 1`] = `
+Array [
+  "feedback@nightguide.app",
+  "User app feedback",
+  "
+<strong>User alice@rogers.nl sent you message:</strong><br/>
+<br/>
+<p style=\\"font-style:italic;\\">test message</p>    
+    ",
+  Object {
+    "replyTo": "alice@rogers.nl",
+  },
+]
+`;
+
 exports[`users e2e GET /misc/city-config happy path 1`] = `
 Object {
   "es/ibiza": Object {

@@ -1178,7 +1178,7 @@ Object {
       });
 
       const res = await request(global.app).delete(
-        `/venues/${venue._id.toString()}/images/${image._id}`
+        `/venues/${venue._id.toString()}/images/${image._id.toString()}`
       );
 
       const newVenue = await venueRepository.getVenue(venue._id);

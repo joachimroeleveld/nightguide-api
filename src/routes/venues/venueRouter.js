@@ -281,7 +281,7 @@ router.delete(
   adminAuth(),
   validator.validate('delete', '/venues/{venueId}/images/{imageId}'),
   asyncMiddleware(async (req, res, next) => {
-    const venue = await venueRepository.getVenue(req.params.Id);
+    const venue = await venueRepository.getVenue(req.params.venueId);
 
     if (!venue) {
       throw new NotFoundError('venue_not_found');
