@@ -55,7 +55,6 @@ router.post(
 
 router.get(
   '/:contentType/:contentId',
-  adminAuth(),
   validator.validate('get', '/content/{contentType}/{contentId}'),
   asyncMiddleware(async (req, res, next) => {
     const doc = await contentRepository.getContentSingle(
@@ -106,7 +105,6 @@ router.delete(
 
 router.get(
   '/:contentType/slug/:slug',
-  adminAuth(),
   validator.validate('get', '/content/{contentType}/slug/{slug}'),
   asyncMiddleware(async (req, res, next) => {
     const doc = await contentRepository.getContentByUrlSlug(
