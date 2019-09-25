@@ -12,10 +12,7 @@ const ContentSchema = new Schema(
       type: [String],
       validate: arr => !!arr.length,
     },
-    pageSlug: {
-      type: String,
-      required: true,
-    },
+    pageSlug: String,
   },
   {
     timestamps: true,
