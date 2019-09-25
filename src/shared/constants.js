@@ -4,6 +4,7 @@ const FEEDBACK_EMAIL = 'feedback@nightguide.app';
 
 const CONTENT_TYPES = {
   CONTENT_TYPE_VENUES_ARTICLE: 'venues-articles',
+  CONTENT_TYPE_VENUES_PAGE: 'pages',
 };
 
 const USER_ROLES = {
