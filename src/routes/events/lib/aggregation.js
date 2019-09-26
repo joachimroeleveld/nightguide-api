@@ -1,6 +1,7 @@
 const unidecode = require('unidecode');
 const mongoose = require('mongoose');
 const moment = require('moment-timezone');
+const _ = require('lodash');
 const cityConfig = require('../../../shared/cityConfig');
 
 function match(
@@ -26,7 +27,7 @@ function match(
     showHidden,
   }
 ) {
-  const match = {};
+  const match = { $and: [] };
 
   // Default filters
   if (!showHidden) {
@@ -49,9 +50,13 @@ function match(
     match['pageSlug'] = pageSlug;
   }
   if (artist) {
-    match['date.artists'] = {
-      $in: artist.map(id => mongoose.Types.ObjectId(id)),
-    };
+    const artistIds = artist.map(id => mongoose.Types.ObjectId(id));
+    match.$and.push({
+      $or: [
+        { 'date.artists': { $in: artistIds } },
+        { artists: { $in: artistIds } },
+      ],
+    });
   }
   if (city) {
     match['location.city'] = city;
@@ -72,7 +77,12 @@ function match(
     if (pageSlug) {
       timezone = (cityConfig[pageSlug] || {}).timezone;
     }
-    Object.assign(match, matchDateRange(dateFrom, dateTo, timezone));
+    _.mergeWith(
+      match,
+      matchDateRange(dateFrom, dateTo, timezone),
+      (objValue, srcValue) =>
+        Array.isArray(objValue) ? objValue.concat(srcValue) : undefined
+    );
   }
   if (createdAfter) {
     match['createdAt'] = { $gte: createdAfter };
@@ -89,6 +99,10 @@ function match(
   }
   if (datesChanged !== undefined) {
     match['facebook.datesChanged'] = datesChanged;
+  }
+
+  if (!match.$and.length) {
+    delete match.$and;
   }
 
   agg.match(match);
@@ -112,6 +126,49 @@ function getTagMatchScoreFieldExpr(tags) {
       },
     },
   };
+}
+
+function matchDateRange(dateFrom, dateTo, timezone = null) {
+  const match = { $and: [] };
+
+  if (dateFrom) {
+    const dateFromOr = [
+      {
+        'dates.from': { $gte: dateFrom },
+      },
+    ];
+
+    if (timezone) {
+      // Ongoing
+      dateFromOr.push({
+        $and: [
+          {
+            'dates.from': {
+              $gte: moment(dateFrom)
+                .tz(timezone || 'utc')
+                .set({ hour: 0, minute: 0, second: 0 })
+                .toDate(),
+            },
+          },
+          {
+            'dates.to': { $gte: dateFrom },
+          },
+        ],
+      });
+    }
+
+    match.$and.push({
+      $or: dateFromOr,
+    });
+  }
+
+  if (dateTo) {
+    match.$and.push({
+      'dates.from': { $lte: dateTo },
+    });
+  }
+
+  return match;
 }
 
 function getNextDateFieldExpr(baseDate) {
@@ -160,49 +217,6 @@ function getNextDateFieldExpr(baseDate) {
       },
     },
   };
-}
-
-function matchDateRange(dateFrom, dateTo, timezone = null) {
-  const match = { $and: [] };
-
-  if (dateFrom) {
-    const dateFromOr = [
-      {
-        'dates.from': { $gte: dateFrom },
-      },
-    ];
-
-    if (timezone) {
-      // Ongoing
-      dateFromOr.push({
-        $and: [
-          {
-            'dates.from': {
-              $gte: moment(dateFrom)
-                .tz(timezone || 'utc')
-                .set({ hour: 0, minute: 0, second: 0 })
-                .toDate(),
-            },
-          },
-          {
-            'dates.to': { $gte: dateFrom },
-          },
-        ],
-      });
-    }
-
-    match.$and.push({
-      $or: dateFromOr,
-    });
-  }
-
-  if (dateTo) {
-    match.$and.push({
-      'dates.from': { $lte: dateTo },
-    });
-  }
-
-  return match;
 }
 
 module.exports = {
