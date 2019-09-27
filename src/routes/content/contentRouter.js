@@ -9,18 +9,18 @@ const contentRepository = require('./contentRepository');
 const router = new Router();
 
 router.get(
-  '/:contentType',
-  coerce('get', '/content/{contentType}'),
-  validator.validate('get', '/content/{contentType}'),
+  '/',
+  coerce('get', '/content'),
+  validator.validate('get', '/content'),
   asyncMiddleware(async (req, res, next) => {
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 20;
 
     const { results, totalCount } = await contentRepository.getContent(
-      req.params.contentType,
       {
         offset,
         limit,
+        type: req.query.type,
         query: req.query.query,
         ids: req.query.ids,
         pageSlug: req.query.pageSlug,
@@ -40,12 +40,11 @@ router.get(
 );
 
 router.post(
-  '/:contentType',
+  '/',
   adminAuth(),
-  validator.validate('post', '/content/{contentType}'),
+  validator.validate('post', '/content'),
   asyncMiddleware(async (req, res, next) => {
     const doc = await contentRepository.createContent(
-      req.params.contentType,
       contentRepository.serialize(req.body)
     );
 
@@ -54,13 +53,10 @@ router.post(
 );
 
 router.get(
-  '/:contentType/:contentId',
-  validator.validate('get', '/content/{contentType}/{contentId}'),
+  '/:contentId',
+  validator.validate('get', '/content/{contentId}'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = await contentRepository.getContentSingle(
-      req.params.contentType,
-      req.params.contentId
-    );
+    const doc = await contentRepository.getContentSingle(req.params.contentId);
 
     if (!doc) {
       throw new NotFoundError('content_not_found');
@@ -71,12 +67,11 @@ router.get(
 );
 
 router.put(
-  '/:contentType/:contentId',
+  '/:contentId',
   adminAuth(),
-  validator.validate('put', '/content/{contentType}/{contentId}'),
+  validator.validate('put', '/content/{contentId}'),
   asyncMiddleware(async (req, res, next) => {
     const doc = await contentRepository.updateContentSingle(
-      req.params.contentType,
       req.params.contentId,
       contentRepository.serialize(req.body)
     );
@@ -90,27 +85,21 @@ router.put(
 );
 
 router.delete(
-  '/:contentType/:contentId',
+  '/:contentId',
   adminAuth(),
-  validator.validate('delete', '/content/{contentType}/{contentId}'),
+  validator.validate('delete', '/content/{contentId}'),
   asyncMiddleware(async (req, res, next) => {
-    await contentRepository.deleteContentSingle(
-      req.params.contentType,
-      req.params.contentId
-    );
+    await contentRepository.deleteContentSingle(req.params.contentId);
 
     res.json({ success: true });
   })
 );
 
 router.get(
-  '/:contentType/slug/:slug',
-  validator.validate('get', '/content/{contentType}/slug/{slug}'),
+  '/slug/:slug',
+  validator.validate('get', '/content/slug/{slug}'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = await contentRepository.getContentByUrlSlug(
-      req.params.contentType,
-      req.params.slug
-    );
+    const doc = await contentRepository.getContentByUrlSlug(req.params.slug);
 
     if (!doc) {
       throw new NotFoundError('content_not_found');

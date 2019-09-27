@@ -27,21 +27,13 @@ describe('content e2e', () => {
     await resetDb();
   });
 
-  describe('GET /content/:contentType', () => {
-    const validateResponse = validator.validateResponse(
-      'get',
-      '/content/{contentType}'
-    );
+  describe('GET /content', () => {
+    const validateResponse = validator.validateResponse('get', '/content');
 
     it('happy path', async () => {
-      await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_1
-      );
+      await contentRepository.createContent(TEST_CONTENT_1);
 
-      const res = await request(global.app).get(
-        `/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}`
-      );
+      const res = await request(global.app).get(`/content`);
 
       expect(res.status).toEqual(200);
       expect(res.body.totalCount).toEqual(1);
@@ -56,6 +48,7 @@ Object {
   "title": Object {
     "en": "Pretty interesting article",
   },
+  "type": "venues-article",
   "updatedAt": Any<String>,
   "urlSlugs": Array [
     "pretty-interesting-article",
@@ -67,17 +60,11 @@ Object {
     });
 
     it('should limit the amount of results to the limit parameter', async () => {
-      const content1 = await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_1
-      );
-      await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_2
-      );
+      const content1 = await contentRepository.createContent(TEST_CONTENT_1);
+      await contentRepository.createContent(TEST_CONTENT_2);
 
       const res = await request(global.app)
-        .get(`/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}`)
+        .get(`/content`)
         .query({
           limit: 1,
         });
@@ -90,17 +77,11 @@ Object {
     });
 
     it('should skip items set in offset parameter', async () => {
-      await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_1
-      );
-      const content2 = await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_2
-      );
+      await contentRepository.createContent(TEST_CONTENT_1);
+      const content2 = await contentRepository.createContent(TEST_CONTENT_2);
 
       const res = await request(global.app)
-        .get(`/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}`)
+        .get(`/content`)
         .query({
           offset: 1,
         });
@@ -113,17 +94,11 @@ Object {
     });
 
     it('returns a totalcount with each result', async () => {
-      await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_1
-      );
-      await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_2
-      );
+      await contentRepository.createContent(TEST_CONTENT_1);
+      await contentRepository.createContent(TEST_CONTENT_2);
 
       const res = await request(global.app)
-        .get(`/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}`)
+        .get(`/content`)
         .query({ limit: 1 });
 
       expect(res.status).toEqual(200);
@@ -132,24 +107,39 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('type filter', async () => {
+      await contentRepository.createContent({
+        ...TEST_CONTENT_1,
+        type: CONTENT_TYPES.CONTENT_TYPE_PAGE,
+      });
+      await contentRepository.createContent({
+        ...TEST_CONTENT_2,
+        type: CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
+      });
+
+      const res = await request(global.app)
+        .get(`/content`)
+        .query({
+          type: CONTENT_TYPES.CONTENT_TYPE_PAGE,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].name).toBe(TEST_CONTENT_1.name);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('ids filter', async () => {
-      const content1 = await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_1
-      );
-      const content2 = await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_2
-      );
+      const content1 = await contentRepository.createContent(TEST_CONTENT_1);
+      const content2 = await contentRepository.createContent(TEST_CONTENT_2);
       await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
         generateMongoFixture(TEST_CONTENT_1)
       );
 
       const ids = [content1._id.toString(), content2._id.toString()].sort();
 
       const res = await request(global.app)
-        .get(`/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}`)
+        .get(`/content`)
         .query({
           ids,
         });
@@ -161,23 +151,17 @@ Object {
     });
 
     it('pageSlug filter', async () => {
-      await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        {
-          ...TEST_CONTENT_1,
-          pageSlug: 'nl/utrecht',
-        }
-      );
-      await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        {
-          ...TEST_CONTENT_2,
-          pageSlug: 'es/ibiza',
-        }
-      );
+      await contentRepository.createContent({
+        ...TEST_CONTENT_1,
+        pageSlug: 'nl/utrecht',
+      });
+      await contentRepository.createContent({
+        ...TEST_CONTENT_2,
+        pageSlug: 'es/ibiza',
+      });
 
       const res = await request(global.app)
-        .get(`/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}`)
+        .get(`/content`)
         .query({
           pageSlug: 'nl/utrecht',
         });
@@ -189,24 +173,17 @@ Object {
     });
   });
 
-  describe('GET /content/:contentType/:contentId', () => {
+  describe('GET /content/:contentId', () => {
     const validateResponse = validator.validateResponse(
       'get',
-      '/content/{contentType}/{contentId}'
+      '/content/{contentId}'
     );
 
     it('happy path', async () => {
-      await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_1
-      );
+      await contentRepository.createContent(TEST_CONTENT_1);
 
       const res = await request(global.app)
-        .get(
-          `/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}/${
-            TEST_CONTENT_1._id
-          }`
-        )
+        .get(`/content/${TEST_CONTENT_1._id}`)
         .send()
         .expect(200);
 
@@ -216,27 +193,20 @@ Object {
     });
   });
 
-  describe('GET /content/:contentType/slug/:slug', () => {
+  describe('GET /content/slug/:slug', () => {
     const validateResponse = validator.validateResponse(
       'get',
-      '/content/{contentType}/slug/{slug}'
+      '/content/slug/{slug}'
     );
 
     it('happy path', async () => {
-      const content1 = await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        {
-          ...TEST_CONTENT_1,
-          urlSlugs: ['test'],
-        }
-      );
+      const content1 = await contentRepository.createContent({
+        ...TEST_CONTENT_1,
+        urlSlugs: ['test'],
+      });
 
       const res = await request(global.app)
-        .get(
-          `/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}/slug/${
-            content1.urlSlug
-          }`
-        )
+        .get(`/content/slug/${content1.urlSlug}`)
         .send()
         .expect(200);
 
@@ -246,15 +216,12 @@ Object {
     });
   });
 
-  describe('POST /content/:contentType', () => {
-    const validateResponse = validator.validateResponse(
-      'post',
-      '/content/{contentType}'
-    );
+  describe('POST /content', () => {
+    const validateResponse = validator.validateResponse('post', '/content');
 
     it('happy path', async () => {
       const res = await request(global.app)
-        .post(`/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}`)
+        .post(`/content`)
         .send(contentRepository.deserialize(TEST_CONTENT_1));
       const body = res.body;
 
@@ -265,7 +232,7 @@ Object {
 
     it('generates a URL slug from the title if not provided', async () => {
       const res = await request(global.app)
-        .post(`/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}`)
+        .post(`/content`)
         .send({
           ...contentRepository.deserialize(TEST_CONTENT_1),
           title: { en: ' This is a test ' },
@@ -278,7 +245,7 @@ Object {
 
     it("doesn't overwrite the URL slug if provided", async () => {
       const res = await request(global.app)
-        .post(`/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}`)
+        .post(`/content`)
         .send({
           ...contentRepository.deserialize(TEST_CONTENT_1),
           urlSlugs: ['test'],
@@ -290,24 +257,17 @@ Object {
     });
   });
 
-  describe('PUT /content/:contentType', () => {
+  describe('PUT /content', () => {
     const validateResponse = validator.validateResponse(
       'put',
-      '/content/{contentType}/{contentId}'
+      '/content/{contentId}'
     );
 
     it('happy path', async () => {
-      const content1 = await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_1
-      );
+      const content1 = await contentRepository.createContent(TEST_CONTENT_1);
 
       const res = await request(global.app)
-        .put(
-          `/content/${CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE}/${
-            content1._id
-          }`
-        )
+        .put(`/content/${content1._id}`)
         .send({
           ...contentRepository.deserialize(TEST_CONTENT_1),
           title: {
@@ -323,24 +283,14 @@ Object {
     });
 
     it('ensures a unique URL slug', async () => {
-      await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        {
-          ...TEST_CONTENT_1,
-          urlSlugs: ['test'],
-        }
-      );
-      const content2 = await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_2
-      );
+      await contentRepository.createContent({
+        ...TEST_CONTENT_1,
+        urlSlugs: ['test'],
+      });
+      const content2 = await contentRepository.createContent(TEST_CONTENT_2);
 
       const res = await request(global.app)
-        .put(
-          `/content/${
-            CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE
-          }/${content2._id.toString()}`
-        )
+        .put(`/content/${content2._id.toString()}`)
         .send({
           ...contentRepository.deserialize(TEST_CONTENT_2),
           urlSlugs: ['test'],
@@ -354,20 +304,13 @@ Object {
     });
 
     it('preserves the old slug when if changed', async () => {
-      const content1 = await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        {
-          ...TEST_CONTENT_1,
-          urlSlugs: ['foo'],
-        }
-      );
+      const content1 = await contentRepository.createContent({
+        ...TEST_CONTENT_1,
+        urlSlugs: ['foo'],
+      });
 
       const res = await request(global.app)
-        .put(
-          `/content/${
-            CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE
-          }/${content1._id.toString()}`
-        )
+        .put(`/content/${content1._id.toString()}`)
         .send({
           ...contentRepository.deserialize(TEST_CONTENT_1),
           urlSlugs: ['bar'],
@@ -382,26 +325,20 @@ Object {
     });
   });
 
-  describe('DELETE /content/:contentType/:contentId', () => {
+  describe('DELETE /content/:contentId', () => {
     const validateResponse = validator.validateResponse(
       'delete',
-      '/content/{contentType}/{contentId}'
+      '/content/{contentId}'
     );
 
     it('happy path', async () => {
-      const createdTag = await contentRepository.createContent(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
-        TEST_CONTENT_1
-      );
+      const createdTag = await contentRepository.createContent(TEST_CONTENT_1);
 
       const res = await request(global.app).delete(
-        `/content/${
-          CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE
-        }/${createdTag._id.toString()}`
+        `/content/${createdTag._id.toString()}`
       );
 
       let content = await contentRepository.getContentSingle(
-        CONTENT_TYPES.CONTENT_TYPE_VENUES_ARTICLE,
         createdTag._id.toString()
       );
 

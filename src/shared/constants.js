@@ -3,8 +3,8 @@ const SPEC_FILE_NAME = 'openapi-spec.yaml';
 const FEEDBACK_EMAIL = 'feedback@nightguide.app';
 
 const CONTENT_TYPES = {
-  CONTENT_TYPE_VENUES_ARTICLE: 'venues-articles',
-  CONTENT_TYPE_VENUES_PAGE: 'pages',
+  CONTENT_TYPE_VENUES_ARTICLE: 'venues-article',
+  CONTENT_TYPE_PAGE: 'page',
 };
 
 const USER_ROLES = {

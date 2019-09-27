@@ -1788,19 +1788,12 @@ paths:
                 $ref: '#/components/schemas/Config'
         '500':
           $ref: '#/components/responses/ServerError'
-  /content/{contentType}:
+  /content:
     post:
       summary: Create content from a certain type.
       operationId: createContent
       tags:
         - content
-      parameters:
-        - in: path
-          name: contentType
-          schema:
-            type: string
-          required: true
-          description: Content type
       requestBody:
         required: true
         content:
@@ -1827,12 +1820,6 @@ paths:
       tags:
         - content
       parameters:
-        - in: path
-          name: contentType
-          schema:
-            type: string
-          required: true
-          description: Content type
         - in: query
           name: ids
           schema:
@@ -1841,6 +1828,10 @@ paths:
               type: string
         - in: query
           name: pageSlug
+          schema:
+            type: string
+        - in: query
+          name: type
           schema:
             type: string
       responses:
@@ -1860,18 +1851,12 @@ paths:
                     format: int32
         '500':
           $ref: '#/components/responses/ServerError'
-  /content/{contentType}/{contentId}:
+  /content/{contentId}:
     get:
       operationId: getContentById
       tags:
         - content
       parameters:
-        - in: path
-          name: contentType
-          schema:
-            type: string
-          required: true
-          description: Content type
         - in: path
           name: contentId
           schema:
@@ -1898,12 +1883,6 @@ paths:
       tags:
         - content
       parameters:
-        - in: path
-          name: contentType
-          schema:
-            type: string
-          required: true
-          description: Content type
         - in: path
           name: contentId
           schema:
@@ -1937,12 +1916,6 @@ paths:
         - content
       parameters:
         - in: path
-          name: contentType
-          schema:
-            type: string
-          required: true
-          description: Content type
-        - in: path
           name: contentId
           schema:
             type: string
@@ -1959,18 +1932,12 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
-  /content/{contentType}/slug/{slug}:
+  /content/slug/{slug}:
     get:
       operationId: getContentBySlug
       tags:
         - content
       parameters:
-        - in: path
-          name: contentType
-          schema:
-            type: string
-          required: true
-          description: Content type
         - in: path
           name: slug
           schema:
@@ -2420,6 +2387,11 @@ components:
       required:
         - title
       properties:
+        type:
+          type: string
+          enum:
+            - venues-article
+            - page
         title:
           $ref: '#/components/schemas/TranslatedObject'
         urlSlugs:

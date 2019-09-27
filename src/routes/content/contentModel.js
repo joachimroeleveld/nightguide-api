@@ -7,6 +7,10 @@ const { deserialize } = require('./lib/serialization');
 
 const ContentSchema = new Schema(
   {
+    type: {
+      type: String,
+      enum: Object.values(CONTENT_TYPES),
+    },
     title: translatedSchema,
     urlSlugs: {
       type: [String],
@@ -30,12 +34,4 @@ ContentSchema.method('deserialize', function() {
   return deserialize(this);
 });
 
-const models = Object.values(CONTENT_TYPES).reduce(
-  (models, type) => ({
-    ...models,
-    [type]: mongoose.model(type, ContentSchema, type.replace(/-/g, '')),
-  }),
-  {}
-);
-
-module.exports = models;
+module.exports = mongoose.model('Content', ContentSchema);
