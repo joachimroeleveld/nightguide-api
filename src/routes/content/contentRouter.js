@@ -1,4 +1,5 @@
 const { Router } = require('express');
+const multer = require('multer');
 
 const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
@@ -6,6 +7,7 @@ const { validator, coerce } = require('../../shared/openapi');
 const { NotFoundError } = require('../../shared/errors');
 const contentRepository = require('./contentRepository');
 
+const upload = multer();
 const router = new Router();
 
 router.get(
@@ -89,6 +91,20 @@ router.delete(
   adminAuth(),
   validator.validate('delete', '/content/{contentId}'),
   asyncMiddleware(async (req, res, next) => {
+    const content = await contentRepository.getContentSingle(
+      req.params.contentId
+    );
+    if (!content) {
+      throw new NotFoundError('content_not_found');
+    }
+
+    for (const imageId of content.images) {
+      await contentRepository.deleteContentImageById(
+        req.params.contentId,
+        imageId
+      );
+    }
+
     await contentRepository.deleteContentSingle(req.params.contentId);
 
     res.json({ success: true });
@@ -106,6 +122,63 @@ router.get(
     }
 
     res.json(doc.deserialize());
+  })
+);
+
+router.post(
+  '/:contentId/images',
+  adminAuth(),
+  validator.validate('post', '/content/{contentId}/images'),
+  upload.array('images', 10),
+  asyncMiddleware(async (req, res, next) => {
+    const content = await contentRepository.getContent(req.params.contentId);
+    if (!content) {
+      throw new NotFoundError('content_not_found');
+    }
+
+    let promises;
+    if (req.files) {
+      promises = req.files.map(file => {
+        return contentRepository.uploadContentImage(req.params.contentId, {
+          buffer: file.buffer,
+          mime: file.mimetype,
+        });
+      });
+    } else {
+      promises = req.body.images.map(image =>
+        contentRepository.uploadContentImageByUrl(req.params.contentId, image)
+      );
+    }
+
+    let images = await Promise.all(promises);
+    const results = images.map(image => image.deserialize());
+
+    res.status(200).json({ results });
+  })
+);
+
+router.delete(
+  '/:contentId/images/:imageId',
+  adminAuth(),
+  validator.validate('delete', '/content/{contentId}/images/{imageId}'),
+  asyncMiddleware(async (req, res, next) => {
+    const content = await contentRepository.getContentSingle(
+      req.params.contentId
+    );
+
+    if (!content) {
+      throw new NotFoundError('content_not_found');
+    }
+    if (!content.images || !content.images.includes(req.params.imageId)) {
+      throw new NotFoundError('image_not_found');
+    }
+
+    await contentRepository.deleteContentImageById(
+      req.params.contentId,
+      req.params.imageId
+    );
+
+    res.json({ success: true });
   })
 );
 

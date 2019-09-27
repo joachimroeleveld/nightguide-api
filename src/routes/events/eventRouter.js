@@ -215,15 +215,24 @@ router.put(
     }
 
     const newUrl = req.body.image.url;
-    const oldFbImage = _.find(event.images, image => !!image.fbUrl);
+    const oldFbImage = _.find(
+      event.images,
+      image => image.extraData && image.extraData.fbUrl
+    );
 
-    if (oldFbImage && oldFbImage.fbUrl === newUrl) {
+    if (
+      oldFbImage &&
+      oldFbImage.extraData &&
+      oldFbImage.extraData.fbUrl === newUrl
+    ) {
       return res.json({ skipped: true });
     }
 
     const image = await eventRepository.uploadEventImageByUrl(event._id, {
       url: newUrl,
-      fbUrl: newUrl,
+      extraData: {
+        fbUrl: newUrl,
+      },
     });
 
     if (oldFbImage) {

@@ -1,12 +1,8 @@
-const request = require('request-promise-native');
-const imgSize = require('image-size');
-const mimeTypes = require('mime-types');
 const _ = require('lodash');
 
-const imagesService = require('../../shared/services/images');
-const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
+const imageRepository = require('../images/imageRepository');
+const { NotFoundError } = require('../../shared/errors');
 const Event = require('./eventModel');
-const EventImage = require('./eventImageModel');
 const { match } = require('./lib/aggregation');
 const {
   serialize,
@@ -104,7 +100,7 @@ async function getEvents(opts, withCount = false) {
   }
   if (populate.includes('images')) {
     agg.lookup({
-      from: 'eventimages',
+      from: 'images',
       foreignField: '_id',
       localField: 'images',
       as: 'images',
@@ -178,72 +174,40 @@ function countEvents(filter) {
   return Event.count(filter).exec();
 }
 
-async function uploadEventImage(eventId, { buffer, mime, ...otherImageProps }) {
-  if (!imagesService.SUPPORTED_MIME_TYPES.includes(mime)) {
-    throw new InvalidArgumentError('invalid_mime');
-  }
-
+async function uploadEventImage(eventId, { buffer, mime, extraData }) {
   const event = await Event.findById(eventId).exec();
   if (!event) {
     throw new NotFoundError('event_not_found');
   }
 
-  const image = new EventImage({
-    filesize: buffer.byteLength,
-    filetype: mime,
-    ...otherImageProps,
+  const image = await imageRepository.uploadImage({
+    buffer,
+    mime,
+    extraData,
   });
 
-  image.filename = `${image._id}.${mimeTypes.extension(mime)}`;
+  event.images.push(image._id);
+  await event.save();
 
-  try {
-    await imagesService.upload(image.filename, mime, buffer);
-
-    const dimensions = imgSize(buffer);
-
-    image.url = await imagesService.getServeableUrl(image.filename);
-    image.width = dimensions.width;
-    image.height = dimensions.height;
-
-    await image.save();
-
-    event.images.push(image._id);
-
-    await event.save();
-
-    return image;
-  } catch (e) {
-    console.error('Upload error: ', e);
-    throw new Error('upload_failed');
-  }
+  return image;
 }
 
-async function uploadEventImageByUrl(eventId, image) {
-  const { url, ...otherImageProps } = image;
-  const res = await request.get({
-    uri: url,
-    resolveWithFullResponse: true,
-    encoding: null,
-  });
-  const mime = res.headers['content-type'];
+async function uploadEventImageByUrl(eventId, imageData) {
+  const event = await Event.findById(eventId).exec();
+  if (!event) {
+    throw new NotFoundError('event_not_found');
+  }
 
-  return await uploadEventImage(eventId, {
-    buffer: res.body,
-    mime,
-    ...otherImageProps,
-  });
+  const image = await imageRepository.uploadImageByUrl(imageData);
+
+  event.images.push(image._id);
+  await event.save();
+
+  return image;
 }
 
 async function deleteEventImageById(eventId, imageId) {
-  const image = await EventImage.findById(imageId).exec();
-
-  if (!image) {
-    return false;
-  }
-
-  await imagesService.deleteFile(image.filename);
-
-  await EventImage.findByIdAndRemove(imageId).exec();
+  await imageRepository.deleteImageById(imageId);
 
   await Event.findByIdAndUpdate(eventId, {
     $pull: { images: imageId },

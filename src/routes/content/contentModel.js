@@ -17,6 +17,7 @@ const ContentSchema = new Schema(
       validate: arr => !!arr.length,
     },
     pageSlug: String,
+    images: [{ type: String, ref: 'Image' }],
   },
   {
     timestamps: true,
@@ -34,4 +35,4 @@ ContentSchema.method('deserialize', function() {
   return deserialize(this);
 });
 
-module.exports = mongoose.model('Content', ContentSchema);
+module.exports = mongoose.model('Content', ContentSchema, 'content');

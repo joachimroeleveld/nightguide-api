@@ -41,7 +41,7 @@ const {
 } = require('../../shared/constants');
 const eventRepository = require('../events/eventRepository');
 const tagRepository = require('../tags/tagRepository');
-const VenueImage = require('./venueImageModel');
+const imageRepository = require('../images/imageRepository');
 
 const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 
@@ -1220,7 +1220,7 @@ Object {
       });
 
       const res = await request(global.app).delete(`/venues/${venue._id}`);
-      const deletedImage = await VenueImage.findById(image._id).exec();
+      const deletedImage = await imageRepository.getImage(image._id);
 
       expect(deletedImage).toBe(null);
       expect(res.status).toEqual(200);

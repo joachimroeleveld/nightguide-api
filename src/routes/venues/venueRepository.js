@@ -1,12 +1,8 @@
-const request = require('request-promise-native');
-const imgSize = require('image-size');
-const mimeTypes = require('mime-types');
 const _ = require('lodash');
 
-const imagesService = require('../../shared/services/images');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
+const imageRepository = require('../images/imageRepository');
 const Venue = require('./venueModel');
-const VenueImage = require('./venueImageModel');
 const {
   serialize,
   deserialize,
@@ -88,7 +84,7 @@ async function getVenues(opts, withCount = false) {
 
   if (populate.includes('images')) {
     agg.lookup({
-      from: 'venueimages',
+      from: 'images',
       foreignField: '_id',
       localField: 'images',
       as: 'images',
@@ -138,70 +134,40 @@ async function deleteVenue(id, opts) {
   return Venue.findByIdAndRemove(id, opts).exec();
 }
 
-async function uploadVenueImage(venueId, { buffer, mime }) {
-  if (!imagesService.SUPPORTED_MIME_TYPES.includes(mime)) {
-    throw new InvalidArgumentError('invalid_mime');
-  }
-
+async function uploadVenueImage(venueId, { buffer, mime, extraData }) {
   const venue = await Venue.findById(venueId).exec();
   if (!venue) {
     throw new NotFoundError('venue_not_found');
   }
 
-  const image = new VenueImage({
-    filesize: buffer.byteLength,
-    filetype: mime,
+  const image = await imageRepository.uploadImage({
+    buffer,
+    mime,
+    extraData,
   });
 
-  image.filename = `${image._id}.${mimeTypes.extension(mime)}`;
+  venue.images.push(image._id);
+  await venue.save();
 
-  try {
-    await imagesService.upload(image.filename, mime, buffer);
-
-    const dimensions = imgSize(buffer);
-
-    image.url = await imagesService.getServeableUrl(image.filename);
-    image.width = dimensions.width;
-    image.height = dimensions.height;
-
-    await image.save();
-
-    venue.images.push(image._id);
-
-    await venue.save();
-
-    return image;
-  } catch (e) {
-    console.error('Upload error: ', e);
-    throw new Error('upload_failed');
-  }
+  return image;
 }
 
-async function uploadVenueImageByUrl(venueId, image) {
-  const { url } = image;
-  const res = await request.get({
-    uri: url,
-    resolveWithFullResponse: true,
-    encoding: null,
-  });
-  const mime = res.headers['content-type'];
+async function uploadVenueImageByUrl(venueId, imageData) {
+  const venue = await Venue.findById(venueId).exec();
+  if (!venue) {
+    throw new NotFoundError('venue_not_found');
+  }
 
-  return await uploadVenueImage(venueId, {
-    buffer: res.body,
-    mime,
-  });
+  const image = await imageRepository.uploadImageByUrl(imageData);
+
+  venue.images.push(image._id);
+  await venue.save();
+
+  return image;
 }
 
 async function deleteVenueImageById(venueId, imageId) {
-  const image = await VenueImage.findById(imageId).exec();
-
-  if (!image) {
-    return false;
-  }
-
-  await imagesService.deleteFile(image.filename);
-
-  await VenueImage.findByIdAndRemove(imageId).exec();
+  await imageRepository.deleteImageById(imageId);
 
   await Venue.findByIdAndUpdate(venueId, {
     $pull: { images: imageId },

@@ -782,7 +782,7 @@ paths:
                   results:
                     type: array
                     items:
-                      $ref: '#/components/schemas/VenueImage'
+                      $ref: '#/components/schemas/Image'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1171,7 +1171,7 @@ paths:
                   results:
                     type: array
                     items:
-                      $ref: '#/components/schemas/EventImage'
+                      $ref: '#/components/schemas/Image'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1274,7 +1274,7 @@ paths:
                   updated:
                     type: boolean
                   result:
-                    $ref: '#/components/schemas/EventImage'
+                    $ref: '#/components/schemas/Image'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -1959,6 +1959,92 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /content/{contentId}/images:
+    post:
+      summary: Create a content image.
+      operationId: createContentImage
+      tags:
+        - content
+      parameters:
+        - in: path
+          name: contentId
+          schema:
+            type: string
+          required: true
+          description: Content ID.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+          application/json:
+            schema:
+              type: object
+              properties:
+                images:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+      responses:
+        '200':
+          description: Image uploaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Image'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /content/{contentId}/images/{imageId}:
+    delete:
+      summary: Delete a content image.
+      operationId: deleteContentImage
+      tags:
+        - events
+      parameters:
+        - in: path
+          name: contentId
+          schema:
+            type: string
+          required: true
+          description: Content ID.
+        - in: path
+          name: imageId
+          schema:
+            type: string
+          required: true
+          description: Image ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
 components:
   responses:
@@ -2047,6 +2133,8 @@ components:
         height:
           type: number
           description: Image height.
+        extraData:
+          type: object
     Venue:
       type: object
       properties:
@@ -2179,7 +2267,7 @@ components:
           items:
             oneOf:
               - type: string
-              - $ref: '#/components/schemas/VenueImage'
+              - $ref: '#/components/schemas/Image'
         admin:
           type: object
           properties:
@@ -2274,9 +2362,6 @@ components:
           'wine_bar',
           'whisky_bar',
         ]
-    VenueImage:
-      allOf:
-        - $ref: '#/components/schemas/Image'
     Event:
       type: object
       properties:
@@ -2328,7 +2413,7 @@ components:
           items:
             oneOf:
               - type: string
-              - $ref: '#/components/schemas/EventImage'
+              - $ref: '#/components/schemas/Image'
         facebook:
           type: object
           properties:
@@ -2354,9 +2439,6 @@ components:
           properties:
             hide:
               type: boolean
-    EventImage:
-      allOf:
-        - $ref: '#/components/schemas/Image'
     EventDate:
       type: object
       properties:

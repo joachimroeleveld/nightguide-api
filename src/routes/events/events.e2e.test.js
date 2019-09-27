@@ -25,8 +25,8 @@ const eventRepository = require('./eventRepository');
 const venueRepository = require('../venues/venueRepository');
 const tagRepository = require('../tags/tagRepository');
 const artistRepository = require('../artists/artistRepository');
+const imageRepository = require('../images/imageRepository');
 const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
-const EventImage = require('../events/eventImageModel');
 
 const EVENT_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -795,7 +795,7 @@ Object {
       });
 
       const res = await request(global.app).delete(`/events/${event._id}`);
-      const deletedImage = await EventImage.findById(image._id).exec();
+      const deletedImage = await imageRepository.getImage(image._id);
 
       expect(deletedImage).toBe(null);
       expect(res.status).toEqual(200);
@@ -959,7 +959,9 @@ Object {
 
       await eventRepository.uploadEventImageByUrl(event._id, {
         url: 'http://existing.com',
-        fbUrl: 'http://existing.com',
+        extraData: {
+          fbUrl: 'http://existing.com',
+        },
       });
 
       const res = await request(global.app)
@@ -993,7 +995,9 @@ Object {
 
       await eventRepository.uploadEventImageByUrl(event._id, {
         url: 'foo',
-        fbUrl: 'http://existing.com',
+        extraData: {
+          fbUrl: 'http://existing.com',
+        },
       });
 
       const res = await request(global.app)

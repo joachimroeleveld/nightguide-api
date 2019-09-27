@@ -1,7 +1,9 @@
 require('../../shared/__test__/testBootstrap');
 
+const fs = require('fs');
 const request = require('supertest');
 const sinon = require('sinon');
+const nodeRequest = require('request-promise-native');
 
 const { validator } = require('../../shared/openapi');
 const {
@@ -12,6 +14,9 @@ const {
 const { CONTENT_TYPES } = require('../../shared/constants');
 const { resetDb } = require('../../shared/__test__/testUtils');
 const contentRepository = require('./contentRepository');
+const imageRepository = require('../images/imageRepository');
+const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
+const imagesService = require('../../shared/services/images');
 
 const CONTENT_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -44,6 +49,7 @@ Object {
   "__v": 0,
   "createdAt": Any<String>,
   "id": Any<String>,
+  "images": Array [],
   "pageSlug": "nl/utrecht",
   "title": Object {
     "en": "Pretty interesting article",
@@ -345,6 +351,113 @@ Object {
       expect(content).toBe(null);
       expect(res.status).toEqual(200);
       expect(res.body.success).toEqual(true);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('deletes content images', async () => {
+      const content = await contentRepository.createContent(TEST_CONTENT_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('foo');
+      sandbox.stub(imagesService, 'deleteFile').resolves();
+      const image = await contentRepository.uploadContentImage(content._id, {
+        buffer: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        mime: 'image/jpeg',
+      });
+
+      const res = await request(global.app).delete(`/content/${content._id}`);
+      const deletedImage = await imageRepository.getImage(image._id);
+
+      expect(deletedImage).toBe(null);
+      expect(res.status).toEqual(200);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('POST /content/:contentId/images', () => {
+    const validateResponse = validator.validateResponse(
+      'post',
+      '/content/{contentId}/images'
+    );
+    const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
+
+    it('happy path - multipart', async () => {
+      const content = await contentRepository.createContent(TEST_CONTENT_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
+
+      const res = await request(global.app)
+        .post(`/content/${content.id}/images`)
+        .attach('images', IMAGE_FIXTURE_PATH);
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results[0].url).toEqual('testurl');
+      expect(res.body.results[0].filesize).toEqual(1884);
+      expect(res.body.results[0].filetype).toEqual('image/jpeg');
+      expect(res.body.results[0].width).toEqual(400);
+      expect(res.body.results[0].height).toEqual(400);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('happy path - url', async () => {
+      const content = await contentRepository.createContent(TEST_CONTENT_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
+      sandbox.stub(nodeRequest, 'get').resolves({
+        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        headers: {
+          'content-type': 'image/jpeg',
+        },
+      });
+
+      const res = await request(global.app)
+        .post(`/content/${content.id}/images`)
+        .send({
+          images: [
+            {
+              url: 'http://testurl.com',
+            },
+          ],
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results[0].url).toEqual('testurl');
+      expect(res.body.results[0].filesize).toEqual(1884);
+      expect(res.body.results[0].filetype).toEqual('image/jpeg');
+      expect(res.body.results[0].width).toEqual(400);
+      expect(res.body.results[0].height).toEqual(400);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('DELETE /content/:contentId/images/:imageId', () => {
+    const validateResponse = validator.validateResponse(
+      'delete',
+      '/content/{contentId}/images/{imageId}'
+    );
+
+    it('happy path', async () => {
+      const content = await contentRepository.createContent(TEST_CONTENT_1);
+
+      sandbox.stub(imagesService, 'upload').resolves();
+      sandbox.stub(imagesService, 'getServeableUrl').resolves('foo');
+      sandbox.stub(imagesService, 'deleteFile').resolves();
+      const image = await contentRepository.uploadContentImage(content._id, {
+        buffer: fs.readFileSync(IMAGE_FIXTURE_PATH),
+        mime: 'image/jpeg',
+      });
+
+      const res = await request(global.app).delete(
+        `/content/${content._id.toString()}/images/${image._id}`
+      );
+
+      const newContent = await contentRepository.getContent(content._id);
+
+      expect(res.status).toEqual(200);
+      expect(imagesService.deleteFile.calledWith(image.filename)).toBe(true);
+      expect(newContent.images).toBeUndefined();
       expect(validateResponse(res)).toBeUndefined();
     });
   });

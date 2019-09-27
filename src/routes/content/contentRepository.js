@@ -3,6 +3,7 @@ const Content = require('./contentModel');
 const { slugifyUrlString } = require('./lib/urlSlugs');
 const { serialize, deserialize } = require('./lib/serialization');
 const { match } = require('./lib/aggregation');
+const imageRepository = require('../images/imageRepository');
 
 async function getContent(opts, withCount = false) {
   const { offset, limit, ...filters } = opts;
@@ -97,6 +98,46 @@ async function getContentByUrlSlug(urlSlug) {
   return getContentSingle({ urlSlugs: urlSlug });
 }
 
+async function uploadContentImage(contentId, { buffer, mime, extraData }) {
+  const content = await Content.findById(contentId).exec();
+  if (!content) {
+    throw new NotFoundError('content_not_found');
+  }
+
+  const image = await imageRepository.uploadImage({
+    buffer,
+    mime,
+    extraData,
+  });
+
+  content.images.push(image._id);
+  await content.save();
+
+  return image;
+}
+
+async function uploadContentImageByUrl(contentId, imageData) {
+  const content = await Content.findById(contentId).exec();
+  if (!content) {
+    throw new NotFoundError('content_not_found');
+  }
+
+  const image = await imageRepository.uploadImageByUrl(imageData);
+
+  content.images.push(image._id);
+  await content.save();
+
+  return image;
+}
+
+async function deleteContentImageById(contentId, imageId) {
+  await imageRepository.deleteImageById(imageId);
+
+  await Content.findByIdAndUpdate(contentId, {
+    $pull: { images: imageId },
+  }).exec();
+}
+
 async function _generateUniqueSlug(string) {
   let slugRev = 1;
   const slugBase = slugifyUrlString(string);
@@ -120,6 +161,9 @@ module.exports = {
   getContentByUrlSlug,
   updateContentSingle,
   deleteContentSingle,
+  uploadContentImage,
+  uploadContentImageByUrl,
+  deleteContentImageById,
   serialize,
   deserialize,
 };

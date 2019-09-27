@@ -6,6 +6,7 @@ const { NotFoundError } = require('../../../shared/errors');
 const venueRepository = require('../../venues/venueRepository');
 const { deserializeTag } = require('../../tags/tagRepository');
 const artistRepository = require('../../artists/artistRepository');
+const imageRepository = require('../../artists/artistRepository');
 
 /**
  * Prepare event object to be sent to client.
@@ -23,7 +24,7 @@ function deserialize(event) {
   delete event.queryText;
 
   if (isPopulated(event.images)) {
-    event.images = event.images.map(deserializeImage);
+    event.images = event.images.map(imageRepository.deserialize);
   }
   if (isPopulated(event.tags)) {
     event.tags = event.tags.map(deserializeTag);
@@ -131,21 +132,7 @@ async function serialize(event) {
   return event;
 }
 
-function deserializeImage(image) {
-  if (image.toObject) {
-    image = image.toObject();
-  } else {
-    image = _.cloneDeep(image);
-  }
-
-  image.id = image._id;
-  delete image._id;
-
-  return image;
-}
-
 module.exports = {
   deserialize,
   serialize,
-  deserializeImage,
 };

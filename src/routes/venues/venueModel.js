@@ -33,7 +33,7 @@ const VenueSchema = new Schema(
         enum: Object.values(VENUE_CATEGORIES),
       },
     ],
-    images: [{ type: String, ref: 'VenueImage' }],
+    images: [{ type: String, ref: 'Image' }],
     location: {
       address1: {
         type: String,
