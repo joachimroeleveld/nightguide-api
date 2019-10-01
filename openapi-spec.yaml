@@ -1821,6 +1821,12 @@ paths:
         - content
       parameters:
         - in: query
+          name: populate
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
           name: ids
           schema:
             type: array
@@ -1834,6 +1840,13 @@ paths:
           name: type
           schema:
             type: string
+        - in: query
+          name: fields
+          schema:
+            type: array
+            items:
+              type: string
+          description: Fields to return.
       responses:
         '200':
           description: Result content.
@@ -1863,6 +1876,12 @@ paths:
             type: string
           required: true
           description: Content ID
+        - in: query
+          name: populate
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Content.

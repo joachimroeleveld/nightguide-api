@@ -17,11 +17,14 @@ router.get(
   asyncMiddleware(async (req, res, next) => {
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 20;
+    const populate = req.query.populate || ['images'];
 
     const { results, totalCount } = await contentRepository.getContent(
       {
         offset,
         limit,
+        fields: req.query.fields,
+        populate,
         type: req.query.type,
         query: req.query.query,
         ids: req.query.ids,
@@ -56,9 +59,14 @@ router.post(
 
 router.get(
   '/:contentId',
+  coerce('get', '/content/{contentId}'),
   validator.validate('get', '/content/{contentId}'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = await contentRepository.getContentSingle(req.params.contentId);
+    const populate = req.query.populate || ['images'];
+
+    const doc = await contentRepository.getContentSingle(req.params.contentId, {
+      populate,
+    });
 
     if (!doc) {
       throw new NotFoundError('content_not_found');

@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`content e2e GET /content/:contentId happy path 1`] = `
+Object {
+  "__v": 0,
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "images": Array [],
+  "pageSlug": "nl/utrecht",
+  "title": Object {
+    "en": "Pretty interesting article",
+  },
+  "type": "venues-article",
+  "updatedAt": Any<String>,
+  "urlSlugs": Array [
+    "pretty-interesting-article",
+  ],
+}
+`;

@@ -6,7 +6,7 @@ const { match } = require('./lib/aggregation');
 const imageRepository = require('../images/imageRepository');
 
 async function getContent(opts, withCount = false) {
-  const { offset, limit, ...filters } = opts;
+  const { offset, limit, populate = [], fields, ...filters } = opts;
 
   const createAgg = () => {
     const agg = Content.aggregate();
@@ -35,6 +35,23 @@ async function getContent(opts, withCount = false) {
     agg.limit(limit);
   }
 
+  if (populate.includes('images')) {
+    agg.lookup({
+      from: 'images',
+      foreignField: '_id',
+      localField: 'images',
+      as: 'images',
+    });
+  }
+
+  if (fields) {
+    const project = {};
+    fields.forEach(field => {
+      project[field] = 1;
+    });
+    agg.project(project);
+  }
+
   const results = await agg.exec();
 
   if (withCount) {
@@ -59,12 +76,16 @@ async function createContent(data) {
   return doc;
 }
 
-async function getContentSingle(query) {
+async function getContentSingle(query, opts = {}) {
   if (typeof query === 'string') {
     query = { _id: query };
   }
 
-  return Content.findOne(query).exec();
+  const { populate = [] } = opts;
+
+  return await Content.findOne(query)
+    .populate(populate.join(' '))
+    .exec();
 }
 
 async function updateContentSingle(query, update) {

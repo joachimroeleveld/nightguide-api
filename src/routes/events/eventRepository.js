@@ -34,14 +34,7 @@ async function updateEvent(conditions, data, options = {}) {
 }
 
 async function getEvents(opts, withCount = false) {
-  const {
-    fields = [],
-    offset,
-    limit,
-    sortBy,
-    populate = [],
-    ...filters
-  } = opts;
+  const { fields, offset, limit, sortBy, populate = [], ...filters } = opts;
 
   const createAgg = () => {
     const agg = Event.aggregate();
@@ -132,7 +125,7 @@ async function getEvents(opts, withCount = false) {
 
   const project = {};
 
-  if (fields.length) {
+  if (fields) {
     fields.forEach(field => {
       project[field] = 1;
     });

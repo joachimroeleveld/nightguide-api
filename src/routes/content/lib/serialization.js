@@ -1,5 +1,8 @@
 const _ = require('lodash');
 
+const imageRepository = require('../../images/imageRepository');
+const { isPopulated } = require('../../../shared/util/mongooseUtils');
+
 /**
  * Prepare content object to be sent to client.
  * @returns {Event}
@@ -13,6 +16,10 @@ function deserialize(content) {
 
   content.id = content._id;
   delete content._id;
+
+  if (isPopulated(content.images)) {
+    content.images = content.images.map(imageRepository.deserializeImage);
+  }
 
   return content;
 }

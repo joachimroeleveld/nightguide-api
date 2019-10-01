@@ -1,6 +1,7 @@
 const _ = require('lodash');
 const unidecode = require('unidecode');
 
+const imageRepository = require('../../images/imageRepository');
 const { isPopulated } = require('../../../shared/util/mongooseUtils');
 const { VENUE_CAPACITY_RANGES } = require('../../../shared/constants');
 const cityConfig = require('../../../shared/cityConfig');
@@ -24,7 +25,7 @@ function deserialize(venue) {
   delete venue.queryText;
 
   if (isPopulated(venue.images)) {
-    venue.images = venue.images.map(deserializeImage);
+    venue.images = venue.images.map(imageRepository.deserializeImage);
   }
   if (isPopulated(venue.tags)) {
     venue.tags = venue.tags.map(deserializeTag);
@@ -55,19 +56,6 @@ function deserialize(venue) {
   }
 
   return venue;
-}
-
-function deserializeImage(venueImage) {
-  if (venueImage.toObject) {
-    venueImage = venueImage.toObject();
-  } else {
-    venueImage = _.cloneDeep(venueImage);
-  }
-
-  venueImage.id = venueImage._id;
-  delete venueImage._id;
-
-  return venueImage;
 }
 
 /**
@@ -167,5 +155,4 @@ function getCapacityRange(venue) {
 module.exports = {
   serialize,
   deserialize,
-  deserializeImage,
 };

@@ -3,11 +3,7 @@ const _ = require('lodash');
 const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
 const imageRepository = require('../images/imageRepository');
 const Venue = require('./venueModel');
-const {
-  serialize,
-  deserialize,
-  deserializeImage,
-} = require('./lib/serialization');
+const { serialize, deserialize } = require('./lib/serialization');
 const { match, sort } = require('./lib/aggregation');
 
 function createVenue(data) {
@@ -185,6 +181,5 @@ module.exports = {
   uploadVenueImageByUrl,
   serialize,
   deserialize,
-  deserializeImage,
   deleteVenueImageById,
 };
