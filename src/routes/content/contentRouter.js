@@ -123,7 +123,11 @@ router.get(
   '/slug/:slug',
   validator.validate('get', '/content/slug/{slug}'),
   asyncMiddleware(async (req, res, next) => {
-    const doc = await contentRepository.getContentByUrlSlug(req.params.slug);
+    const populate = req.query.populate || ['images'];
+
+    const doc = await contentRepository.getContentByUrlSlug(req.params.slug, {
+      populate,
+    });
 
     if (!doc) {
       throw new NotFoundError('content_not_found');

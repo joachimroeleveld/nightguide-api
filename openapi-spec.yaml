@@ -1467,6 +1467,12 @@ paths:
             type: string
           required: true
           description: Tag slug.
+        - in: query
+          name: populate
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Tag data.

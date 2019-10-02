@@ -115,8 +115,8 @@ async function deleteContentSingle(query) {
   return Content.deleteOne(query).exec();
 }
 
-async function getContentByUrlSlug(urlSlug) {
-  return getContentSingle({ urlSlugs: urlSlug });
+async function getContentByUrlSlug(urlSlug, opts) {
+  return getContentSingle({ urlSlugs: urlSlug }, opts);
 }
 
 async function uploadContentImage(contentId, { buffer, mime, extraData }) {
