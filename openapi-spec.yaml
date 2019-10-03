@@ -2499,6 +2499,7 @@ components:
           enum:
             - venues-article
             - page
+            - blog
         title:
           $ref: '#/components/schemas/TranslatedObject'
         urlSlugs:
