@@ -2489,7 +2489,7 @@ components:
             oneOf:
               - type: object
               - type: string
-        isPopular:
+        isHot:
           type: boolean
     Content:
       type: object

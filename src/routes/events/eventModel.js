@@ -54,7 +54,7 @@ const EventSchema = new Schema(
         ticketsUrl: String,
         providerEventId: String,
         artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
-        isPopular: Boolean,
+        isHot: Boolean,
       },
     ],
     images: [{ type: String, ref: 'Image' }],
