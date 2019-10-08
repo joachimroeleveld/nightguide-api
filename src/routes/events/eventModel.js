@@ -54,9 +54,9 @@ const EventSchema = new Schema(
         ticketsUrl: String,
         providerEventId: String,
         artists: [{ type: Schema.Types.ObjectId, ref: 'Artist' }],
+        isPopular: Boolean,
       },
     ],
-    repeat: {}, // TODO
     images: [{ type: String, ref: 'Image' }],
     videoUrl: String,
     description: translatedSchema,

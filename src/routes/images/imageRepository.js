@@ -3,9 +3,7 @@ const mimeTypes = require('mime-types');
 const request = require('request');
 const _ = require('lodash');
 
-const {
-  InvalidArgumentError,
-} = require('../../shared/errors/InvalidArgumentError');
+const InvalidArgumentError = require('../../shared/errors/InvalidArgumentError');
 const imagesService = require('../../shared/services/images');
 const Image = require('./imageModel.js');
 const { deserializeImage } = require('./lib/serialization');
