@@ -405,12 +405,9 @@ Object {
 
       sandbox.stub(imagesService, 'upload').resolves();
       sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
-      sandbox.stub(nodeRequest, 'get').resolves({
-        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
-        headers: {
-          'content-type': 'image/jpeg',
-        },
-      });
+      sandbox
+        .stub(nodeRequest, 'get')
+        .resolves(fs.readFileSync(IMAGE_FIXTURE_PATH));
 
       const res = await request(global.app)
         .post(`/content/${content.id}/images`)

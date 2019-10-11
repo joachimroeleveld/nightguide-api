@@ -834,12 +834,9 @@ Object {
 
       sandbox.stub(imagesService, 'upload').resolves();
       sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
-      sandbox.stub(nodeRequest, 'get').resolves({
-        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
-        headers: {
-          'content-type': 'image/jpeg',
-        },
-      });
+      sandbox
+        .stub(nodeRequest, 'get')
+        .resolves(fs.readFileSync(IMAGE_FIXTURE_PATH));
 
       const res = await request(global.app)
         .post(`/events/${event.id}/images`)
@@ -922,12 +919,9 @@ Object {
 
       sandbox.stub(imagesService, 'upload').resolves();
       sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
-      sandbox.stub(nodeRequest, 'get').resolves({
-        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
-        headers: {
-          'content-type': 'image/jpeg',
-        },
-      });
+      sandbox
+        .stub(nodeRequest, 'get')
+        .resolves(fs.readFileSync(IMAGE_FIXTURE_PATH));
 
       const res = await request(global.app)
         .put(`/events/facebook-events/${event.facebook.id}/image`)
@@ -950,12 +944,9 @@ Object {
       sandbox.stub(imagesService, 'upload').resolves();
       sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
       sandbox.stub(imagesService, 'deleteFile').resolves();
-      sandbox.stub(nodeRequest, 'get').resolves({
-        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
-        headers: {
-          'content-type': 'image/jpeg',
-        },
-      });
+      sandbox
+        .stub(nodeRequest, 'get')
+        .resolves(fs.readFileSync(IMAGE_FIXTURE_PATH));
 
       await eventRepository.uploadEventImageByUrl(event._id, {
         url: 'http://existing.com',
@@ -986,12 +977,9 @@ Object {
       sandbox.stub(imagesService, 'upload').resolves();
       sandbox.stub(imagesService, 'getServeableUrl').resolves('testurl');
       sandbox.stub(imagesService, 'deleteFile').resolves();
-      sandbox.stub(nodeRequest, 'get').resolves({
-        body: fs.readFileSync(IMAGE_FIXTURE_PATH),
-        headers: {
-          'content-type': 'image/jpeg',
-        },
-      });
+      sandbox
+        .stub(nodeRequest, 'get')
+        .resolves(fs.readFileSync(IMAGE_FIXTURE_PATH));
 
       await eventRepository.uploadEventImageByUrl(event._id, {
         url: 'foo',
