@@ -1,7 +1,8 @@
 const imgSize = require('image-size');
 const mimeTypes = require('mime-types');
-const request = require('request');
+const request = require('request-promise-native');
 const _ = require('lodash');
+const fileType = require('file-type');
 
 const InvalidArgumentError = require('../../shared/errors/InvalidArgumentError');
 const imagesService = require('../../shared/services/images');
@@ -52,14 +53,14 @@ async function uploadImageByUrl(image) {
   const { url, extraData } = image;
 
   const res = await request.get({
-    uri: url,
-    resolveWithFullResponse: true,
+    url,
     encoding: null,
   });
-  const mime = res.headers['content-type'];
+
+  const { mime } = fileType(res);
 
   return await uploadImage({
-    buffer: res.body,
+    buffer: res,
     mime,
     extraData,
   });

@@ -12,6 +12,7 @@ const ConfigSchema = new Schema(
     pageSlug: String,
     payload: {
       type: Object,
+      default: {},
     },
   },
   {
