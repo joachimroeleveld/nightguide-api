@@ -34,6 +34,10 @@ const EVENT_SNAPSHOT_MATCHER = {
   updatedAt: expect.any(String),
 };
 
+const EVENT_PRODUCT_MATCHER = {
+  id: expect.any(String),
+};
+
 const sandbox = sinon.createSandbox();
 
 describe('events e2e', () => {
@@ -658,9 +662,9 @@ Object {
         .send()
         .expect(200);
 
-      expect(res.body.tickets.products[0]).toMatchSnapshot({
-        id: expect.any(String),
-      });
+      expect(res.body.tickets.products[0]).toMatchSnapshot(
+        EVENT_PRODUCT_MATCHER
+      );
       expect(validateResponse(res)).toBeUndefined();
     });
 

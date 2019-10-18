@@ -1,0 +1,51 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`orders e2e GET /orders/:orderId happy path 1`] = `
+Object {
+  "__v": 0,
+  "billingDetails": Object {
+    "address": Object {
+      "country": "NL",
+    },
+    "email": "foo@bar.nl",
+    "name": "Foo Bar",
+  },
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "items": Any<Array>,
+  "paymentMethod": Object {
+    "type": "ideal",
+  },
+  "status": "completed",
+  "updatedAt": Any<String>,
+}
+`;
+
+exports[`orders e2e GET /orders/:orderId simple fields 1`] = `
+Object {
+  "__v": 0,
+  "billingDetails": Object {
+    "address": Object {
+      "city": "Magalhaesstraat 6",
+      "country": "NL",
+      "line1": "Vechtplantsoen 56",
+      "line2": "1",
+      "postalCode": "3554 TG",
+      "state": "California",
+    },
+    "email": "foo@bar.nl",
+    "name": "Foo Bar",
+  },
+  "createdAt": Any<String>,
+  "id": Any<String>,
+  "items": Any<Array>,
+  "paymentMethod": Object {
+    "ideal": Object {
+      "bank": "ing",
+    },
+    "type": "ideal",
+  },
+  "status": "completed",
+  "updatedAt": Any<String>,
+}
+`;
