@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 /**
- * Prepare content object to be sent to client.
+ * Prepare config object to be sent to client.
  * @returns {Event}
  */
 function deserialize(config) {

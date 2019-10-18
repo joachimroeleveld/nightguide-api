@@ -32,6 +32,14 @@ function deserialize(event) {
   if (isPopulated(event.artists)) {
     event.artists = event.artists.map(artistRepository.deserialize);
   }
+  if (event.tickets && event.tickets.products) {
+    event.tickets.products = event.tickets.products.map(
+      ({ _id, ...product }) => ({
+        id: _id,
+        ...product,
+      })
+    );
+  }
   if (
     event.organiser &&
     event.organiser.venue &&
@@ -91,6 +99,14 @@ async function serialize(event) {
       _id: id,
       ...date,
     }));
+  }
+  if (event.tickets && event.tickets.products) {
+    event.tickets.products = event.tickets.products.map(
+      ({ id, ...product }) => ({
+        _id: id,
+        ...product,
+      })
+    );
   }
 
   if (!event.queryText) {

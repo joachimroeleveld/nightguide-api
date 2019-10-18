@@ -19,5 +19,6 @@ module.exports = {
   ...require('./tagFixtures'),
   ...require('./contentFixtures'),
   ...require('./configFixtures'),
+  ...require('./orderFixtures'),
   generateMongoFixture,
 };

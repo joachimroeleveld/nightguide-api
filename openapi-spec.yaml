@@ -2070,6 +2070,144 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /orders:
+    get:
+      operationId: getOrders
+      tags: [orders]
+      parameters:
+        - in: query
+          name: ids
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Result orders.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Order'
+                  totalCount:
+                    type: integer
+                    format: int32
+        '500':
+          $ref: '#/components/responses/ServerError'
+    post:
+      summary: Create a order.
+      operationId: createOrder
+      tags:
+        - orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '201':
+          description: Order created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /orders/{orderId}:
+    get:
+      summary: Get a order.
+      operationId: getOrder
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID.
+      responses:
+        '200':
+          description: Order data.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    put:
+      summary: Update a order.
+      operationId: updateOrder
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Order'
+      responses:
+        '200':
+          description: Order updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+    delete:
+      summary: Delete a order.
+      operationId: deleteOrder
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
 
 components:
   responses:
@@ -2459,6 +2597,18 @@ components:
               type: string
             providerData:
               type: object
+            products:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  price:
+                    type: number
+                    format: float
         admin:
           type: object
           properties:
@@ -2491,6 +2641,62 @@ components:
               - type: string
         isHot:
           type: boolean
+    Order:
+      type: object
+      properties:
+        status:
+          type: string
+        billingDetails:
+          type: object
+          properties:
+            email:
+              type: string
+            name:
+              type: string
+            address:
+              type: object
+              properties:
+                city:
+                  type: string
+                country:
+                  type: string
+                line1:
+                  type: string
+                line2:
+                  type: string
+                postalCode:
+                  type: string
+                state:
+                  type: string
+            items:
+              type: array
+              items:
+                type: object
+                properties:
+                  eventId:
+                    type: string
+                  sku:
+                    type: string
+                  quantity:
+                    type: integer
+                    format: int32
+                    minimum: 1
+                  price:
+                    type: number
+                    format: float
+                    minimum: 0
+                  currency:
+                    type: string
+            paymentMethod:
+              type: object
+              properties:
+                type:
+                  type: string
+                ideal:
+                  type: object
+                  properties:
+                    bank:
+                      type: string
     Content:
       type: object
       required:

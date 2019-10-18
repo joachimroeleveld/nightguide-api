@@ -8,4 +8,5 @@ module.exports = {
   artists: require('./artists/artistRouter'),
   configs: require('./configs/configRouter'),
   content: require('./content/contentRouter'),
+  orders: require('./orders/orderRouter'),
 };

@@ -74,8 +74,17 @@ const EventSchema = new Schema(
       required: true,
     },
     tickets: {
-      provider: String,
+      products: [
+        {
+          name: String,
+          price: {
+            type: Number,
+            required: true,
+          },
+        },
+      ],
       checkoutUrl: String,
+      provider: String,
       providerData: Object,
     },
     admin: {

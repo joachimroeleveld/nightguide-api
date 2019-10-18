@@ -2,6 +2,11 @@ const SPEC_FILE_NAME = 'openapi-spec.yaml';
 
 const FEEDBACK_EMAIL = 'feedback@nightguide.app';
 
+const ORDER_STATUSES = {
+  ORDER_STATUS_PENDING: 'pending',
+  ORDER_STATUS_COMPLETED: 'completed',
+};
+
 const CONTENT_TYPES = {
   CONTENT_TYPE_VENUES_ARTICLE: 'venues-article',
   CONTENT_TYPE_PAGE: 'page',
@@ -137,4 +142,5 @@ module.exports = {
   VENUE_FACILITIES,
   VENUE_CAPACITY_RANGES,
   CONTENT_TYPES,
+  ORDER_STATUSES,
 };

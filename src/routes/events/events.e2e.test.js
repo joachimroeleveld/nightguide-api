@@ -640,6 +640,30 @@ Object {
       expect(validateResponse(res)).toBeUndefined();
     });
 
+    it('ticket products field', async () => {
+      const event1 = await eventRepository.createEvent({
+        ...TEST_EVENT_1,
+        tickets: {
+          products: [
+            {
+              name: 'Test ticket',
+              price: 10.12,
+            },
+          ],
+        },
+      });
+
+      const res = await request(global.app)
+        .get(`/events/${event1._id}`)
+        .send()
+        .expect(200);
+
+      expect(res.body.tickets.products[0]).toMatchSnapshot({
+        id: expect.any(String),
+      });
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
     it('tags fields', async () => {
       const tag1 = await tagRepository.createTag(TEST_TAG_1);
       const event1 = await eventRepository.createEvent({
