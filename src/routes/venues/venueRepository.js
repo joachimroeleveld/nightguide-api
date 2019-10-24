@@ -1,7 +1,15 @@
 const _ = require('lodash');
+const uuidv4 = require('uuid/v4');
 
-const { InvalidArgumentError, NotFoundError } = require('../../shared/errors');
+const config = require('../../shared/config');
+const {
+  InvalidArgumentError,
+  NotFoundError,
+  PreconditionFailedError,
+} = require('../../shared/errors');
 const imageRepository = require('../images/imageRepository');
+const ticketCodesTemplate = require('../../shared/templates/pdf/ticket-codes');
+const storage = require('../../shared/services/storage');
 const Venue = require('./venueModel');
 const { serialize, deserialize } = require('./lib/serialization');
 const { match, sort } = require('./lib/aggregation');
@@ -170,6 +178,91 @@ async function deleteVenueImageById(venueId, imageId) {
   }).exec();
 }
 
+async function generateVenueTicketCodes(venueId) {
+  const codes = [];
+  for (let l = 0; l < 26; l++) {
+    const letter = String.fromCharCode(97 + l).toUpperCase();
+    for (let i = 0; i < 10; i++) {
+      const rest = Math.random()
+        .toString(36)
+        .substr(2, 5);
+      codes.push(letter + rest.toUpperCase());
+    }
+  }
+  codes.reverse();
+
+  const venue = await Venue.findByIdAndUpdate(
+    venueId,
+    {
+      $set: { 'tickets.codes': codes },
+    },
+    { new: true }
+  ).exec();
+
+  if (!venue) {
+    throw new NotFoundError('venue_not_found');
+  }
+
+  return venue.tickets.codes;
+}
+
+async function generateVenueTicketCodesPdfUrl(venueId) {
+  const venue = await getVenue(venueId);
+
+  const codes = _.get(venue, 'tickets.codes');
+  if (!codes || !codes.length) {
+    throw new PreconditionFailedError('venue_without_ticket_codes');
+  }
+
+  const pdfStream = await ticketCodesTemplate.render({ codes });
+
+  const bucketName = config.get('BUCKET_TICKET_CODES');
+  const bucket = storage.bucket(bucketName);
+
+  const fileName = `${venueId}/${uuidv4()}.pdf`;
+  const file = bucket.file(fileName);
+
+  const save = file.createWriteStream({
+    metadata: {
+      contentType: 'application/pdf',
+    },
+  });
+  pdfStream.pipe(save);
+
+  return new Promise((resolve, reject) => {
+    save.on('error', reject);
+    save.on('finish', async () => {
+      await file.makePublic();
+      const pdfUrl = `https://storage.cloud.google.com/${bucketName}/${fileName}`;
+
+      try {
+        await updateVenue(venueId, {
+          $set: { 'tickets.pdfUrl': pdfUrl },
+        });
+
+        resolve(pdfUrl);
+      } catch (e) {
+        reject(e);
+      }
+    });
+  });
+}
+
+async function redeemVenueTicketCode(venueId) {
+  const venue = await getVenue(venueId);
+
+  const codes = _.get(venue, 'tickets.codes');
+  if (!codes || !codes.length) {
+    throw new PreconditionFailedError('venue_without_ticket_codes');
+  }
+
+  const code = venue.tickets.codes.pop();
+
+  await venue.save();
+
+  return code;
+}
+
 module.exports = {
   createVenue,
   getVenues,
@@ -182,4 +275,7 @@ module.exports = {
   serialize,
   deserialize,
   deleteVenueImageById,
+  generateVenueTicketCodes,
+  redeemVenueTicketCode,
+  generateVenueTicketCodesPdfUrl,
 };

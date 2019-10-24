@@ -1,5 +1,6 @@
 require('../../shared/__test__/testBootstrap');
 
+const fs = require('fs');
 const update = require('immutability-helper');
 const request = require('supertest');
 const sinon = require('sinon');
@@ -9,10 +10,16 @@ const {
   TEST_ORDER_1,
   TEST_ORDER_2,
   TEST_ORDER_3,
+  TEST_EVENT_1,
+  PDF_FIXTURE_PATH,
 } = require('../../shared/__test__/fixtures');
 const { resetDb } = require('../../shared/__test__/testUtils');
 const orderRepository = require('./orderRepository');
+const eventRepository = require('../events/eventRepository');
 const { ORDER_STATUSES } = require('../../shared/constants');
+const mail = require('../../shared/services/mail');
+const downloads = require('./lib/downloads');
+const ticketsTemplate = require('../../shared/templates/pdf/tickets');
 
 const ORDER_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -48,19 +55,11 @@ describe('orders e2e', () => {
         `
 Object {
   "__v": 0,
-  "billingDetails": Object {
-    "address": Object {
-      "country": "NL",
-    },
-    "email": "foo@bar.nl",
-    "name": "Foo Bar",
-  },
+  "amount": 10,
   "createdAt": Any<String>,
+  "currency": "EUR",
   "id": Any<String>,
   "items": Any<Array>,
-  "paymentMethod": Object {
-    "type": "ideal",
-  },
   "status": "completed",
   "updatedAt": Any<String>,
 }
@@ -70,7 +69,6 @@ Object {
         ORDER_ITEM_SNAPSHOT_MATCHER,
         `
 Object {
-  "currency": "EUR",
   "id": Any<String>,
   "price": 10,
   "quantity": 1,
@@ -83,7 +81,7 @@ Object {
 
     it('should limit the amount of results to the limit parameter', async () => {
       const order1 = await orderRepository.createOrder(TEST_ORDER_1);
-      await orderRepository.createOrder(TEST_ORDER_2);
+      const order2 = await orderRepository.createOrder(TEST_ORDER_2);
 
       const res = await request(global.app)
         .get('/orders')
@@ -94,12 +92,12 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toEqual(1);
       expect(res.body.limit).toEqual(1);
-      expect(res.body.results[0].id).toEqual(order1._id.toString());
+      expect(res.body.results[0].id).toEqual(order2._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 
     it('should skip items set in offset parameter', async () => {
-      await orderRepository.createOrder(TEST_ORDER_1);
+      const order1 = await orderRepository.createOrder(TEST_ORDER_1);
       const order2 = await orderRepository.createOrder(TEST_ORDER_2);
 
       const res = await request(global.app)
@@ -111,7 +109,7 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toEqual(1);
       expect(res.body.offset).toEqual(1);
-      expect(res.body.results[0].id).toEqual(order2._id.toString());
+      expect(res.body.results[0].id).toEqual(order1._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 
@@ -147,6 +145,30 @@ Object {
       expect(res.body.results.map(item => item.id).sort()).toEqual(ids);
       expect(validateResponse(res)).toBeUndefined();
     });
+
+    it('status filter', async () => {
+      const order1 = await orderRepository.createOrder(
+        update(TEST_ORDER_1, {
+          status: { $set: ORDER_STATUSES.ORDER_STATUS_PROCESSING },
+        })
+      );
+      await orderRepository.createOrder(
+        update(TEST_ORDER_2, {
+          status: { $set: ORDER_STATUSES.ORDER_STATUS_PENDING },
+        })
+      );
+
+      const res = await request(global.app)
+        .get('/orders')
+        .query({
+          status: ORDER_STATUSES.ORDER_STATUS_PROCESSING,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.results.length).toBe(1);
+      expect(res.body.results[0].id).toEqual(order1._id.toString());
+      expect(validateResponse(res)).toBeUndefined();
+    });
   });
 
   describe('GET /orders/:orderId', () => {
@@ -172,24 +194,22 @@ Object {
       const order1 = await orderRepository.createOrder(
         update(TEST_ORDER_1, {
           billingDetails: {
-            address: {
-              city: { $set: 'Magalhaesstraat 6' },
-              line1: { $set: 'Vechtplantsoen 56' },
-              line2: { $set: '1' },
-              postalCode: { $set: '3554 TG' },
-              state: { $set: 'California' },
-            },
-          },
-          items: {
-            [0]: {
-              eventId: { $set: '5d95ed62aee3f4f9c18c04e5' },
-            },
-          },
-          paymentMethod: {
-            ideal: {
-              $set: {
-                bank: 'ing',
+            $set: {
+              name: 'Joachim Roeleveld',
+              email: 'foo@bar.nl',
+              address: {
+                country: 'NL',
+                city: 'Magalhaesstraat 6',
+                line1: 'Vechtplantsoen 56',
+                line2: '1',
+                postalCode: '3554 TG',
+                state: 'California',
               },
+            },
+          },
+          metadata: {
+            $set: {
+              eventId: '5d95ed62aee3f4f9c18c04e5',
             },
           },
         })
@@ -241,6 +261,57 @@ Object {
       expect(body.status).toEqual(ORDER_STATUSES.ORDER_STATUS_PENDING);
       expect(validateResponse(res)).toBeUndefined();
     });
+
+    it('creates a downloads key when status changes to processing', async () => {
+      const event = await eventRepository.createEvent(TEST_EVENT_1);
+      const order1 = await orderRepository.createOrder({
+        ...TEST_ORDER_1,
+        status: ORDER_STATUSES.ORDER_STATUS_PENDING,
+        metadata: { eventId: event._id },
+      });
+
+      sandbox.stub(downloads, 'generateDownloadsKey').returns('abc');
+
+      const res = await request(global.app)
+        .put(`/orders/${order1._id}`)
+        .send({
+          status: ORDER_STATUSES.ORDER_STATUS_PROCESSING,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(res.body.downloads.key).toEqual('abc');
+      expect(validateResponse(res)).toBeUndefined();
+    });
+
+    it('sends a ticket mail when status changes to processing', async () => {
+      const event = await eventRepository.createEvent(TEST_EVENT_1);
+      const order1 = await orderRepository.createOrder({
+        ...TEST_ORDER_1,
+        status: ORDER_STATUSES.ORDER_STATUS_PENDING,
+        metadata: { eventId: event._id },
+      });
+
+      sandbox.stub(downloads, 'generateDownloadsKey').returns('abc');
+      sandbox
+        .stub(ticketsTemplate, 'render')
+        .resolves(fs.createReadStream(PDF_FIXTURE_PATH));
+      sandbox.stub(mail, 'sendBasicEmail').resolves();
+
+      const res = await request(global.app)
+        .put(`/orders/${order1._id}`)
+        .send({
+          status: ORDER_STATUSES.ORDER_STATUS_PROCESSING,
+        });
+
+      expect(res.status).toEqual(200);
+      expect(mail.sendBasicEmail.getCall(0).args[0]).toBe(
+        order1.billingDetails.email
+      );
+      expect(mail.sendBasicEmail.getCall(0).args[1]).toMatchSnapshot();
+      expect(mail.sendBasicEmail.getCall(0).args[2]).toMatchSnapshot();
+      expect(mail.sendBasicEmail.getCall(0).args[3]).toMatchSnapshot();
+      expect(validateResponse(res)).toBeUndefined();
+    });
   });
 
   describe('DELETE /orders/:orderId', () => {
@@ -260,6 +331,31 @@ Object {
 
       expect(order).toBe(null);
       expect(res.status).toEqual(200);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('PUT /orders/:orderId/metadata/:metaKey', () => {
+    const validateResponse = validator.validateResponse(
+      'put',
+      '/orders/{orderId}/metadata/{metaKey}'
+    );
+
+    it('happy path', async () => {
+      const order1 = await orderRepository.createOrder(TEST_ORDER_1);
+
+      const res = await request(global.app)
+        .put(`/orders/${order1._id}/metadata/foo`)
+        .send({
+          value: 'bar',
+        });
+      const body = res.body;
+
+      let order = await orderRepository.getOrder(order1._id);
+
+      expect(res.status).toEqual(200);
+      expect(body.foo).toEqual('bar');
+      expect(order.metadata.foo).toEqual('bar');
       expect(validateResponse(res)).toBeUndefined();
     });
   });

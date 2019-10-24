@@ -3,9 +3,10 @@ dotenv.load();
 
 const sgMail = require('@sendgrid/mail');
 const mongoose = require('mongoose');
-const config = require('../config');
-
 const sandbox = require('sinon').createSandbox();
+
+const i18n = require('../../framework/i18n');
+const config = require('../config');
 const { mockUserAuth } = require('./authMock');
 const configMock = require('./configMock');
 
@@ -33,6 +34,7 @@ beforeAll(cb => {
       useNewUrlParser: true,
       dbName: 'main-test',
     })
+    .then(i18n.init)
     .then(() => cb())
     .catch(err => cb(err));
 });

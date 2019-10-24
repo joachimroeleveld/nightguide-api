@@ -1,9 +1,10 @@
 const { Router } = require('express');
+const _ = require('lodash');
 
 const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
-const { NotFoundError } = require('../../shared/errors');
+const { NotFoundError, UnauthorizedError } = require('../../shared/errors');
 const orderRepository = require('./orderRepository');
 
 const router = new Router();
@@ -22,6 +23,7 @@ router.get(
         offset,
         limit,
         ids: req.query.ids,
+        status: req.query.status,
       },
       true
     );
@@ -96,6 +98,48 @@ router.delete(
     await orderRepository.deleteOrder(req.params.orderId);
 
     res.json({ success: true });
+  })
+);
+
+router.put(
+  '/:orderId/metadata/:metaKey',
+  adminAuth(),
+  validator.validate('put', '/orders/{orderId}/metadata/{metaKey}'),
+  asyncMiddleware(async (req, res, next) => {
+    const meta = await orderRepository.updateOrderMeta(
+      req.params.orderId,
+      req.params.metaKey,
+      req.body.value
+    );
+
+    res.json(meta);
+  })
+);
+
+router.get(
+  '/:orderId/downloads',
+  validator.validate('get', '/orders/{orderId}/downloads'),
+  asyncMiddleware(async (req, res, next) => {
+    let order = await orderRepository.getOrder(req.params.orderId);
+
+    if (!order) {
+      throw new NotFoundError('order_not_found');
+    }
+    if (_.get(order, 'downloads.key') !== req.query.key) {
+      throw new UnauthorizedError('invalid_key');
+    }
+
+    const stream = await orderRepository.getOrderDownloads(req.params.orderId);
+
+    res.set('Content-type', 'application/pdf');
+    // View inline when in development
+    if (process.env.NODE_ENV !== 'development') {
+      res.set(
+        'Content-Disposition',
+        `attachment; filename="order${order._id}.pdf"`
+      );
+    }
+    stream.pipe(res);
   })
 );
 

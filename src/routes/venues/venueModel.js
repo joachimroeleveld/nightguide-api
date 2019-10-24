@@ -130,6 +130,10 @@ const VenueSchema = new Schema(
       type: String,
       required: true,
     },
+    tickets: {
+      codes: [String],
+      pdfUrl: String,
+    },
     admin: {
       hide: Boolean,
     },
@@ -142,8 +146,8 @@ const VenueSchema = new Schema(
 VenueSchema.index({ 'location.coordinates': '2dsphere' });
 VenueSchema.index({ tags: 1 });
 
-VenueSchema.method('deserialize', function() {
-  return deserialize(this);
+VenueSchema.method('deserialize', function(...args) {
+  return deserialize(this, ...args);
 });
 
 module.exports = mongoose.model('Venue', VenueSchema);

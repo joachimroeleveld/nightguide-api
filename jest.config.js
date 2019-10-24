@@ -4,4 +4,7 @@ module.exports = {
   verbose: true,
   clearMocks: true,
   testEnvironment: 'node',
+  transform: {
+    '\\.jsx$': 'babel-jest',
+  },
 };

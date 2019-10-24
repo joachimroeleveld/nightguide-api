@@ -1,8 +1,8 @@
 const Artist = require('./artistModel');
-const _ = require('lodash');
 const { NotFoundError } = require('../../shared/errors');
 const { serialize, deserialize } = require('./lib/serialization');
 const { match } = require('./lib/aggregation');
+const { isValidObjectId } = require('../../shared/util/mongooseUtils');
 
 async function getArtists(opts = {}, withCount = false) {
   const { offset, limit, ...filters } = opts;
@@ -55,7 +55,7 @@ async function createArtist(data) {
 
 async function updateArtist(conditions, data, options = {}) {
   let where = conditions;
-  if (_.isString(conditions)) {
+  if (isValidObjectId(conditions)) {
     where = { _id: conditions };
   }
   const artist = await Artist.findOneAndUpdate(where, data, {

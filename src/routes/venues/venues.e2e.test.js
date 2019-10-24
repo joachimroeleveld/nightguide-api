@@ -1,5 +1,6 @@
 require('../../shared/__test__/testBootstrap');
 
+const stream = require('stream');
 const moment = require('moment');
 const fs = require('fs');
 const nodeRequest = require('request-promise-native');
@@ -8,6 +9,7 @@ const sinon = require('sinon');
 const _ = require('lodash');
 const update = require('immutability-helper');
 
+const storage = require('../../shared/services/storage');
 const { validator } = require('../../shared/openapi');
 const imagesService = require('../../shared/services/images');
 const {
@@ -23,6 +25,8 @@ const {
   COORDINATES_THE_HAGUE,
   COORDINATES_WOERDEN,
   COORDINATES_UTRECHT,
+  IMAGE_FIXTURE_PATH,
+  PDF_FIXTURE_PATH,
 } = require('../../shared/__test__/fixtures');
 const {
   resetDb,
@@ -42,8 +46,7 @@ const {
 const eventRepository = require('../events/eventRepository');
 const tagRepository = require('../tags/tagRepository');
 const imageRepository = require('../images/imageRepository');
-
-const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
+const ticketCodesTemplate = require('../../shared/templates/pdf/ticket-codes');
 
 const VENUE_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -1221,6 +1224,41 @@ Object {
 
       expect(deletedImage).toBe(null);
       expect(res.status).toEqual(200);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
+  describe('POST /venues/:venueId/generate-ticket-codes', () => {
+    const validateResponse = validator.validateResponse(
+      'post',
+      '/venues/{venueId}/generate-ticket-codes'
+    );
+
+    it('happy path', async () => {
+      const venue1 = await venueRepository.createVenue(TEST_VENUE_1);
+
+      const createWriteStream = () => stream.PassThrough();
+      sandbox.stub(storage, 'bucket').returns({
+        file: () => ({ createWriteStream, makePublic: () => {} }),
+      });
+      sandbox
+        .stub(ticketCodesTemplate, 'render')
+        .resolves(fs.createReadStream(PDF_FIXTURE_PATH));
+
+      const res = await request(global.app).post(
+        `/venues/${venue1._id}/generate-ticket-codes`
+      );
+
+      const venue = await venueRepository.getVenue(venue1._id);
+
+      expect(res.status).toEqual(200);
+      expect(createWriteStream.calledOnce);
+      expect(venue.tickets.codes.length).toBe(260);
+      expect(venue.tickets.codes[0].length).toBe(6);
+      expect(venue.tickets.codes[0].charAt(0)).toBe('Z');
+      expect(venue.tickets.pdfUrl.length).toBeGreaterThan(100);
+      expect(res.body.codes).toEqual(venue.tickets.codes.toObject());
+      expect(res.body.pdfUrl).toEqual(venue.tickets.pdfUrl);
       expect(validateResponse(res)).toBeUndefined();
     });
   });

@@ -1,8 +1,8 @@
 const Config = require('./configModel');
-const _ = require('lodash');
 const { NotFoundError } = require('../../shared/errors');
 const { serialize, deserialize } = require('./lib/serialization');
 const { match } = require('./lib/aggregation');
+const { isValidObjectId } = require('../../shared/util/mongooseUtils');
 
 async function getConfigs(opts = {}, withCount = false) {
   const { offset, limit, ...filters } = opts;
@@ -55,7 +55,7 @@ async function createConfig(data) {
 
 async function updateConfig(conditions, data, options = {}) {
   let where = conditions;
-  if (_.isString(conditions)) {
+  if (isValidObjectId(conditions)) {
     where = { _id: conditions };
   }
   const config = await Config.findOneAndUpdate(where, data, {

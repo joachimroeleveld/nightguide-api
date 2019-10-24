@@ -5,7 +5,7 @@ const sinon = require('sinon');
 
 const { resetDb } = require('../../shared/__test__/testUtils');
 const { validator } = require('../../shared/openapi');
-const mailService = require('../../shared/services/mail');
+const mail = require('../../shared/services/mail');
 
 const sandbox = sinon.createSandbox();
 
@@ -22,7 +22,7 @@ describe('misc e2e', () => {
     );
 
     it('happy path', async () => {
-      sandbox.stub(mailService, 'sendBasicEmail').resolves();
+      sandbox.stub(mail, 'sendBasicEmail').resolves();
 
       const res = await request(global.app)
         .post('/misc/user-feedback')
@@ -31,7 +31,7 @@ describe('misc e2e', () => {
         });
 
       expect(res.status).toEqual(200);
-      expect(mailService.sendBasicEmail.getCall(0).args).toMatchSnapshot();
+      expect(mail.sendBasicEmail.getCall(0).args).toMatchSnapshot();
       expect(validateResponse(res)).toBeUndefined();
     });
   });

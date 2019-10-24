@@ -9,13 +9,15 @@ const { validator } = require('../../shared/openapi');
 const {
   TEST_CONTENT_1,
   TEST_CONTENT_2,
-  generateMongoFixture,
+  IMAGE_FIXTURE_PATH,
 } = require('../../shared/__test__/fixtures');
 const { CONTENT_TYPES } = require('../../shared/constants');
-const { resetDb } = require('../../shared/__test__/testUtils');
+const {
+  resetDb,
+  generateMongoFixture,
+} = require('../../shared/__test__/testUtils');
 const contentRepository = require('./contentRepository');
 const imageRepository = require('../images/imageRepository');
-const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 const imagesService = require('../../shared/services/images');
 
 const CONTENT_SNAPSHOT_MATCHER = {
@@ -379,7 +381,6 @@ Object {
       'post',
       '/content/{contentId}/images'
     );
-    const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 
     it('happy path - multipart', async () => {
       const content = await contentRepository.createContent(TEST_CONTENT_1);

@@ -1,0 +1,6 @@
+{
+  "yourTickets": {
+    "subject": "Your Nightguide tickets",
+    "body": "Find your tickets attached or download them <a href=\"{{ticketsUrl}}\">here</a>."
+  }
+}

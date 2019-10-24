@@ -1,7 +1,7 @@
 const Tag = require('./tagModel');
-const _ = require('lodash');
 const { NotFoundError } = require('../../shared/errors');
 const { serialize, deserialize } = require('./lib/serialization');
+const { isValidObjectId } = require('../../shared/util/mongooseUtils');
 
 async function getTags(opts = {}) {
   const { ids, slugs } = opts;
@@ -36,7 +36,7 @@ async function createTag(data) {
 
 async function updateTag(conditions, data, options = {}) {
   let where = conditions;
-  if (_.isString(conditions)) {
+  if (isValidObjectId(conditions)) {
     where = { _id: conditions };
   }
   const tag = await Tag.findOneAndUpdate(where, data, {

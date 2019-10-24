@@ -858,6 +858,38 @@ paths:
           $ref: '#/components/responses/NotFound'
         '500':
           $ref: '#/components/responses/ServerError'
+  /venues/{venueId}/generate-ticket-codes:
+    post:
+      operationId: generateVenueTicketCodes
+      tags:
+        - venues
+      parameters:
+        - in: path
+          name: venueId
+          schema:
+            type: string
+          required: true
+          description: Venue ID.
+      responses:
+        '200':
+          description: Ticket codes.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  codes:
+                    type: array
+                    items:
+                      type: string
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
   /events:
     get:
       operationId: getEvents
@@ -1781,6 +1813,11 @@ paths:
       operationId: getConfigByName
       tags: [configs]
       parameters:
+        - in: path
+          required: true
+          name: configName
+          schema:
+            type: string
         - in: query
           name: pageSlug
           schema:
@@ -2081,6 +2118,12 @@ paths:
             type: array
             items:
               type: string
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Result orders.
@@ -2197,6 +2240,79 @@ paths:
             type: string
           required: true
           description: Order ID.
+      responses:
+        '200':
+          $ref: '#/components/responses/Success'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /orders/{orderId}/metadata/{metaKey}:
+    put:
+      summary: Update order metadata.
+      operationId: updateOrderMetadata
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID.
+        - in: path
+          name: metaKey
+          schema:
+            type: string
+          required: true
+          description: Metadata key.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                value:
+                  $ref: '#/components/schemas/AnyValue'
+      responses:
+        '200':
+          description: Order metadata.
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+  /orders/{orderId}/downloads:
+    get:
+      summary: Get order downloads.
+      operationId: getOrderDownloads
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: orderId
+          schema:
+            type: string
+          required: true
+          description: Order ID.
+        - in: query
+          name: key
+          schema:
+            type: string
+          required: true
+          description: Download key
       responses:
         '200':
           $ref: '#/components/responses/Success'
@@ -2673,8 +2789,6 @@ components:
               items:
                 type: object
                 properties:
-                  eventId:
-                    type: string
                   sku:
                     type: string
                   quantity:
@@ -2687,16 +2801,8 @@ components:
                     minimum: 0
                   currency:
                     type: string
-            paymentMethod:
+            metadata:
               type: object
-              properties:
-                type:
-                  type: string
-                ideal:
-                  type: object
-                  properties:
-                    bank:
-                      type: string
     Content:
       type: object
       required:
@@ -2775,3 +2881,4 @@ components:
       required:
         - status
         - type
+    AnyValue: {}

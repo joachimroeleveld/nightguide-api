@@ -4,6 +4,7 @@ const FEEDBACK_EMAIL = 'feedback@nightguide.app';
 
 const ORDER_STATUSES = {
   ORDER_STATUS_PENDING: 'pending',
+  ORDER_STATUS_PROCESSING: 'processing',
   ORDER_STATUS_COMPLETED: 'completed',
 };
 

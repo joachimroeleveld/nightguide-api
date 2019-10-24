@@ -1,8 +1,8 @@
 const imgSize = require('image-size');
 const mimeTypes = require('mime-types');
 const request = require('request-promise-native');
-const _ = require('lodash');
 const fileType = require('file-type');
+const _ = require('lodash');
 
 const InvalidArgumentError = require('../../shared/errors/InvalidArgumentError');
 const imagesService = require('../../shared/services/images');

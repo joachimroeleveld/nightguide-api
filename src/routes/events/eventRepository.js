@@ -1,5 +1,6 @@
 const _ = require('lodash');
 
+const { isValidObjectId } = require('../../shared/util/mongooseUtils');
 const imageRepository = require('../images/imageRepository');
 const { NotFoundError } = require('../../shared/errors');
 const Event = require('./eventModel');
@@ -16,7 +17,7 @@ function createEvent(data) {
 
 async function updateEvent(conditions, data, options = {}) {
   let where = conditions;
-  if (_.isString(conditions)) {
+  if (isValidObjectId(conditions)) {
     where = { _id: conditions };
   }
   const doc = _.omit(data, ['images']);
@@ -149,7 +150,7 @@ async function getEvents(opts, withCount = false) {
 
 async function getEvent(conditions, opts = {}) {
   let where = conditions;
-  if (_.isString(conditions)) {
+  if (isValidObjectId(conditions)) {
     where = { _id: conditions };
   }
   const { populate = [] } = opts;

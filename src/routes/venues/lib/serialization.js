@@ -5,14 +5,16 @@ const imageRepository = require('../../images/imageRepository');
 const { isPopulated } = require('../../../shared/util/mongooseUtils');
 const { VENUE_CAPACITY_RANGES } = require('../../../shared/constants');
 const cityConfig = require('../../../shared/cityConfig');
+const { USER_ROLES } = require('../../../shared/constants');
 const { deserializeTag } = require('../../tags/tagRepository');
 
 /**
  * Prepare venue to be sent to client.
  * @param venue
+ * @param userRole
  * @returns {*}
  */
-function deserialize(venue) {
+function deserialize(venue, userRole) {
   if (venue.toObject) {
     venue = venue.toObject();
   } else {
@@ -53,6 +55,10 @@ function deserialize(venue) {
         venue.entranceFeeRange = getEntranceFeeRange(venue, cityConf);
       }
     }
+  }
+
+  if (userRole !== USER_ROLES.ROLE_ADMIN) {
+    delete venue.tickets;
   }
 
   return venue;

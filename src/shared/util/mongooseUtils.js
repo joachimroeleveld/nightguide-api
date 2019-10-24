@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 const _ = require('lodash');
 
+function isValidObjectId(val) {
+  return mongoose.Types.ObjectId.isValid(val);
+}
+
 function isPopulated(object) {
   let subject = Array.isArray(object) ? object[0] : object;
   return (
@@ -11,5 +15,6 @@ function isPopulated(object) {
 }
 
 module.exports = {
+  isValidObjectId,
   isPopulated,
 };

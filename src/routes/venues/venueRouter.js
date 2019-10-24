@@ -114,7 +114,7 @@ router.get(
       throw new NotFoundError('venue_not_found');
     }
 
-    res.json(venue.deserialize());
+    res.json(venue.deserialize((req.user || {}).role));
   })
 );
 
@@ -296,6 +296,22 @@ router.delete(
     );
 
     res.json({ success: true });
+  })
+);
+
+router.post(
+  '/:venueId/generate-ticket-codes',
+  adminAuth(),
+  validator.validate('post', '/venues/{venueId}/generate-ticket-codes'),
+  asyncMiddleware(async (req, res, next) => {
+    const codes = await venueRepository.generateVenueTicketCodes(
+      req.params.venueId
+    );
+    const pdfUrl = await venueRepository.generateVenueTicketCodesPdfUrl(
+      req.params.venueId
+    );
+
+    res.json({ codes, pdfUrl });
   })
 );
 

@@ -1,15 +1,3 @@
-const mongoose = require('mongoose');
-
-const { deepFreeze } = require('../../util/objects');
-
-function generateMongoFixture(base, overrides) {
-  return deepFreeze({
-    ...base,
-    _id: new mongoose.Types.ObjectId().toString(),
-    ...overrides,
-  });
-}
-
 module.exports = {
   ...require('./userFixtures'),
   ...require('./venueFixtures'),
@@ -20,5 +8,6 @@ module.exports = {
   ...require('./contentFixtures'),
   ...require('./configFixtures'),
   ...require('./orderFixtures'),
-  generateMongoFixture,
+  IMAGE_FIXTURE_PATH: 'src/shared/__test__/fixtures/media/square.jpg',
+  PDF_FIXTURE_PATH: 'src/shared/__test__/fixtures/media/blank.pdf',
 };

@@ -15,18 +15,20 @@ const {
   TEST_EVENT_2,
   TEST_TAG_1,
   TEST_TAG_2,
-  generateMongoFixture,
   TEST_FACEBOOK_EVENT_1,
   TEST_VENUE_1,
   TEST_ARTIST_1,
+  IMAGE_FIXTURE_PATH,
 } = require('../../shared/__test__/fixtures');
-const { resetDb } = require('../../shared/__test__/testUtils');
+const {
+  resetDb,
+  generateMongoFixture,
+} = require('../../shared/__test__/testUtils');
 const eventRepository = require('./eventRepository');
 const venueRepository = require('../venues/venueRepository');
 const tagRepository = require('../tags/tagRepository');
 const artistRepository = require('../artists/artistRepository');
 const imageRepository = require('../images/imageRepository');
-const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 
 const EVENT_SNAPSHOT_MATCHER = {
   id: expect.any(String),
@@ -836,7 +838,6 @@ Object {
       'post',
       '/events/{eventId}/images'
     );
-    const IMAGE_FIXTURE_PATH = 'src/shared/__test__/fixtures/images/square.jpg';
 
     it('happy path - multipart', async () => {
       const event = await eventRepository.createEvent(TEST_EVENT_1);

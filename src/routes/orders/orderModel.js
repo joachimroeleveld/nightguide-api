@@ -12,29 +12,27 @@ const OrderSchema = new Schema(
       enum: Object.values(ORDER_STATUSES),
     },
     billingDetails: {
-      email: {
-        type: String,
-        required: true,
-      },
-      name: {
-        type: String,
-        required: true,
-      },
+      email: String,
+      name: String,
       address: {
         city: String,
-        country: {
-          type: String,
-          required: true,
-        },
+        country: String,
         line1: String,
         line2: String,
         postalCode: String,
         state: String,
       },
     },
+    amount: {
+      type: Number,
+      required: true,
+    },
+    currency: {
+      type: String,
+      required: true,
+    },
     items: [
       {
-        eventId: String,
         sku: {
           type: String,
           required: true,
@@ -47,26 +45,23 @@ const OrderSchema = new Schema(
           type: Number,
           required: true,
         },
-        currency: {
-          type: String,
-          required: true,
-        },
       },
     ],
-    paymentMethod: {
-      type: {
-        type: String,
-        required: true,
-      },
-      ideal: {
-        bank: String,
-      },
+    downloads: {
+      key: String,
+    },
+    metadata: {
+      type: Object,
+      default: {},
     },
   },
   {
     timestamps: true,
   }
 );
+
+OrderSchema.index({ createdAt: -1 });
+OrderSchema.index({ status: 1 });
 
 OrderSchema.method('deserialize', function() {
   return deserialize(this);
