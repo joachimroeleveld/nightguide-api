@@ -8,6 +8,7 @@
   },
   "scripts": {
     "lint": "eslint ./src",
+    "preinstall": "npx npm-force-resolutions",
     "prettier": "prettier --write \"{{src,scripts}/**/*.js\"}",
     "test-unit": "jest --config jest.unit.config.js",
     "test-e2e": "jest --runInBand --config jest.e2e.config.js",
@@ -78,6 +79,9 @@
     "hooks": {
       "pre-commit": "lint-staged"
     }
+  },
+  "resolutions": {
+    "fast-text-encoding": "github:mfellner/fast-text-encoding#e8c639f7ba6e90ab25365f1cbb849ec28c76b653"
   },
   "lint-staged": {
     "src/**/*.{js,json,css,md}": [
