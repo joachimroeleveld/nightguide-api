@@ -9,7 +9,7 @@ steps:
       make env-decrypt env=${_ENV}
       cp env.${_ENV} .env
 
-  # Install dependencies
+  # Install dependencies (unsafe flag is needed to run npx)
 - name: 'gcr.io/cloud-builders/npm'
   args: ['install', '--unsafe-perm']
 

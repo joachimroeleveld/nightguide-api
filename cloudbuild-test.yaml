@@ -8,7 +8,7 @@ steps:
         make secret-decrypt env=${_ENV}
         cat .config/secret/${_ENV}/secret.env .config/${_ENV}.env > .env
 
-    # Install dependencies
+  # Install dependencies (unsafe flag is needed to run npx)
   - name: 'gcr.io/cloud-builders/npm'
     args: ['install', '--unsafe-perm']
 
