@@ -10,7 +10,7 @@ steps:
 
     # Install dependencies
   - name: 'gcr.io/cloud-builders/npm'
-    args: ['install']
+    args: ['install', '--unsafe-perm']
 
   # Add Cloudbuild network config to docker-compose file and override Mongo connection URI
   - name: 'gcr.io/cloud-builders/docker'

@@ -11,7 +11,7 @@ steps:
 
   # Install dependencies
 - name: 'gcr.io/cloud-builders/npm'
-  args: ['install']
+  args: ['install', '--unsafe-perm']
 
   # Add Cloudbuild network config for compose
 - name: 'gcr.io/cloud-builders/gcloud'
