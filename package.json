@@ -81,7 +81,7 @@
     }
   },
   "resolutions": {
-    "fast-text-encoding": "github:mfellner/fast-text-encoding#e8c639f7ba6e90ab25365f1cbb849ec28c76b653"
+    "google-auth-library": "5.5.1"
   },
   "lint-staged": {
     "src/**/*.{js,json,css,md}": [
