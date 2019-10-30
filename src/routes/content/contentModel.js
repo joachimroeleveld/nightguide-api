@@ -25,6 +25,7 @@ const ContentSchema = new Schema(
   }
 );
 
+ContentSchema.index({ createdAt: -1 });
 ContentSchema.index({ urlSlugs: 1 });
 
 ContentSchema.virtual('urlSlug').get(function() {

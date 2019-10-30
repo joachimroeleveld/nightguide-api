@@ -1,6 +1,7 @@
 const { Router } = require('express');
 const multer = require('multer');
 
+const { deserializeSort } = require('../../shared/util/expressUtils');
 const { adminAuth } = require('../../shared/auth');
 const { asyncMiddleware } = require('../../shared/util/expressUtils');
 const { validator, coerce } = require('../../shared/openapi');
@@ -29,6 +30,7 @@ router.get(
         query: req.query.query,
         ids: req.query.ids,
         pageSlug: req.query.pageSlug,
+        sortBy: deserializeSort(req.query.sortBy),
       },
       true
     );

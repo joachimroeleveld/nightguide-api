@@ -631,6 +631,7 @@ Object {
         tickets: {
           checkoutUrl: 'https://nightguide.app',
           provider: 'eventix',
+          displayPrice: 10.5,
           providerData: {
             shopId: 'foo',
           },

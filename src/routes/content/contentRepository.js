@@ -6,7 +6,7 @@ const { match } = require('./lib/aggregation');
 const imageRepository = require('../images/imageRepository');
 
 async function getContent(opts, withCount = false) {
-  const { offset, limit, populate = [], fields, ...filters } = opts;
+  const { offset, limit, sortBy, populate = [], fields, ...filters } = opts;
 
   const createAgg = () => {
     const agg = Content.aggregate();
@@ -24,7 +24,7 @@ async function getContent(opts, withCount = false) {
 
   const agg = createAgg();
 
-  agg.sort({ name: 1 });
+  agg.sort({ createdAt: -1 });
 
   if (offset) {
     agg.append({

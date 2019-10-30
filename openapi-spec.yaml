@@ -2713,6 +2713,9 @@ components:
               type: string
             providerData:
               type: object
+            displayPrice:
+              type: number
+              format: float
             products:
               type: array
               items:
