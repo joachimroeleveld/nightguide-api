@@ -68,8 +68,8 @@ Object {
     });
 
     it('should limit the amount of results to the limit parameter', async () => {
-      const content1 = await contentRepository.createContent(TEST_CONTENT_1);
-      await contentRepository.createContent(TEST_CONTENT_2);
+      await contentRepository.createContent(TEST_CONTENT_1);
+      const content2 = await contentRepository.createContent(TEST_CONTENT_2);
 
       const res = await request(global.app)
         .get(`/content`)
@@ -80,13 +80,13 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toEqual(1);
       expect(res.body.limit).toEqual(1);
-      expect(res.body.results[0].id).toEqual(content1._id.toString());
+      expect(res.body.results[0].id).toEqual(content2._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 
     it('should skip items set in offset parameter', async () => {
-      await contentRepository.createContent(TEST_CONTENT_1);
-      const content2 = await contentRepository.createContent(TEST_CONTENT_2);
+      const content1 = await contentRepository.createContent(TEST_CONTENT_1);
+      await contentRepository.createContent(TEST_CONTENT_2);
 
       const res = await request(global.app)
         .get(`/content`)
@@ -97,7 +97,7 @@ Object {
       expect(res.status).toEqual(200);
       expect(res.body.results.length).toEqual(1);
       expect(res.body.offset).toEqual(1);
-      expect(res.body.results[0].id).toEqual(content2._id.toString());
+      expect(res.body.results[0].id).toEqual(content1._id.toString());
       expect(validateResponse(res)).toBeUndefined();
     });
 
