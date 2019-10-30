@@ -2716,6 +2716,7 @@ components:
             displayPrice:
               type: number
               format: float
+              nullable: true
             products:
               type: array
               items:
