@@ -635,6 +635,7 @@ Object {
           providerData: {
             shopId: 'foo',
           },
+          soldOut: true,
         },
       });
 

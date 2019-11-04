@@ -124,6 +124,7 @@ Object {
     "providerData": Object {
       "shopId": "foo",
     },
+    "soldOut": true,
   },
   "updatedAt": Any<String>,
   "videoUrl": "https://www.youtube.com/watch?v=dTYOkcRH220",

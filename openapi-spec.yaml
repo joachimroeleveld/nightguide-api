@@ -2717,6 +2717,8 @@ components:
               type: number
               format: float
               nullable: true
+            soldOut:
+              type: boolean
             products:
               type: array
               items:
