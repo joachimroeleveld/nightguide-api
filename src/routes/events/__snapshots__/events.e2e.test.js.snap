@@ -119,6 +119,7 @@ Object {
   "tickets": Object {
     "checkoutUrl": "https://nightguide.app",
     "displayPrice": 10.5,
+    "doorSale": true,
     "products": Array [],
     "provider": "eventix",
     "providerData": Object {

@@ -2719,6 +2719,8 @@ components:
               nullable: true
             soldOut:
               type: boolean
+            doorSale:
+              type: boolean
             products:
               type: array
               items:

@@ -88,6 +88,7 @@ const EventSchema = new Schema(
       providerData: Object,
       displayPrice: Number,
       soldOut: Boolean,
+      doorSale: Boolean,
     },
     admin: {
       hide: Boolean,
