@@ -2721,6 +2721,8 @@ components:
               type: boolean
             doorSale:
               type: boolean
+            free:
+              type: boolean
             products:
               type: array
               items:

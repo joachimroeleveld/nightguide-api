@@ -636,6 +636,7 @@ Object {
             shopId: 'foo',
           },
           soldOut: true,
+          free: true,
           doorSale: true,
         },
       });
