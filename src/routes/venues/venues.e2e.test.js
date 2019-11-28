@@ -893,6 +893,13 @@ Object {
         admin: {
           hide: true,
         },
+        tickets: {
+          qrCode: {
+            version: '1',
+            text: 'foobar',
+          },
+          guestListReference: 'NightGuide',
+        },
       });
 
       const res = await request(global.app)

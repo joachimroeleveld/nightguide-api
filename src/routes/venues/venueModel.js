@@ -133,6 +133,11 @@ const VenueSchema = new Schema(
     tickets: {
       codes: [String],
       pdfUrl: String,
+      qrCode: {
+        version: String,
+        text: String,
+      },
+      guestListReference: String,
     },
     admin: {
       hide: Boolean,

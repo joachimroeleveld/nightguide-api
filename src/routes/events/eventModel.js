@@ -90,6 +90,10 @@ const EventSchema = new Schema(
       soldOut: Boolean,
       doorSale: Boolean,
       free: Boolean,
+      qrCode: Boolean,
+      qrCodeInfo: translatedSchema,
+      guestList: Boolean,
+      guestListInfo: translatedSchema,
     },
     admin: {
       hide: Boolean,

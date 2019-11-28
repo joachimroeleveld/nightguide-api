@@ -2552,6 +2552,24 @@ components:
           properties:
             hide:
               type: boolean
+        tickets:
+          type: object
+          properties:
+            codes:
+              type: array
+              items:
+                type: string
+            pdfUrl:
+              type: string
+            qrCode:
+              type: object
+              properties:
+                version:
+                  type: string
+                text:
+                  type: string
+            guestListReference:
+              type: string
     VenueFacilities:
       type: string
       enum:

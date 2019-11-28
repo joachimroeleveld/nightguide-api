@@ -211,6 +211,13 @@ Object {
   ],
   "phoneNumber": "+31623676279",
   "tags": Array [],
+  "tickets": Object {
+    "guestListReference": "NightGuide",
+    "qrCode": Object {
+      "text": "foobar",
+      "version": "1",
+    },
+  },
   "timeSchedule": Object {
     "bitesUntil": Object {
       "fri": null,

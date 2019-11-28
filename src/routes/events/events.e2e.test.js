@@ -638,6 +638,14 @@ Object {
           soldOut: true,
           free: true,
           doorSale: true,
+          qrCode: true,
+          qrCodeInfo: {
+            en: 'Lorum ipsum',
+          },
+          guestList: true,
+          guestListInfo: {
+            en: 'Lorum ipsum',
+          },
         },
       });
 

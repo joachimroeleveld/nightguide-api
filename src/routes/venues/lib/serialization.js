@@ -58,7 +58,10 @@ function deserialize(venue, userRole) {
   }
 
   if (userRole !== USER_ROLES.ROLE_ADMIN) {
-    delete venue.tickets;
+    if (venue.tickets) {
+      delete venue.tickets.codes;
+      delete venue.tickets.pdfUrl;
+    }
   }
 
   return venue;
