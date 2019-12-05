@@ -845,6 +845,29 @@ Object {
     });
   });
 
+  describe('DELETE /events', () => {
+    const validateResponse = validator.validateResponse('delete', '/events');
+
+    it('happy path', async () => {
+      const event1 = await eventRepository.createEvent(TEST_EVENT_1);
+      const event2 = await eventRepository.createEvent(TEST_EVENT_2);
+      const event3 = await eventRepository.createEvent(TEST_FACEBOOK_EVENT_1);
+
+      const res = await request(global.app)
+        .delete(`/events`)
+        .query({
+          ids: [event1._id.toString(), event2._id.toString()],
+        });
+
+      let events = await eventRepository.getEvents();
+
+      expect(events.length).toBe(1);
+      expect(events[0]._id.toString()).toEqual(event3._id.toString());
+      expect(res.status).toEqual(200);
+      expect(validateResponse(res)).toBeUndefined();
+    });
+  });
+
   describe('POST /events/:eventId/images', () => {
     const validateResponse = validator.validateResponse(
       'post',

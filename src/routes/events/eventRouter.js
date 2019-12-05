@@ -76,6 +76,26 @@ router.get(
   })
 );
 
+router.delete(
+  '/',
+  adminAuth(),
+  validator.validate('delete', '/events'),
+  asyncMiddleware(async (req, res, next) => {
+    for (const eventId of req.query.ids) {
+      const event = await eventRepository.getEvent(eventId);
+      if (!event) {
+        throw new NotFoundError('event_not_found');
+      }
+      for (const imageId of event.images) {
+        await eventRepository.deleteEventImageById(event._id, imageId);
+      }
+      await eventRepository.deleteEvent(eventId);
+    }
+
+    res.json({ success: true });
+  })
+);
+
 router.post(
   '/',
   adminAuth(),

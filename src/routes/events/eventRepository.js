@@ -34,7 +34,7 @@ async function updateEvent(conditions, data, options = {}) {
   return event;
 }
 
-async function getEvents(opts, withCount = false) {
+async function getEvents(opts = {}, withCount = false) {
   const { fields, offset, limit, sortBy, populate = [], ...filters } = opts;
 
   const createAgg = () => {

@@ -28,6 +28,7 @@ Object {
   "pageSlug": "nl/utrecht",
   "paymentMethods": Array [],
   "tags": Array [],
+  "tickets": Object {},
   "updatedAt": Any<String>,
   "visitorTypes": Array [],
 }
@@ -65,6 +66,7 @@ Object {
   "pageSlug": "nl/utrecht",
   "paymentMethods": Array [],
   "tags": Array [],
+  "tickets": Object {},
   "updatedAt": Any<String>,
   "visitorTypes": Array [],
 }
@@ -93,6 +95,7 @@ Object {
   "pageSlug": "nl/utrecht",
   "paymentMethods": Array [],
   "tags": Array [],
+  "tickets": Object {},
   "updatedAt": Any<String>,
   "visitorTypes": Array [],
 }
@@ -122,6 +125,7 @@ Object {
   "pageSlug": "nl/utrecht",
   "paymentMethods": Array [],
   "tags": Array [],
+  "tickets": Object {},
   "updatedAt": Any<String>,
   "visitorTypes": Array [],
 }
@@ -153,6 +157,7 @@ Object {
     "coke": 2,
   },
   "tags": Array [],
+  "tickets": Object {},
   "updatedAt": Any<String>,
   "visitorTypes": Array [],
 }

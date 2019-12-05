@@ -120,10 +120,19 @@ Object {
     "checkoutUrl": "https://nightguide.app",
     "displayPrice": 10.5,
     "doorSale": true,
+    "free": true,
+    "guestList": true,
+    "guestListInfo": Object {
+      "en": "Lorum ipsum",
+    },
     "products": Array [],
     "provider": "eventix",
     "providerData": Object {
       "shopId": "foo",
+    },
+    "qrCode": true,
+    "qrCodeInfo": Object {
+      "en": "Lorum ipsum",
     },
     "soldOut": true,
   },
