@@ -2454,10 +2454,8 @@ components:
               properties:
                 latitude:
                   type: number
-                  format: float
                 longitude:
                   type: number
-                  format: float
             googlePlaceId:
               type: string
         website:
@@ -2701,10 +2699,8 @@ components:
               properties:
                 latitude:
                   type: number
-                  format: float
                 longitude:
                   type: number
-                  format: float
         images:
           type: array
           items:
