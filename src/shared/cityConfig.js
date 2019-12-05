@@ -16,6 +16,10 @@ const config = {
     timezone: 'Europe/Madrid',
     currency: 'EUR',
   },
+  'es/madrid': {
+    timezone: 'Europe/Madrid',
+    currency: 'EUR',
+  },
 };
 
 module.exports = config;
