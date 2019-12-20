@@ -3,7 +3,12 @@ const request = require('request-promise-native');
 const config = require('../config');
 const storage = require('../services/storage');
 
-const SUPPORTED_MIME_TYPES = ['image/png', 'image/jpg', 'image/jpeg'];
+const SUPPORTED_MIME_TYPES = [
+  'image/png',
+  'image/jpg',
+  'image/jpeg',
+  'image/gif',
+];
 const BASE_URL = config.get('IMAGES_SERVICE_URL');
 const TOKEN = config.get('IMAGES_SERVICE_TOKEN');
 const BUCKET = config.get('BUCKET_IMAGES');
